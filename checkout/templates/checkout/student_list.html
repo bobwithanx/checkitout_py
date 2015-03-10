@@ -1,10 +1,20 @@
 {% extends 'checkout/base.html' %}
 
 {% block content %}
+
+<ol class="breadcrumb">
+  <li class="active">Home</li>
+</ol>
+
 <h2>Student List</h2>
+<div class="row">
+  <div class="col-md-4">
+<div class="list-group">
 	{% for student in students %}
     <div class="student">
-        <h4><a href="{% url 'checkout.views.student_detail' pk=student.pk %}">{{ student.first_name }} {{ student.last_name }}</a></h4>
+        <a class="list-group-item" href="{% url 'checkout.views.student_detail' pk=student.pk %}">{{ student.full_name }} <span class="badge">{{ student.inventory_count }}</span></a>
     </div>
 	{% endfor %}
+</div></div>
+</div>
 {% endblock content %}

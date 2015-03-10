@@ -29,10 +29,11 @@ class Item(models.Model):
 		self.save()
 
 	def __str__(self):
-	    if self.assigned_to <> None: 
-		return ' '.join([self.brand.name, self.model, 'is checked out to', self.assigned_to.first_name, self.assigned_to.last_name])
-	    else:
-		return ' '.join([self.brand.name, self.model, 'is available'])
+	    #if self.assigned_to <> None: 
+		#return ' '.join([self.brand.name, self.model, 'is checked out to', self.assigned_to.first_name, self.assigned_to.last_name])
+	    #else:
+		#return ' '.join([self.brand.name, self.model, 'is available'])
+		return ' '.join([self.brand.name, self.model])
 
 class Category(models.Model):
 	name = models.CharField(max_length=255)
@@ -49,5 +50,15 @@ class Student(models.Model):
 	last_name = models.CharField(max_length=255)
 	id_number = models.CharField(max_length=255)
 
+	def _get_inventory_count(self):
+		"Returns a count of all items assigned to the person."
+		return Transaction.objects.filter(in_time__isnull=True).filter(student=self).count()
+	inventory_count = property(_get_inventory_count)
+
+	def _get_full_name(self):
+		"Returns the person's full name."
+		return '%s %s' % (self.first_name, self.last_name)
+	full_name = property(_get_full_name)
+
 	def __str__(self):
-		return ' '.join([self.first_name, self.last_name])
+		return self.full_name

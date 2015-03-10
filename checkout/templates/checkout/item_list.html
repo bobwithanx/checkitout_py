@@ -1,13 +1,41 @@
 {% extends 'checkout/base.html' %}
 
 {% block content %}
-<h2>Available Items</h2>
-	{% for item in items %}
-    <div class="item">
-        <h4><a href="{% url 'checkout.views.item_checkout' s=student.pk i=item.pk %}">{{ item.brand.name}} {{ item.model }}</a></h4>
-    </div>
-	{% endfor %}
 
-    <p><a href="{% url 'checkout.views.student_detail' pk=student.pk %}">Return to list.</a></p>
+<ol class="breadcrumb">
+  <li><a href="{% url 'checkout.views.student_list' %}">Home</a></li>
+  <li><a href="{% url 'checkout.views.student_detail' pk=student.pk %}">{{ student.full_name }}</a></li>
+  <li class="active">Check Out</li>
+</ol>
+
+<h2>{{ student.full_name }}</h2>
+<div class="row">
+<div class="col-md-12" role="main">
+
+<div class="panel panel-default">
+<div class="panel-heading">
+<h3 class="panel-title">Available Items</h3>
+</div>
+   <table class="table table-hover">
+      <tr>
+	 <th>Item</th>
+	 <th>Serial Number</th>
+	 <th>Action</th>
+      </tr>
+   {% for item in items %}
+	<tr>
+	<td>{{ item.brand.name }} {{ item.model }}</td>
+	<td>{{ item.serial }}
+        <td><a href="{% url 'checkout.views.item_checkout' s=student.pk i=item.pk %}">Check Out</a></td>
+	</tr>
+    {% endfor %}
+  </table>
+</div>
+</div>
+</div>
+
+        <p><a href="{% url 'checkout.views.student_detail' pk=student.pk %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>Back</a></p>
+</div>
+</div>
 
 {% endblock content %}
