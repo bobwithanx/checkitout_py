@@ -1,0 +1,20 @@
+{% extends 'checkout/base.html' %}
+
+{% block content %}
+    <h1>{{ student.first_name }} {{ student.last_name }}</h1>
+    <h3>Current Inventory <small><a href="{% url 'checkout.views.list_available_items' pk=student.pk %}">Add Item</a></small></h3>
+    <ul>
+    <div class="transactions">
+	{% for transaction in transactions %}
+        <li>
+	<div>{{ transaction.item.brand.name }} {{ transaction.item.model }}
+        <a href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}">Check In</a></div>
+        <small>checked out {{ transaction.out_time }}</small>
+        </li>
+	{% endfor %}
+    </div>
+    </ul>
+
+        <p><a href="{% url 'checkout.views.student_list' %}">Return to list.</a></p>
+
+{% endblock content %}

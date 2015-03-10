@@ -1,0 +1,10 @@
+{% extends 'checkout/base.html' %}
+
+{% block content %}
+<h2>Student List</h2>
+	{% for student in students %}
+    <div class="student">
+        <h4><a href="{% url 'checkout.views.student_detail' pk=student.pk %}">{{ student.first_name }} {{ student.last_name }}</a></h4>
+    </div>
+	{% endfor %}
+{% endblock content %}
