@@ -1,20 +1,96 @@
 {% extends 'checkout/base.html' %}
 
 {% block content %}
+ 
+<script type="text/javascript">
+$(function () {
+    $( '#students' ).searchable({
+        striped: true,
+        oddRow: { 'background-color': '#f5f5f5' },
+        evenRow: { 'background-color': '#fff' },
+        searchType: 'fuzzy'
+    });
+    
+    $( '#searchable-container' ).searchable({
+        searchField: '#container-search',
+        selector: '.row',
+        childSelector: '.col-xs-4',
+        show: function( elem ) {
+            elem.slideDown(100);
+        },
+        hide: function( elem ) {
+            elem.slideUp( 100 );
+        }
+    })
+});
+</script>
 
-<ol class="breadcrumb">
-  <li class="active">Home</li>
-</ol>
+<style>
+.row-padding {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+</style>
 
-<h2>Student List</h2>
+<div class="container-fluid">
 <div class="row">
-  <div class="col-md-4">
-<div class="list-group">
-	{% for student in students %}
-    <div class="student">
-        <a class="list-group-item" href="{% url 'checkout.views.student_detail' pk=student.pk %}">{{ student.full_name }} <span class="badge">{{ student.inventory_count }}</span></a>
+  <div class="col-sm-3 col-md-2 sidebar">
+    <ul class="nav nav-sidebar">
+      <li><a href="/"><i class="fa fa-tachometer fa-fw"></i> Dashboard</a></li>
+      <li class="active"><a href="{% url 'checkout.views.student_list' %}"><i class="fa fa-users fa-fw"></i> Students</a></li>
+      <li><a href="{% url 'checkout.views.list_categories' %}"><i class="fa fa-camera fa-fw"></i> Equipment</a></li>
+      <li><a href="#">Reports</a></li>
+      <li><a href="#">Analytics</a></li>
+      <li><a href="#">Export</a></li>
+    </ul>
+  </div>
+
+  <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">Students</h1>
+    <div class="row">
+        <div class="col-lg-4 col-lg-offset-4">
+	  <form action="{% url 'checkout.views.student_list' %}" method="get">
+            <input autofocus="true" type="search" id="search" value="" class="form-control" placeholder="Search">
+	  </form>
+        </div>
     </div>
-	{% endfor %}
-</div></div>
+          <div class="table-responsive">
+            <table id="students" class="table table-striped">
+<thead>
+      <tr>
+      <th>Name</th>
+      <th>ID #</th>
+      <th>Course</th>
+      <th>Inventory</th>
+      <th>Last Checkout</th>
+    </tr>
+</thead>
+    {% for student in students %}
+        {% if student.course.pk = 1 %}
+          <tr> 
+            <td>
+                <a href="{% url 'checkout.views.student_detail' pk=student.pk %}">
+                {{ student.full_name }}
+                </a>
+            </td>
+            <td>
+              {{ student.id_number }}
+            </td>
+            <td>
+              {{ student.course.name }}
+            </td>
+            <td>
+                {% if student.inventory_count > 0 %}
+                <span class="badge badge-info">{{ student.inventory_count }}</span>
+                {% endif %}
+            </td>
+            <td></td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+     </table>
+</div>
+</div>
+</div>
 </div>
 {% endblock content %}

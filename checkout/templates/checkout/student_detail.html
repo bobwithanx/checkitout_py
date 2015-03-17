@@ -2,41 +2,54 @@
 
 {% block content %}
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'checkout.views.student_list' %}">Home</a></li>
-  <li class="active">{{ student.full_name }}</li>
-</ol>
+<script type="text/javascript">
+$(document).ready(function() {
+  $('.active-link').toggle();
+}
+)
 
-<h2>{{ student.full_name }}
-</h2>
+function toggleDiv() {
+   $('.action-link').toggleClass('disabled');
+}
+</script>
+
+<h3>{{ student.full_name }} <small>{{ student.id_number }}</small></h3>
+<a href="{% url 'checkout.views.student_list' %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>{{ student.course.name }} </a>
+
 <div class="row">
 <div class="col-md-12" role="main">
 
+      <div id="message"></div>
 <div class="panel panel-default">
 <div class="panel-heading">
-<h3 class="panel-title">Current Inventory</h3>
+<div class="panel-title">Current Inventory
 </div>
-   <table class="table table-hover">
+<small>
+<a id='toggle_button' href="javascript:toggleDiv();" role="button">Manage</a>
+</small>
+</div>
+   <table class="table table-bordered">
       <tr>
 	 <th>Item</th>
 	 <th>Serial Number</th>
+	 <th>Category</th>
 	 <th>Checkout Time</th>
-	 <th>Action</th>
       </tr>
    {% for transaction in transactions %}
-	<tr>
-	<td>{{ transaction.item.brand.name }} {{ transaction.item.model }}</td>
-	<td>{{ transaction.item.serial }}
-	<td>{{ transaction.out_time }}
-        <td><a href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}">Check In</a></td>
+	<tr> 
+	<td>
+<a class="action-link btn btn-default btn-xs disabled" role="button" href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}">Check In</a>
+{{ transaction.item.brand.name }} {{ transaction.item.model }}</td>
+	<td>{{ transaction.item.serial }}</td>
+	<td>{{ transaction.item.category.name }}</td>
+	<td>{{ transaction.out_time }}</td>
 	</tr>
     {% endfor %}
-<tr><td colspan=4 align="center"><a href="{% url 'checkout.views.list_available_items' pk=student.pk %}"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add Item</a></td></tr>
+<tr><td colspan=4 align=center ><a href="{% url 'checkout.views.category_list' pk=student.pk %}"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add Item</a></td></tr>
   </table>
 </div>
 </div>
 </div>
-        <p><a href="{% url 'checkout.views.student_list' %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>Back</a></p>
 </div>
 </div>
 
