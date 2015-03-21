@@ -2,25 +2,11 @@
 
 {% block content %}
 
-<style>
-  .panel-green {
-    border-color: #5cb85c;
-  }
-  .panel-green .panel-heading {
-    border-color: #5cb85c;
-    color: #fff;
-    background-color: #5cb85c;
-  }
-  .panel-green a {
-    color: #5cb85c;
-  }
-</style>
-
 <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
         <li class="active"><a href="/"><i class="fa fa-tachometer fa-fw"></i> Dashboard</a></li>
-        <li><a href="{% url 'checkout.views.student_list' %}"><i class="fa fa-users fa-fw"></i> Students</a></li>
+        <li><a href="{% url 'checkout.views.person_list' %}"><i class="fa fa-users fa-fw"></i> Students</a></li>
         <li><a href="{% url 'checkout.views.list_categories' %}"><i class="fa fa-camera fa-fw"></i> Equipment</a></li>
             <li><a href="#">Reports</a></li>
             <li><a href="#">Analytics</a></li>
@@ -41,11 +27,11 @@
 	    </div>
 	    <div class="col-xs-9 text-right">
     	
-	      <div class="h2">{{ open_transactions.count }}</div>
+	      <div class="h2">{{ active_people|length }}</div>
 	    </div>
 	  </div>
   </div>
-<a href="{% url 'checkout.views.student_list' %}">
+<a href="{% url 'checkout.views.person_list' %}">
 <div class="panel-footer">
 <span class="pull-left">All Students</span>
 <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -62,7 +48,7 @@
               <i class="fa fa-camera fa-5x"></i>
 	    </div>
 	    <div class="col-xs-9 text-right">
-	      <div class="h2">{{ items.count }}</div>
+	      <div class="h2">{{ active_items|length }}</div>
 	    </div>
 	  </div>
   </div>
@@ -89,19 +75,19 @@
       <th>Last Checkout</th>
     </tr>
     </thead>
-    {% for student in students %}
+    {% for person in active_people %}
           <tr> 
             <td>
-               <a href="{% url 'checkout.views.student_detail' pk=student.pk %}">
-                {{ student.full_name }}
+               <a href="{% url 'checkout.views.person_detail' pk=person.pk %}">
+                {{ person.full_name }}
                 </a>
             </td>
             <td>
-                <span class="badge badge-info">{{ student.inventory_count }}</span>
+                <span class="badge badge-info">{{ person.get_inventory|length }}</span>
             </td>
             <td>
-		{% for item in student.inventory %}
-		{{ item }}<br/>
+		{% for transaction in person.get_inventory %}
+		{{ transaction.item }}<br/>
 		{% endfor %}
             </td>
             <td></td>

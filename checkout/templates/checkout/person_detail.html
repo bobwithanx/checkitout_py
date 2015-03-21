@@ -13,8 +13,8 @@ function toggleDiv() {
 }
 </script>
 
-<h3>{{ student.full_name }} <small>{{ student.id_number }}</small></h3>
-<a href="{% url 'checkout.views.student_list' %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>{{ student.course.name }} </a>
+<h3>{{ person.full_name }} <small>{{ person.id_number }}</small></h3>
+<a href="{% url 'checkout.views.person_list' %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>{{ person.group.name }} </a>
 
 <div class="row">
 <div class="col-md-12" role="main">
@@ -35,17 +35,17 @@ function toggleDiv() {
 	 <th>Category</th>
 	 <th>Checkout Time</th>
       </tr>
-   {% for transaction in transactions %}
+   {% for transaction in inventory %}
 	<tr> 
 	<td>
 <a class="action-link btn btn-default btn-xs disabled" role="button" href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}">Check In</a>
 {{ transaction.item.brand.name }} {{ transaction.item.model }}</td>
 	<td>{{ transaction.item.serial }}</td>
 	<td>{{ transaction.item.category.name }}</td>
-	<td>{{ transaction.out_time }}</td>
+	<td>{{ transaction.time_out }}</td>
 	</tr>
     {% endfor %}
-<tr><td colspan=4 align=center ><a href="{% url 'checkout.views.category_list' pk=student.pk %}"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add Item</a></td></tr>
+<tr><td colspan=4 align=center ><a href="{% url 'checkout.views.category_list' pk=person.pk %}"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add Item</a></td></tr>
   </table>
 </div>
 </div>

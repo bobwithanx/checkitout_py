@@ -3,14 +3,14 @@
 {% block content %}
 
 <ol class="breadcrumb">
-  <li><a href="{% url 'checkout.views.student_list' %}">Home</a></li>
-  <li><a href="{% url 'checkout.views.student_detail' pk=student.pk %}">{{ student.full_name }}</a></li>
+  <li><a href="{% url 'checkout.views.person_list' %}">Home</a></li>
+  <li><a href="{% url 'checkout.views.person_detail' pk=person.pk %}">{{ person.full_name }}</a></li>
   <li>Check Out</li>
   <li class="active">{{ category.name }}</li>
 </ol>
 
 <h2>{{ category.name }}</h2>
-        <p><a href="{% url 'checkout.views.category_list' pk=student.pk %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>Back</a></p>
+        <p><a href="{% url 'checkout.views.category_list' pk=person.pk %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>Back</a></p>
 <div class="row">
 <div class="col-md-12" role="main">
 
@@ -28,7 +28,7 @@
 	<tr>
 	<td>{{ item.brand.name }} {{ item.model }}</td>
 	<td>{{ item.serial }}
-        <td><a href="{% url 'checkout.views.item_checkout' s=student.pk c=item.category.pk i=item.pk %}">Check Out</a></td>
+        <td><a href="{% url 'checkout.views.item_checkout' s=person.pk c=item.category.pk i=item.pk %}">Check Out</a></td>
 	</tr>
     {% endfor %}
   </table>

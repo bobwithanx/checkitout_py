@@ -1,14 +1,15 @@
 from django.db import models
+from django.db.models import F
 from django.utils import timezone
 
 class ActiveTransactions(models.Manager):
     def get_queryset(self):
-        return super(ActiveTransactions, self).get_queryset().filter(in_time__isnull=True)
+        return super(ActiveTransactions, self).get_queryset().filter(time_in__isnull=True)
 
 
 class ActivePeople(models.Manager):
     def get_queryset(self):
-        return super(ActivePeople, self).get_queryset().filter(in_time__isnull=True).order_by('person').distinct()
+        return super(ActivePeople, self).get_queryset().filter(transaction__time_in__isnull=True).filter(transaction__person=F('id')).order_by('id').distinct()
 
 
 class Transaction(models.Model):
@@ -18,13 +19,12 @@ class Transaction(models.Model):
     
     person = models.ForeignKey('Person')
     item = models.ForeignKey('Item')
-    out_time = models.DateTimeField(blank=True, null=True)
-    in_time = models.DateTimeField(blank=True, null=True)
+    time_requested = models.DateTimeField(blank=True, null=True)
+    time_out = models.DateTimeField(blank=True, null=True)
+    time_in = models.DateTimeField(blank=True, null=True)
 
     objects = models.Manager()
     active_objects = ActiveTransactions()
-    active_people = ActivePeople()
-    with_inventory = active_people
 
     def is_reserved(self):
         return self.status() == self.status_reserved
@@ -36,19 +36,19 @@ class Transaction(models.Model):
         return self.status() == self.status_returned
         
     def get_status(self):
-        if self.out_time == None:
+        if self.time_out == None:
             return self.status_reserved
-        elif self.in_time == None:
+        elif self.time_in == None:
             return self.status_assigned
         else:
             return self.status_returned
 
-    def checkout(self):
-        self.out_time = timezone.now()
+    def check_out(self):
+        self.time_out = timezone.now()
         self.save()
 
-    def checkin(self):
-        self.in_time = timezone.now()
+    def check_in(self):
+        self.time_in = timezone.now()
         self.item.assign(None)
         self.save()
 
@@ -56,24 +56,24 @@ class Transaction(models.Model):
         self.delete()
     
 
-    def __init__(self, person, item):
-        if item.is_available():
-            self.person = person
-            self.item = item
-            self.item.set_transaction(self)
+#     def __init__(self, person, item):
+#         if item.is_available():
+#             self.person = person
+#             self.item = item
+#             self.item.set_transaction(self)
 
     def __str__(self):
-        text = ' '.join([self.item.brand.name, self.item.model, self.get_status(), str(self.out_time), ' -> ', str(self.in_time), '(', self.person.full_name, ')'])
+        text = ' '.join([self.item.brand.name, self.item.model, self.get_status(), str(self.time_out), ' -> ', str(self.time_in), '(', self.person.full_name, ')'])
         encoded = text.encode("utf-8")
         return encoded
 
-class ItemsAssigned(models.Manager):
+class ItemsActive(models.Manager):
     def get_queryset(self):
-        return super(ItemsAssigned, self).get_queryset().filter(current_transaction__isnull=False)
+        return super(ItemsActive, self).get_queryset().filter(transaction__time_in__isnull=True).filter(transaction__item=F('id')).order_by('id').distinct()
 
 class ItemsAvailable(models.Manager):
     def get_queryset(self):
-        return super(ItemsAvailable, self).get_queryset().filter(current_transaction__isnull=True)
+        return super(ItemsAvailable, self).get_queryset().filter(transaction__time_in__isnull=False).order_by('id').distinct()
 
 class Item(models.Model):
     category = models.ForeignKey('Category')
@@ -81,18 +81,18 @@ class Item(models.Model):
     model = models.CharField(max_length=255)
     serial = models.CharField(max_length=255, blank=True, null=True)
     description = models.CharField(max_length=255, blank=True, null=True)
-    current_transaction = models.ForeignKey('Transaction', blank=True, null=True)
+    current_activity = models.ForeignKey('Transaction', blank=True, null=True, related_name="current_activity")
 
     objects = models.Manager()
     available_items = ItemsAvailable()
-    assigned_items = ItemsAssigned()
+    active_items = ItemsActive()
 
     def update_transaction(self, transaction=None):
-        self.current_transaction = transaction
+        self.current_activity = transaction
         self.save()
 
     def is_available(self):
-        return( self.current_transaction == None )
+        return( self.current_activity == None )
 
     def __str__(self):
         text = ' '.join([self.brand.name, self.model])
@@ -109,7 +109,6 @@ class Category(models.Model):
 
 class Brand(models.Model):
     name = models.CharField(max_length=255)
-    icon = models.Image(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -134,13 +133,15 @@ class Person(models.Model):
 
     def get_inventory(self):
         """Returns all items currently assigned to the person."""
-        return Transaction.objects.filter(in_time__isnull=True).filter(person=self)
+        return Transaction.objects.filter(time_in__isnull=True).filter(person=self)
 
     def _get_full_name(self):
         "Returns the person's full name."
         return '%s %s' % (self.first_name, self.last_name)
 
     full_name = property(_get_full_name)
+    active_people = ActivePeople()
+    objects = models.Manager()
 
     def __str__(self):
         return self.full_name

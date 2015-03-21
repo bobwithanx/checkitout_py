@@ -37,7 +37,7 @@ $(function () {
   <div class="col-sm-3 col-md-2 sidebar">
     <ul class="nav nav-sidebar">
       <li><a href="/"><i class="fa fa-tachometer fa-fw"></i> Dashboard</a></li>
-      <li class="active"><a href="{% url 'checkout.views.student_list' %}"><i class="fa fa-users fa-fw"></i> Students</a></li>
+      <li class="active"><a href="{% url 'checkout.views.person_list' %}"><i class="fa fa-users fa-fw"></i> Students</a></li>
       <li><a href="{% url 'checkout.views.list_categories' %}"><i class="fa fa-camera fa-fw"></i> Equipment</a></li>
       <li><a href="#">Reports</a></li>
       <li><a href="#">Analytics</a></li>
@@ -49,7 +49,7 @@ $(function () {
           <h1 class="page-header">Students</h1>
     <div class="row">
         <div class="col-lg-4 col-lg-offset-4">
-	  <form action="{% url 'checkout.views.student_list' %}" method="get">
+	  <form action="{% url 'checkout.views.person_list' %}" method="get">
             <input autofocus="true" type="search" id="search" value="" class="form-control" placeholder="Search">
 	  </form>
         </div>
@@ -60,33 +60,31 @@ $(function () {
       <tr>
       <th>Name</th>
       <th>ID #</th>
-      <th>Course</th>
+      <th>Group</th>
       <th>Inventory</th>
       <th>Last Checkout</th>
     </tr>
 </thead>
-    {% for student in students %}
-        {% if student.course.pk = 1 %}
+    {% for person in people %}
           <tr> 
             <td>
-                <a href="{% url 'checkout.views.student_detail' pk=student.pk %}">
-                {{ student.full_name }}
+                <a href="{% url 'checkout.views.person_detail' pk=person.pk %}">
+                {{ person.full_name }}
                 </a>
             </td>
             <td>
-              {{ student.id_number }}
+              {{ person.id_number }}
             </td>
             <td>
-              {{ student.course.name }}
+              {{ person.group.name }}
             </td>
             <td>
-                {% if student.inventory_count > 0 %}
-                <span class="badge badge-info">{{ student.inventory_count }}</span>
+                {% if person.inventory_count > 0 %}
+                <span class="badge badge-info">{{ person.inventory_count }}</span>
                 {% endif %}
             </td>
             <td></td>
           </tr>
-        {% endif %}
       {% endfor %}
      </table>
 </div>

@@ -2,8 +2,8 @@ from django.conf.urls import patterns, include, url
 from . import views
 
 urlpatterns = patterns('',
-    url(r'^$', views.student_list),
-    url(r'^(?P<pk>[0-9]+)/$', views.student_detail),
+    url(r'^$', views.person_list),
+    url(r'^(?P<pk>[0-9]+)/$', views.person_detail),
     url(r'^(?P<pk>[0-9]+)/checkout/$', views.category_list),
     url(r'^(?P<s>[0-9]+)/checkout/(?P<c>[0-9]+)/$', views.list_available_items),
     url(r'^(?P<s>[0-9]+)/checkout/(?P<c>[0-9]+)/(?P<i>[0-9]+)/$', views.item_checkout, name='item_checkout'),
