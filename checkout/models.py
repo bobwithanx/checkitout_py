@@ -1,103 +1,146 @@
 from django.db import models
 from django.utils import timezone
 
-class StudentsWithInventory(models.Manager):
-  def get_queryset(self):
-    return super(StudentsWithInventory, self).get_queryset().filter(in_time__isnull=True).order_by('assigned_to').distinct()
+class ActiveTransactions(models.Manager):
+    def get_queryset(self):
+        return super(ActiveTransactions, self).get_queryset().filter(in_time__isnull=True)
+
+
+class ActivePeople(models.Manager):
+    def get_queryset(self):
+        return super(ActivePeople, self).get_queryset().filter(in_time__isnull=True).order_by('person').distinct()
+
 
 class Transaction(models.Model):
-	item = models.ForeignKey('Item')
-	student = models.ForeignKey('Student')
-	out_time = models.DateTimeField(default=timezone.now)
-	in_time = models.DateTimeField(blank=True, null=True)
+    status_assigned = 'ASSIGNED'
+    status_reserved = 'RESERVED'
+    status_returned = 'RETURNED'
+    
+    person = models.ForeignKey('Person')
+    item = models.ForeignKey('Item')
+    out_time = models.DateTimeField(blank=True, null=True)
+    in_time = models.DateTimeField(blank=True, null=True)
 
-	def checkout(self):
-		self.out_time = timezone.now()
-	def checkin(self):
-		self.in_time = timezone.now()
+    objects = models.Manager()
+    active_objects = ActiveTransactions()
+    active_people = ActivePeople()
+    with_inventory = active_people
 
-	objects = models.Manager()
-	with_inventory = StudentsWithInventory()
+    def is_reserved(self):
+        return self.status() == self.status_reserved
+        
+    def is_assigned(self):
+        return self.status() == self.status_assigned
+        
+    def is_returned(self):
+        return self.status() == self.status_returned
+        
+    def get_status(self):
+        if self.out_time == None:
+            return self.status_reserved
+        elif self.in_time == None:
+            return self.status_assigned
+        else:
+            return self.status_returned
 
-	def __str__(self):
-	    text = ' '.join([self.item.brand.name, self.item.model, str(self.out_time), ' -> ', str(self.in_time), '(', self.student.first_name, self.student.last_name, ')'])
-	    encoded = text.encode("utf-8")
-	    return encoded
+    def checkout(self):
+        self.out_time = timezone.now()
+        self.save()
+
+    def checkin(self):
+        self.in_time = timezone.now()
+        self.item.assign(None)
+        self.save()
+
+    def cancel_reservation(self):
+        self.delete()
+    
+
+    def __init__(self, person, item):
+        if item.is_available():
+            self.person = person
+            self.item = item
+            self.item.set_transaction(self)
+
+    def __str__(self):
+        text = ' '.join([self.item.brand.name, self.item.model, self.get_status(), str(self.out_time), ' -> ', str(self.in_time), '(', self.person.full_name, ')'])
+        encoded = text.encode("utf-8")
+        return encoded
 
 class ItemsAssigned(models.Manager):
-  def get_queryset(self):
-    return super(ItemsAssigned, self).get_queryset().filter(assigned_to__isnull=False)
+    def get_queryset(self):
+        return super(ItemsAssigned, self).get_queryset().filter(current_transaction__isnull=False)
 
 class ItemsAvailable(models.Manager):
-  def get_queryset(self):
-    return super(ItemsAvailable, self).get_queryset().filter(assigned_to__isnull=True)
+    def get_queryset(self):
+        return super(ItemsAvailable, self).get_queryset().filter(current_transaction__isnull=True)
 
 class Item(models.Model):
-	category = models.ForeignKey('Category')
-	brand = models.ForeignKey('Brand')
-	model = models.CharField(max_length=255)
-	serial = models.CharField(max_length=255, blank=True, null=True)
-	description = models.CharField(max_length=255, blank=True, null=True)
-	assigned_to = models.ForeignKey('Student', blank=True, null=True)
+    category = models.ForeignKey('Category')
+    brand = models.ForeignKey('Brand')
+    model = models.CharField(max_length=255)
+    serial = models.CharField(max_length=255, blank=True, null=True)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    current_transaction = models.ForeignKey('Transaction', blank=True, null=True)
 
-	def assign(self, student):
-		self.assigned_to = student
-		self.save()
+    objects = models.Manager()
+    available_items = ItemsAvailable()
+    assigned_items = ItemsAssigned()
 
-	objects = models.Manager()
-	available_items = ItemsAvailable()
-	assigned_items = ItemsAssigned()
+    def update_transaction(self, transaction=None):
+        self.current_transaction = transaction
+        self.save()
 
-	def __str__(self):
-	    text = ' '.join([self.brand.name, self.model])
-	    encoded = text.encode("utf-8")
-	    return encoded
+    def is_available(self):
+        return( self.current_transaction == None )
+
+    def __str__(self):
+        text = ' '.join([self.brand.name, self.model])
+        encoded = text.encode("utf-8")
+        return encoded
 
 class Category(models.Model):
-	name = models.CharField(max_length=255)
-	def _get_assigned_item_count(self):
-		return Item.objects.filter(category=self).filter(assigned_to__isnull=False).count()
-	def _get_available_item_count(self):
-		return Item.objects.filter(category=self).filter(assigned_to__isnull=True).count()
-	def _get_item_count(self):
-		return Item.objects.filter(category=self).count()
-	item_count = property(_get_item_count)
-	available_item_count = property(_get_available_item_count)
-	assigned_item_count = property(_get_assigned_item_count)
-	icon = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255)
+    icon = models.CharField(max_length=255, blank=True, null=True)
 
-	def __str__(self):
-		return self.name
+    def __str__(self):
+        return self.name
+
 
 class Brand(models.Model):
-	name = models.CharField(max_length=255)
-	def __str__(self):
-		return self.name
+    name = models.CharField(max_length=255)
+    icon = models.Image(blank=True, null=True)
 
-class Course(models.Model):
-	name = models.CharField(max_length=255)
-	def __str__(self):
-		return self.name
+    def __str__(self):
+        return self.name
 
-class StudentInventory(models.Manager):
-  def get_queryset(self):
-    return super(StudentInventory, self).get_queryset().filter(assigned_to=self)
 
-class Student(models.Model):
-	first_name = models.CharField(max_length=255)
-	last_name = models.CharField(max_length=255)
-	id_number = models.CharField(max_length=255)
-	course = models.ForeignKey('Course', blank=True, null=True)
+class Group(models.Model):
+    name = models.CharField(max_length=255)
 
-	def _get_inventory_count(self):
-		"Returns a count of all items assigned to the person."
-		return Transaction.objects.filter(in_time__isnull=True).filter(student=self).count()
+    def __str__(self):
+        return self.name
 
-	def _get_full_name(self):
-		"Returns the person's full name."
-		return '%s %s' % (self.first_name, self.last_name)
-	full_name = property(_get_full_name)
-	objects = models.Manager()
 
-	def __str__(self):
-		return self.full_name
+class Person(models.Model):
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    id_number = models.CharField(max_length=255)
+    group = models.ForeignKey('Group', blank=True, null=True)
+
+    def get_history(self):
+        "Returns all items assigned to the person."
+        return Transaction.objects.filter(person=self)
+
+    def get_inventory(self):
+        """Returns all items currently assigned to the person."""
+        return Transaction.objects.filter(in_time__isnull=True).filter(person=self)
+
+    def _get_full_name(self):
+        "Returns the person's full name."
+        return '%s %s' % (self.first_name, self.last_name)
+
+    full_name = property(_get_full_name)
+
+    def __str__(self):
+        return self.full_name
