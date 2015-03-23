@@ -18,7 +18,7 @@ class Transaction(models.Model):
     status_returned = 'RETURNED'
     
     person = models.ForeignKey('Person')
-    item = models.ForeignKey('Item')
+    item = models.ForeignKey('Item', blank=True, null=True)
     time_requested = models.DateTimeField(blank=True, null=True)
     time_out = models.DateTimeField(blank=True, null=True)
     time_in = models.DateTimeField(blank=True, null=True)
@@ -49,7 +49,7 @@ class Transaction(models.Model):
 
     def check_in(self):
         self.time_in = timezone.now()
-        self.item.assign(None)
+        self.item.update_transaction(None)
         self.save()
 
     def cancel_reservation(self):
@@ -129,11 +129,15 @@ class Person(models.Model):
 
     def get_history(self):
         "Returns all items assigned to the person."
-        return Transaction.objects.filter(person=self)
+        return Transaction.objects.filter(person=self).filter(time_in__isnull=False)
+
+    def get_reservations(self):
+        """Returns all items currently assigned to the person."""
+        return Transaction.objects.filter(person=self).filter(time_out__isnull=True)
 
     def get_inventory(self):
         """Returns all items currently assigned to the person."""
-        return Transaction.objects.filter(time_in__isnull=True).filter(person=self)
+        return Transaction.objects.filter(person=self).filter(time_in__isnull=True)
 
     def _get_full_name(self):
         "Returns the person's full name."

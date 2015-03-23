@@ -17,7 +17,8 @@ def person_list(request):
 def person_detail(request, pk):
     person = get_object_or_404(Person, pk=pk)
     inventory = person.get_inventory()
-    return render(request, 'checkout/person_detail.html', {'person': person, 'inventory': inventory})
+    history = person.get_history()
+    return render(request, 'checkout/person_detail.html', {'person': person, 'inventory': inventory, 'history': history})
 
 def item_checkin(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
@@ -39,8 +40,8 @@ def list_available_items(request, p, c):
     available_items = Item.available_items.filter(category=category)
     return render(request, 'checkout/item_list.html', {'person': person, 'category': category, 'items': available_items})
 
-def item_checkout(request, s, c, i):
-    person = get_object_or_404(Person, pk=s)
+def item_checkout(request, p, c, i):
+    person = get_object_or_404(Person, pk=p)
     item = get_object_or_404(Item, pk=i)
     transaction = Transaction.objects.create(person=person, item=item)
     transaction.check_out()

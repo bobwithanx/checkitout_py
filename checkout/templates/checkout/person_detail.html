@@ -2,55 +2,180 @@
 
 {% block content %}
 
+{% load humanize %}
+
+<style>
+.table-unbordered tbody tr, .table-unbordered tbody th, .table-unbordered tbody td { 
+     border-top: none !important;
+ }
+    .popover{
+        max-width:600px;
+    }
+    
+    .table-scroll {  
+    height: 400px !important;
+    overflow: scroll;
+}
+
+.inventory-body {
+	font-size: 13px;
+}
+ </style>
+
 <script type="text/javascript">
 $(document).ready(function() {
+    $('[data-toggle="popover"]').popover({ html : true });   
+    $('[data-toggle="tooltip"]').tooltip({ html: true}, {placement: "auto right"});   
+
   $('.active-link').toggle();
+
+  $('#myModal').on('show.bs.modal', function (event) {
+  var button = $(event.relatedTarget) // Button that triggered the modal
+  var pk = button.data('pk') // Extract info from data-* attributes
+  var item = button.data('item') // Extract info from data-* attributes
+  var serial = button.data('serial') // Extract info from data-* attributes
+  var category = button.data('category') // Extract info from data-* attributes
+  var description = button.data('description') // Extract info from data-* attributes
+  // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+  // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+
+  var item_html = '<table class="table table-unbordered">'
+  item_html += '<tr><th>Primary Key</th><td>' + pk + '</td></tr>'
+  if (serial != '')
+  	item_html += '<tr><th>Serial Number</th><td>' + serial + '</td></tr>'
+  item_html += '<tr><th>Category</th><td>' + category + '</td></tr>'
+  if (description != 'None')
+  	item_html += '<tr><th>Description</th><td>' + description + '</td></tr>'
+  item_html += '</table>'
+  
+  var modal = $(this);
+  modal.find('.modal-title').text(item + ' Details')
+  modal.find('.modal-body').html(item_html)
+})
+
 }
 )
 
 function toggleDiv() {
    $('.action-link').toggleClass('disabled');
 }
+
 </script>
 
-<h3>{{ person.full_name }} <small>{{ person.id_number }}</small></h3>
-<a href="{% url 'checkout.views.person_list' %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>{{ person.group.name }} </a>
-
+<div class="container-fluid">
 <div class="row">
-<div class="col-md-12" role="main">
+  <div class="col-sm-3 col-md-2 sidebar">
+    <ul class="nav nav-sidebar">
+      <li><a href="/"><i class="fa fa-tachometer fa-fw"></i> Dashboard</a></li>
+      <li class="active"><a href="{% url 'checkout.views.person_list' %}"><i class="fa fa-users fa-fw"></i> Students</a></li>
+      <li><a href="{% url 'checkout.views.list_categories' %}"><i class="fa fa-camera fa-fw"></i> Equipment</a></li>
+      <li><a href="#">Reports</a></li>
+      <li><a href="#">Analytics</a></li>
+      <li><a href="#">Export</a></li>
+    </ul>
+  </div>
 
-      <div id="message"></div>
+  <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">{{ person.full_name }} <small>{{ person.id_number }}</small></h1>
+    <div class="row">
+        <div class="col-lg-3 col-lg-offset-4">
+	  <form action="{% url 'checkout.views.person_list' %}" method="get">
+            <input autofocus="true" type="search" id="search" value="" class="form-control" placeholder="Search">
+            <a href="{% url 'checkout.views.category_list' pk=person.pk %}">Browse Items</a>
+	  </form>
+        </div>
+    </div>
+    
+<div class="row">
+<div class="col-md-6" role="summary">
+
 <div class="panel panel-default">
 <div class="panel-heading">
-<div class="panel-title">Current Inventory
+  <div class="panel-title">Current Inventory</div>
 </div>
-<small>
-<a id='toggle_button' href="javascript:toggleDiv();" role="button">Manage</a>
-</small>
-</div>
-   <table class="table table-bordered">
-      <tr>
-	 <th>Item</th>
-	 <th>Serial Number</th>
-	 <th>Category</th>
-	 <th>Checkout Time</th>
-      </tr>
-   {% for transaction in inventory %}
-	<tr> 
-	<td>
-<a class="action-link btn btn-default btn-xs disabled" role="button" href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}">Check In</a>
-{{ transaction.item.brand.name }} {{ transaction.item.model }}</td>
-	<td>{{ transaction.item.serial }}</td>
-	<td>{{ transaction.item.category.name }}</td>
-	<td>{{ transaction.time_out }}</td>
+  <div class="table-scroll">
+   <table class="table inventory-body">
+     <tr>
+	   <th>Item</th>
+	   <th>Actions</th>
+     </tr>
+     {% for transaction in inventory %}
+	 <tr> 
+	   <td>
+	   <a href="#myModal" data-toggle="modal" data-pk="{{ transaction.pk }}" data-item="{{ transaction.item }}" data-serial="{{ transaction.item.serial }}" data-category="{{ transaction.item.category }}" data-description="{{ transaction.item.description }}" data-action='href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}"'>
+  {{ transaction.item.brand.name }} {{ transaction.item.model }}
+	   </a>
+       </td>
+	   <td>
+	   <div class="btn-group">
+	   <button type="button" class="btn btn-link btn-xs dropdown-toggle" data-toggle="dropdown">
+        Actions <span class="caret"></span>
+    </button>
+        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+        <li>
+            <a href="#myModal" data-toggle="modal" data-pk="{{ transaction.pk }}" data-item="{{ transaction.item }}" data-serial="{{ transaction.item.serial }}" data-category="{{ transaction.item.category }}" data-description="{{ transaction.item.description }}">
+View Details</a>
+        </li>
+        <li >
+			<a class="action-link" role="button" href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}">Check In</a>
+        </li>
+     </ul>
+     </div>
+    </td>
 	</tr>
-    {% endfor %}
-<tr><td colspan=4 align=center ><a href="{% url 'checkout.views.category_list' pk=person.pk %}"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add Item</a></td></tr>
-  </table>
+     {% endfor %}
+   </table>
+</div>   <!-- end div: table-scroll -->
+</div>   <!-- end div: panel -->
+</div>   <!-- end div: col -->
+
+<div class="col-md-6" role="summary">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">Transaction History</div>
+  </div>
+  <div class="table-scroll">
+   <table class="table inventory-body">
+     <tr>
+	   <th>Item</th>
+	   <th>Time Returned</th>
+     </tr>
+     {% for transaction in history %}
+	 <tr> 
+	   <td>
+	   <a href="#myModal" data-toggle="modal" data-pk="{{ transaction.pk }}" data-item="{{ transaction.item }}" data-serial="{{ transaction.item.serial }}" data-category="{{ transaction.item.category }}" data-description="{{ transaction.item.description }}">
+  {{ transaction.item.brand.name }} {{ transaction.item.model }}
+	   </a>
+       </td>
+	   <td>{{ transaction.time_in }}</td>
+	 </tr>
+     {% endfor %}
+   </table>
+</div>   <!-- end div: table-scroll -->
+</div>   <!-- end div: panel -->
+</div>   <!-- end div: col -->
+
 </div>
 </div>
 </div>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Details</h4>
+      </div>
+      <div class="modal-body">
+            <input type="text" class="form-control" id="item-name">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="check-in">Check In</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock content %}

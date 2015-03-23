@@ -69,7 +69,7 @@ $(function () {
           <tr> 
             <td>
                 <a href="{% url 'checkout.views.person_detail' pk=person.pk %}">
-                {{ person.full_name }}
+                {{ person.full_name }} ({{person.pk}})
                 </a>
             </td>
             <td>

@@ -2,20 +2,28 @@
 
 {% block content %}
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'checkout.views.person_list' %}">Home</a></li>
-  <li><a href="{% url 'checkout.views.person_detail' pk=person.pk %}">{{ person.full_name }}</a></li>
-  <li class="active">Check Out</li>
-</ol>
+<div class="container-fluid">
+<div class="row">
+  <div class="col-sm-3 col-md-2 sidebar">
+    <ul class="nav nav-sidebar">
+      <li><a href="/"><i class="fa fa-tachometer fa-fw"></i> Dashboard</a></li>
+      <li class="active"><a href="{% url 'checkout.views.person_list' %}"><i class="fa fa-users fa-fw"></i> Students</a></li>
+      <li><a href="{% url 'checkout.views.list_categories' %}"><i class="fa fa-camera fa-fw"></i> Equipment</a></li>
+      <li><a href="#">Reports</a></li>
+      <li><a href="#">Analytics</a></li>
+      <li><a href="#">Export</a></li>
+    </ul>
+  </div>
 
-<h2>{{ person.full_name }}</h2>
-        <p><a href="{% url 'checkout.views.person_detail' pk=person.pk %}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>Back</a></p>
+  <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">{{ person.full_name }} <small>{{ person.id_number }}</small></h1>
+
 <div class="row">
    {% for category in categories %}
 <div class="col-md-4">
 <div class="list-group">
-     <a class="list-group-item" href="{% url 'checkout.views.list_available_items' s=person.pk c=category.pk %}">{{ category.name }}
-     <span class="badge">{{ category.available_item_count}} | {{ category.item_count }}</span></a>
+     <a class="list-group-item" href="{% url 'checkout.views.list_available_items' p=person.pk c=category.pk %}">{{ category.name }}
+     <span class="badge">{{ item.available_items|length }} | {{ category.item_count }}</span></a>
 </div>
 </div>
     {% endfor %}
