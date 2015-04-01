@@ -1,0 +1,89 @@
+{% extends 'checkout/base.html' %}
+
+{% block content %}
+<style media="screen" type="text/css">
+
+@import url(http://weloveiconfonts.com/api/?family=iconicfill);
+
+/* iconicfill */
+[class*="iconicfill-"]:before {
+  font-family: 'IconicFill', sans-serif;
+}
+.badge-right {
+  -webkit-border-top-left-radius: 0px;
+  -moz-border-top-left-radius: 0px;
+  border-top-left-radius: 0px;
+  -webkit-border-bottom-left-radius: 0px;
+  -moz-border-bottom-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  margin-left:-3px;
+  padding-left:5px;
+}
+
+.badge-left {
+  -webkit-border-top-right-radius: 0px;
+  -moz-border-top-right-radius: 0px;
+  border-top-right-radius: 0px;
+  -webkit-border-bottom-right-radius: 0px;
+  -moz-border-bottom-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  margin-right:-3px;
+  padding-right:5px;
+}
+
+.badge-middle {
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+  margin-right:0px;
+  margin-left:0px;
+  padding-right:5px;
+  padding-left:5px;
+}
+
+.badge-light {
+	background-color: #eee;
+	color: #666;
+}
+
+.badge-warning {
+	background-color: #eeac57;
+}
+
+.badge-success {
+	background-color: #5fb760;
+}
+
+</style>
+
+        <div class="col-sm-9 col-md-10 main">
+          <h1 class="page-header">Library Items</h1>
+          <div class="table-responsive">
+            <table class="table table-striped table-condensed">
+<thead>
+      <tr>
+      <th>Item</th>
+      <th>Serial</th>
+      <th>Description</th>
+      <th>Category</th>
+      <th>Assigned To</th>
+    </tr>
+</thead>
+   {% for item in items %}
+      <tr>
+      <td><a href="{% url 'checkout.views.item_detail' pk=item.pk %}">{{ item }}</a></td>
+      <td>{{ item.serial }}</td>
+      <td>{{ item.description }}</td>
+      <td>{{ item.category }}</td>
+      <td>{{ item.is_available }}</td>
+      </tr>
+    {% endfor %}
+</table>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+{% endblock content %}
