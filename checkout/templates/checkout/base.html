@@ -1,4 +1,6 @@
 {% load staticfiles %}
+{% load navtag %}
+
 <html>
 	<head>
 		<title>Metro Tech Film Checkout System</title>
@@ -6,12 +8,13 @@
 		<link rel="stylesheet" href="{% static 'bootstrap/3.3.2/css/bootstrap.min.css' %}">
 		<link rel="stylesheet" href="{% static 'bootstrap/3.3.2/css/bootstrap-theme.min.css' %}">
 		<link rel="stylesheet" href="{% static 'bootstrap/3.3.2/css/dashboard.css' %}">
+		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 		<link rel="stylesheet" href="http://cdn.datatables.net/1.10.5/css/jquery.dataTables.min.css">
 		<script src="http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js"></script>
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 		<script src="{% static 'bootstrap/3.3.2/js/bootstrap.min.js' %}"></script>
 		<script src="{% static 'js/jquery.searchable.js' %}"></script>
 <style>
+
   .panel-green {
     border-color: #5cb85c;
   }
@@ -23,6 +26,41 @@
   .panel-green a {
     color: #5cb85c;
   }
+  
+.box {
+    border-radius: 3px;
+    border: 2px solid #57a544;
+    padding: 10px 25px;
+    text-align: right;
+    display: block;
+    margin-top: 60px;
+}
+.box-icon {
+    background-color: #57a544;
+    border-radius: 50%;
+    display: table;
+    height: 100px;
+    margin: 0 auto;
+    width: 100px;
+    margin-top: -61px;
+}
+.box-icon span {
+    color: #fff;
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+}
+.info h4 {
+    font-size: 26px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.info > p {
+    color: #717171;
+    font-size: 16px;
+    padding-top: 10px;
+    text-align: justify;
+}
 </style>
 
 	</head>
@@ -39,16 +77,42 @@
       </button>
       <a class="navbar-brand" href="/">Equipment Checkout System</a>
     </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+{% block nav %}
+{% nav text 'class="active"' %}
+    <!-- Collect the nav links, forms, and other content for toggling -->
+      <ul class="nav navbar-nav">
+{% if user.is_staff %}
+      <li {{ nav.check_in }}><a href="{% url 'checkout.views.check_in' %}"><i class="fa fa-check-circle fa-fw"></i> Check In</a></li>
+      <li {{ nav.reservations }}><a href="{% url 'checkout.views.reservations' %}"><i class="fa fa-calendar fa-fw"></i> Reservations</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-cogs"></i> Admin <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+      <li {{ nav.history }}><a href="{% url 'checkout.views.history' %}"><i class="fa fa-clock-o fa-fw"></i> History</a></li>
+      <li {{ nav.reports }}><a href="{% url 'checkout.views.reports' %}"><i class="fa fa-bar-chart fa-fw"></i> Reports</a></li>
+            <li class="divider"></li>
+      <li {{ nav.students }}><a href="{% url 'checkout.views.person_list' %}"><i class="fa fa-users fa-fw"></i> Students</a></li>
+      <li {{ nav.equipment }}><a href="{% url 'checkout.views.item_list' %}"><i class="fa fa-camera fa-fw"></i> Equipment</a></li>
+          </ul>
+        </li>
+
+{% endif %}
+    </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="/"><i class="fa fa-tachometer"></i> Dashboard</a></li>
-      </ul>
+{% if user.is_staff %}
+	  <li><a href="/logout/"><i class="fa fa-sign-out"></i> Logout</a></li>
+{% else %}
+      <li><a href="/login/"><i class="fa fa-sign-in"></i> Login</a></li>
+{% endif %}
+    </ul>
+{% endblock %}
+
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
-		{% block content %}
-		{% endblock %}
+
+{% block content %}
+{% endblock %}
   </body>
 </html>

@@ -1,99 +1,20 @@
 {% extends 'checkout/base.html' %}
 
+{% block nav %}
+{{ block.super }}
+{% endblock %}
+
 {% block content %}
 
-<div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-        <li class="active"><a href="/"><i class="fa fa-tachometer fa-fw"></i> Dashboard</a></li>
-        <li><a href="{% url 'checkout.views.person_list' %}"><i class="fa fa-users fa-fw"></i> Students</a></li>
-        <li><a href="{% url 'checkout.views.list_categories' %}"><i class="fa fa-camera fa-fw"></i> Equipment</a></li>
-            <li><a href="#">Reports</a></li>
-            <li><a href="#">Analytics</a></li>
-            <li><a href="#">Export</a></li>
-          </ul>
-        </div>
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Dashboard</h1>
-
-<div class="row">
-<div class="col-lg-3 col-md-6">
-<div class="panel panel-primary">
-  <div class="panel-heading">
-          <div class="row">
-            <div class="col-xs-3">
-              <i class="fa fa-users fa-5x"></i>
-	    </div>
-	    <div class="col-xs-9 text-right">
-    	
-	      <div class="h2">{{ active_people|length }}</div>
-	    </div>
-	  </div>
+<div class="col-sm-9 col-md-10 main">
+  <h1 class="page-header">Check Out System</h1>
+  <div class="row">
+    <div class="col-lg-6">
+	  <form action="{% url 'checkout.views.person_search' %}" method="POST">
+	    {% csrf_token %}
+        <input autofocus="true" text="search" name="person" id="search" value="" class="form-control" placeholder="Type in Student ID"/>
+	  </form>
+    </div>
   </div>
-<a href="{% url 'checkout.views.person_list' %}">
-<div class="panel-footer">
-<span class="pull-left">All Students</span>
-<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-<div class="clearfix"></div>
-</div>
-</a>
-</div>
-</div>
-<div class="col-lg-3 col-md-6">
-<div class="panel panel-green">
-  <div class="panel-heading">
-          <div class="row">
-            <div class="col-xs-3">
-              <i class="fa fa-camera fa-5x"></i>
-	    </div>
-	    <div class="col-xs-9 text-right">
-	      <div class="h2">{{ active_items|length }}</div>
-	    </div>
-	  </div>
-  </div>
-<a href="{% url 'checkout.views.list_categories' %}">
-<div class="panel-footer">
-<span class="pull-left">All Equipment</span>
-<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-<div class="clearfix"></div>
-</div>
-</a>
-</div>
-</div>
-</div>
-</div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h2 class="sub-header">Current Activity</h2>
-          <div class="table-responsive">
-    <table id="current" class="table table-striped">
-<thead>
-      <tr>
-      <th>Name</th>
-      <th>Item Count</th>
-      <th>Inventory</th>
-      <th>Last Checkout</th>
-    </tr>
-    </thead>
-    {% for person in active_people %}
-          <tr> 
-            <td>
-               <a href="{% url 'checkout.views.person_detail' pk=person.pk %}">
-                {{ person.full_name }}
-                </a>
-            </td>
-            <td>
-                <span class="badge badge-info">{{ person.get_inventory|length }}</span>
-            </td>
-            <td>
-		{% for transaction in person.get_inventory %}
-		{{ transaction.item }}<br/>
-		{% endfor %}
-            </td>
-            <td></td>
-          </tr>
-      {% endfor %}
-     </table>
-</div>
 </div>
 {% endblock content %}

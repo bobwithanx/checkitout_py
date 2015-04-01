@@ -1,13 +1,14 @@
 from django.contrib import admin
-from .models import Transaction, Item, Category, Brand, Person, Group
+from .models import Transaction, TransactionHistory, Item, Category, Brand, Person, Group
 
 class PersonAdmin(admin.ModelAdmin):
         list_display = ('full_name', 'id_number', 'group')
 
 class TransactionAdmin(admin.ModelAdmin):
-        list_display = ('item', 'person', 'time_out', 'time_in')
+        list_display = ('item', 'person', 'time_out')
 
 admin.site.register(Transaction, TransactionAdmin)
+admin.site.register(TransactionHistory)
 admin.site.register(Item)
 admin.site.register(Category)
 admin.site.register(Brand)

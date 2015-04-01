@@ -2,97 +2,81 @@ from django.db import models
 from django.db.models import F
 from django.utils import timezone
 
-class ActiveTransactions(models.Manager):
-    def get_queryset(self):
-        return super(ActiveTransactions, self).get_queryset().filter(time_in__isnull=True)
+class TransactionHistory(models.Model):
+    person = models.ForeignKey('Person')
+    item = models.ForeignKey('Item')
+    time_out = models.DateTimeField()
+    time_in = models.DateTimeField()
 
+    def get_history(self, person):
+		return objects.filter(person=person)
 
-class ActivePeople(models.Manager):
-    def get_queryset(self):
-        return super(ActivePeople, self).get_queryset().filter(transaction__time_in__isnull=True).filter(transaction__person=F('id')).order_by('id').distinct()
+    def __str__(self):
+        text = ' *** '.join([self.item.brand.name, self.item.model, str(self.time_out), str(self.time_in), self.person.full_name])
+        encoded = text.encode("utf-8")
+        return encoded
 
 
 class Transaction(models.Model):
     status_assigned = 'ASSIGNED'
     status_reserved = 'RESERVED'
-    status_returned = 'RETURNED'
     
     person = models.ForeignKey('Person')
-    item = models.ForeignKey('Item', blank=True, null=True)
+    item = models.ForeignKey('Item')
     time_requested = models.DateTimeField(blank=True, null=True)
     time_out = models.DateTimeField(blank=True, null=True)
-    time_in = models.DateTimeField(blank=True, null=True)
-
-    objects = models.Manager()
-    active_objects = ActiveTransactions()
-
+	
     def is_reserved(self):
         return self.status() == self.status_reserved
         
-    def is_assigned(self):
-        return self.status() == self.status_assigned
-        
-    def is_returned(self):
-        return self.status() == self.status_returned
-        
+    def cancel_reservation(self):
+        self.delete()
+    
     def get_status(self):
         if self.time_out == None:
             return self.status_reserved
-        elif self.time_in == None:
-            return self.status_assigned
         else:
-            return self.status_returned
+            return self.status_assigned
 
     def check_out(self):
         self.time_out = timezone.now()
         self.save()
 
     def check_in(self):
-        self.time_in = timezone.now()
-        self.item.update_transaction(None)
-        self.save()
-
-    def cancel_reservation(self):
+    	th_person = self.person
+    	th_item = self.item
+    	th_time_out = self.time_out
+    	th_time_in = timezone.now()
+    	
+    	th = TransactionHistory.objects.create(person=th_person, item=th_item, time_out=th_time_out, time_in=th_time_in)
+        th.save()
+    	th_item = None
+        
         self.delete()
-    
-
-#     def __init__(self, person, item):
-#         if item.is_available():
-#             self.person = person
-#             self.item = item
-#             self.item.set_transaction(self)
 
     def __str__(self):
-        text = ' '.join([self.item.brand.name, self.item.model, self.get_status(), str(self.time_out), ' -> ', str(self.time_in), '(', self.person.full_name, ')'])
+        text = ' '.join([self.item.brand.name, self.item.model, str(self.time_out), '(', self.person.full_name, ')'])
         encoded = text.encode("utf-8")
         return encoded
-
-class ItemsActive(models.Manager):
-    def get_queryset(self):
-        return super(ItemsActive, self).get_queryset().filter(transaction__time_in__isnull=True).filter(transaction__item=F('id')).order_by('id').distinct()
-
-class ItemsAvailable(models.Manager):
-    def get_queryset(self):
-        return super(ItemsAvailable, self).get_queryset().filter(transaction__time_in__isnull=False).order_by('id').distinct()
 
 class Item(models.Model):
     category = models.ForeignKey('Category')
     brand = models.ForeignKey('Brand')
     model = models.CharField(max_length=255)
     serial = models.CharField(max_length=255, blank=True, null=True)
+    inventory_tag = models.CharField(max_length=255, blank=True, null=True)
+    barcode_id = models.CharField(max_length=255, blank=True, null=True)
     description = models.CharField(max_length=255, blank=True, null=True)
-    current_activity = models.ForeignKey('Transaction', blank=True, null=True, related_name="current_activity")
 
-    objects = models.Manager()
-    available_items = ItemsAvailable()
-    active_items = ItemsActive()
+    def _get_history(self):
+        "Returns all items assigned to the person."
+        return TransactionHistory.objects.filter(item=self)
 
-    def update_transaction(self, transaction=None):
-        self.current_activity = transaction
-        self.save()
+    history = property(_get_history)
 
     def is_available(self):
-        return( self.current_activity == None )
+        #return( self.current_activity == None )
+        pass
 
     def __str__(self):
         text = ' '.join([self.brand.name, self.model])
@@ -127,24 +111,26 @@ class Person(models.Model):
     id_number = models.CharField(max_length=255)
     group = models.ForeignKey('Group', blank=True, null=True)
 
-    def get_history(self):
+    def _get_history(self):
         "Returns all items assigned to the person."
-        return Transaction.objects.filter(person=self).filter(time_in__isnull=False)
+        return TransactionHistory.objects.filter(person=self)
 
-    def get_reservations(self):
+    def _get_reservations(self):
         """Returns all items currently assigned to the person."""
-        return Transaction.objects.filter(person=self).filter(time_out__isnull=True)
+        return Transaction.objects.filter(person=self).exclude(time_out__isnull=False)
 
-    def get_inventory(self):
+    def _get_inventory(self):
         """Returns all items currently assigned to the person."""
-        return Transaction.objects.filter(person=self).filter(time_in__isnull=True)
+        return Transaction.objects.filter(person=self).filter(time_out__isnull=False)
 
     def _get_full_name(self):
         "Returns the person's full name."
         return '%s %s' % (self.first_name, self.last_name)
 
+    history = property(_get_history)
+    reservations = property(_get_reservations)
+    inventory = property(_get_inventory)
     full_name = property(_get_full_name)
-    active_people = ActivePeople()
     objects = models.Manager()
 
     def __str__(self):

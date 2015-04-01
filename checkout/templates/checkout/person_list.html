@@ -32,25 +32,13 @@ $(function () {
 }
 </style>
 
-<div class="container-fluid">
-<div class="row">
-  <div class="col-sm-3 col-md-2 sidebar">
-    <ul class="nav nav-sidebar">
-      <li><a href="/"><i class="fa fa-tachometer fa-fw"></i> Dashboard</a></li>
-      <li class="active"><a href="{% url 'checkout.views.person_list' %}"><i class="fa fa-users fa-fw"></i> Students</a></li>
-      <li><a href="{% url 'checkout.views.list_categories' %}"><i class="fa fa-camera fa-fw"></i> Equipment</a></li>
-      <li><a href="#">Reports</a></li>
-      <li><a href="#">Analytics</a></li>
-      <li><a href="#">Export</a></li>
-    </ul>
-  </div>
-
-  <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+  <div class="col-sm-5 col-md-6 main">
           <h1 class="page-header">Students</h1>
     <div class="row">
-        <div class="col-lg-4 col-lg-offset-4">
-	  <form action="{% url 'checkout.views.person_list' %}" method="get">
-            <input autofocus="true" type="search" id="search" value="" class="form-control" placeholder="Search">
+        <div class="col-lg-6">
+	  <form action="{% url 'checkout.views.person_search' %}" method="POST">
+	    {% csrf_token %}
+            <input autofocus="true" text="search" name="person" id="search" value="" class="form-control" placeholder="Search"/>
 	  </form>
         </div>
     </div>
@@ -62,14 +50,17 @@ $(function () {
       <th>ID #</th>
       <th>Group</th>
       <th>Inventory</th>
-      <th>Last Checkout</th>
     </tr>
 </thead>
     {% for person in people %}
-          <tr> 
+      {% if person.inventory|length > 0 %}
+        <tr class="warning">
+      {% else %}
+        <tr> 
+      {% endif %}
             <td>
                 <a href="{% url 'checkout.views.person_detail' pk=person.pk %}">
-                {{ person.full_name }} ({{person.pk}})
+                {{ person.full_name }}
                 </a>
             </td>
             <td>
@@ -79,11 +70,10 @@ $(function () {
               {{ person.group.name }}
             </td>
             <td>
-                {% if person.inventory_count > 0 %}
-                <span class="badge badge-info">{{ person.inventory_count }}</span>
+                {% if person.inventory|length > 0 %}
+                <span class="badge badge-info">{{ person.inventory|length }}</span>
                 {% endif %}
             </td>
-            <td></td>
           </tr>
       {% endfor %}
      </table>

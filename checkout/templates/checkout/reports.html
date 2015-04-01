@@ -1,0 +1,92 @@
+{% extends 'checkout/base.html' %}
+
+{% block nav %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+<div class="col-md-12 main">
+  <div class="page-header h1">Reports <small>Raw Data</small></div>
+
+<div class="row">
+
+<div class="col-md-6">
+  <table class="table table-condensed">
+    <tr>
+      <th>Category</th>
+      <th>Value</th>
+    </tr>
+    <tr>
+      <td>Total people</td>
+      <td>{{ all_people|length }}</td>
+    </tr>
+    <tr>
+      <td>Total transactions</td>
+      <td>{{ history|length }}</td>
+    </tr>
+    <tr>
+      <td>Borrowers</td>
+      <td>{{ history_people|length }}</td>
+    </tr>
+    <tr>
+      <td>Items loaned</td>
+      <td>{{ history_items|length }}</td>
+    </tr>
+  </table>
+</div>
+
+<div class="col-md-6">
+  <table class="table table-condensed">
+    <tr>
+      <th>Person</th>
+      <th>Count</th>
+      <th>% Borrowed</th>
+    </tr>
+      {% for person in history_people %}
+    <tr>
+      <td>{{ person.person__first_name }} {{ person.person__last_name }}</td>
+      <td>{{ person.count }}</td>
+      <td>{% widthratio person.count history|length 100 %}%</td>
+    </tr>
+      {% endfor %}
+  </table>
+</div>
+
+<div class="col-md-6">
+  <table class="table table-condensed">
+    <tr>
+      <th>Item Category</th>
+      <th>Count</th>
+      <th>% Borrowed</th>
+    </tr>
+      {% for category in history_category %}
+    <tr>
+      <td>{{ category.item__category__name }}</td>
+      <td>{{ category.count }}</td>
+      <td>{% widthratio category.count history|length 100 %}%</td>
+    </tr>
+      {% endfor %}
+  </table>
+</div>
+
+<div class="col-md-6">
+  <table class="table table-condensed">
+    <tr>
+      <th>Item</th>
+      <th>Count</th>
+      <th>% Borrowed</th>
+    </tr>
+      {% for item in history_items %}
+    <tr>
+      <td>{{ item.item__brand__name }} {{ item.item__model }}<br/><span class="text-muted">{{ item.item__description }}</span></td>
+      <td>{{ item.count }}</td>
+      <td>{% widthratio item.count history|length 100 %}%</td>
+    </tr>
+      {% endfor %}
+  </table>
+</div>
+</div>
+
+{% endblock content %}
+
