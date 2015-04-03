@@ -16,14 +16,12 @@ $('body').on('hidden.bs.modal', '.modal', function () {
   <h1 class="page-header">Dashboard</h1>
   <div class="row">
 	<div class="col-md-6">
-      <div class="panel panel-default">
+      <div class="panel panel-primary">
         <div class="panel-heading">
           <div class="panel-title">
             Items Out
           </div>
         </div>
-        <div class="panel-body">
-          <div class="table-responsive">
             <table id="students" class="table table-striped">
             <thead>
               <tr>
@@ -33,12 +31,11 @@ $('body').on('hidden.bs.modal', '.modal', function () {
               <th>Inventory</th>
               </tr>
             </thead>
+            <tbody>
             {% for person in active_items %}
               <tr>
                 <td>
-                  <a data-toggle="modal" href="{% url 'checkout.views.person_popup' pk=person.pk %}" data-target="#myModal">
                   {{ person.full_name }}
-                </a>
                 </td>
                 <td>{{ person.id_number }}
                 </td>
@@ -52,21 +49,19 @@ $('body').on('hidden.bs.modal', '.modal', function () {
                 </td>
               </tr>
             {% endfor %}
+            </tbody>
             </table>
-          </div>  <!-- table-responsive -->
-        </div>  <!-- panel-body -->
       </div>  <!-- panel -->
+<a class="btn btn-default" href="{% url 'checkout.views.check_in' %}" role="button">View details »</a>
     </div>  <!-- col -->
 
 	<div class="col-md-6">
-      <div class="panel panel-default">
+      <div class="panel panel-warning">
         <div class="panel-heading">
           <div class="panel-title">
             Reservations
           </div>
         </div>
-        <div class="panel-body">
-          <div class="table-responsive">
             <table id="students" class="table table-striped">
             <thead>
               <tr>
@@ -79,9 +74,7 @@ $('body').on('hidden.bs.modal', '.modal', function () {
             {% for person in reservations %}
               <tr>
                 <td>
-                  <a data-toggle="modal" href="{% url 'checkout.views.person_popup' pk=person.pk %}" data-target="#myModal">
                   {{ person.full_name }}
-                </a>
                 </td>
                 <td>
                   {{ person.id_number }}
@@ -97,11 +90,9 @@ $('body').on('hidden.bs.modal', '.modal', function () {
               </tr>
             {% endfor %}
             </table>
-          </div>  <!-- table-responsive -->
-        </div>  <!-- panel-body -->
       </div>  <!-- panel -->
+<a class="btn btn-default" href="{% url 'checkout.views.reservations' %}" role="button">View details »</a>
     </div>  <!-- col -->
-
   </div>  <!-- row -->
 
 </div>

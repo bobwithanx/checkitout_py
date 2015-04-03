@@ -36,7 +36,7 @@ def reports(request):
     return render(request, 'checkout/reports.html', {'history': history, 'history_category': history_category, 'history_items': history_items, 'history_people': history_people, 'transactions': transactions, 'all_people': all_people, 'borrowers': borrowers, 'loaned_items': loaned_items, 'active_people': active_people, 'active_items': active_items})
 
 def history(request):
-    history = TransactionHistory.objects.all().order_by('-time_out')
+    history = TransactionHistory.objects.all().order_by('-time_in')
     return render(request, 'checkout/history.html', {'history': history})
 
 def person_list(request):
