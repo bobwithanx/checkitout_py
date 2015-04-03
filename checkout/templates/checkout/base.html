@@ -13,6 +13,7 @@
 		<script src="http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js"></script>
 		<script src="{% static 'bootstrap/3.3.2/js/bootstrap.min.js' %}"></script>
 		<script src="{% static 'js/jquery.searchable.js' %}"></script>
+		<script src="{% static 'js/bootbox.min.js' %}"></script>
 <style>
 
   .panel-green {
@@ -62,7 +63,6 @@
     text-align: justify;
 }
 </style>
-
 	</head>
 	<body>
 <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -84,6 +84,7 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
       <ul class="nav navbar-nav">
 {% if user.is_staff %}
+      <li {{ nav.dashboard }}><a href="{% url 'checkout.views.dashboard' %}"><i class="fa fa-check-circle fa-fw"></i> Dashboard</a></li>
       <li {{ nav.check_in }}><a href="{% url 'checkout.views.check_in' %}"><i class="fa fa-check-circle fa-fw"></i> Check In</a></li>
       <li {{ nav.reservations }}><a href="{% url 'checkout.views.reservations' %}"><i class="fa fa-calendar fa-fw"></i> Reservations</a></li>
         <li class="dropdown">

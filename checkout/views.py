@@ -9,8 +9,17 @@ def dashboard(request):
     transactions = Transaction.objects.all()
     all_people = Person.objects.all()
     active_people = Person.objects.filter(pk__in=transactions)
+    reservations = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=True).values_list('person', flat=True)])
+    active_items = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)])
+
+    return render(request, 'checkout/dashboard.html', {'transactions': transactions, 'all_people': all_people, 'active_people': active_people, 'active_items': active_items, 'reservations': reservations})
+
+def search(request):
+    transactions = Transaction.objects.all()
+    all_people = Person.objects.all()
+    active_people = Person.objects.filter(pk__in=transactions)
     active_items = Item.objects.filter(pk__in=transactions)
-    return render(request, 'checkout/dashboard.html', {'transactions': transactions, 'all_people': all_people, 'active_people': active_people, 'active_items': active_items})
+    return render(request, 'checkout/search.html', {'transactions': transactions, 'all_people': all_people, 'active_people': active_people, 'active_items': active_items})
 
 def reports(request):
     transactions = Transaction.objects.all()
@@ -44,6 +53,15 @@ def person_search(request):
     else:
 	  return person_list(request)
     
+def person_popup(request, pk):
+    person = get_object_or_404(Person, pk=pk)
+    transactions = Transaction.objects.all()
+    inventory = Transaction.objects.filter(person=pk).filter(time_out__isnull=False)
+    reservations = Transaction.objects.filter(person=pk).filter(time_out__isnull=True)
+    available_items = Item.objects.exclude(pk__in = [x for x in Transaction.objects.values_list('item', flat=True)])
+    history = TransactionHistory.objects.filter(person=pk)
+    return render(request, 'checkout/person_popup.html', {'person': person, 'inventory': inventory, 'reservations': reservations, 'available_items': available_items, 'history': history})
+
 def person_detail(request, pk):
     person = get_object_or_404(Person, pk=pk)
     transactions = Transaction.objects.all()
@@ -84,6 +102,12 @@ def item_checkin(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
     transaction.check_in()
     return redirect('checkout.views.check_in')
+
+def item_popup(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    transactions = Transaction.objects.all()
+    history = TransactionHistory.objects.filter(item=pk)
+    return render(request, 'checkout/item_popup.html', {'item': item, 'history': history})
 
 def item_detail(request, pk):
     item = get_object_or_404(Item, pk=pk)

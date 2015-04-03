@@ -3,6 +3,14 @@
 {% block content %}
 {% load humanize %}
 
+<script>
+
+$('body').on('hidden.bs.modal', '.modal', function () {
+  $(this).removeData('bs.modal');
+});
+
+</script>
+
 <div class="col-md-12 main">
   <h1 class="page-header">Check In</h1>
   <div class="row">
@@ -16,8 +24,8 @@
     </div>
   </div>
   <div class="panel-body">
-         <div class="table-responsive">
-            <table id="myTable" class="table table-striped table-condensed">
+    <div class="table-responsive">
+      <table id="myTable" class="table table-striped table-condensed">
 <thead>
       <tr>
       <th>Item</th>
@@ -27,37 +35,42 @@
     </tr>
 </thead>
   {% for transaction in person.inventory %}
-
       <tr>
-      <td><a href="{% url 'checkout.views.item_detail' pk=transaction.item.pk %}">{{ transaction.item }}</a></td>
+      <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">
+{{ transaction.item }}</a></td>
       <td>{{ transaction.item.description }}</td>
       <td>{{ transaction.time_out|naturaltime }}</td>
       <td><a class="action-link" role="button" href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}">check in</a></td>
       </tr>
     {% endfor %}
 </table>
-</div>  </div>
 </div>
-</div>
+</div> <!-- panel-body -->
+</div> <!-- panel -->
+</div> <!-- col -->
 {% endfor %}
-{% else %}
-<div class="row">
-<div class="container">
-    <div class="row">
-        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
-            <div class="box">
-                <div class="box-icon">
-                    <span class="fa fa-4x fa-thumbs-o-up"></span>
-                </div>
-                <div class="info">
-                    <h4 class="text-center">Congrats!</h4>
-                    <p>All equipment is safe and secure. Have a wonderful day!</p>
-                </div>
-            </div>
-        </div>
-	</div>
-</div>
 {% endif %}
 </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" modal-lg>
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                 <h4 class="modal-title">Modal title</h4>
+            </div>
+            <div class="modal-body"><div class="te"></div></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
 {% endblock content %}
