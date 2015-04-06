@@ -1,3 +1,5 @@
+{% load staticfiles %}
+
 <body>
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -5,7 +7,9 @@
 </div>
 <div class="modal-body">
     <div class="te">
-      <table class="table table-striped table-condensed">
+    <div class="row"><div class="col-md-4">
+<img width=200 height=200 src="{% static 'images/'|add:item.image_name %}"></div><div class="col-md-1"></div>
+<div class="col-md-7">      <table class="table table-striped table-condensed">
             <tr>
 <th>Category</th><td>{{ item.category }}</td>
   </tr>           <tr>
@@ -15,7 +19,7 @@
  </tr>            <tr>
 <th>Description</th><td>{{ item.description }}</td>
     </tr>
-        </table>
+        </table></div></div>
 <div class="h4">Item History</div>
     {% if history|length > 0 %}
     <div class="table-responsive">
@@ -31,8 +35,8 @@
     {% for transaction in item.history %}
       <tr>
       <td>{{ transaction.person }}</td>
-      <td>{{ transaction.time_out|naturaltime }}</td>
-      <td>{{ transaction.time_in|naturaltime }}</td>
+      <td>{{ transaction.time_out }}</td>
+      <td>{{ transaction.time_in }}</td>
       </tr>
     {% endfor %}
 </tbody>

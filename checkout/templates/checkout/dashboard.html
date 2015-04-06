@@ -59,7 +59,7 @@ $('body').on('hidden.bs.modal', '.modal', function () {
       <div class="panel panel-warning">
         <div class="panel-heading">
           <div class="panel-title">
-            Reservations
+            Requests
           </div>
         </div>
             <table id="students" class="table table-striped">
@@ -71,7 +71,7 @@ $('body').on('hidden.bs.modal', '.modal', function () {
               <th>Requests</th>
               </tr>
             </thead>
-            {% for person in reservations %}
+            {% for person in requests %}
               <tr>
                 <td>
                   {{ person.full_name }}
@@ -83,15 +83,15 @@ $('body').on('hidden.bs.modal', '.modal', function () {
                   {{ person.group.name }}
                 </td>
                 <td>
-                {% if person.reservations|length > 0 %}
-                <span class="badge badge-info">{{ person.reservations|length }}</span>
+                {% if person.requests|length > 0 %}
+                <span class="badge badge-info">{{ person.requests|length }}</span>
                 {% endif %}
                 </td>
               </tr>
             {% endfor %}
             </table>
       </div>  <!-- panel -->
-<a class="btn btn-default" href="{% url 'checkout.views.reservations' %}" role="button">View details »</a>
+<a class="btn btn-default" href="{% url 'checkout.views.requests' %}" role="button">View details »</a>
     </div>  <!-- col -->
   </div>  <!-- row -->
 

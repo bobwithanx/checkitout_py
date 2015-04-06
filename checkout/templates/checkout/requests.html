@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="col-md-12 main">
-    <h1 class="page-header">Reservations</h1>
+    <h1 class="page-header">Requests</h1>
   <div class="row">
 {% if people|length > 0 %}
 {% for person in people %}
@@ -25,13 +25,13 @@
       <th>Action</th>
     </tr>
 </thead>
-  {% for reservation in person.reservations %}
+  {% for request in person.requests %}
 
       <tr>
-      <td><a href="{% url 'checkout.views.item_detail' pk=reservation.item.pk %}">{{ reservation.item }}</a></td>
-      <td>{{ reservation.item.serial }}</td>
-      <td>{{ reservation.item.description }}</td>
-      <td><a class="action-link text-success" role="button" href="{% url 'checkout.views.checkout_item' p=person.pk i=reservation.item.pk %}">approve</a> | <a class="action-link text-danger" role="button" href="{% url 'checkout.views.cancel_reservation' reservation.pk %}">cancel</a></td>
+      <td><a href="{% url 'checkout.views.item_detail' pk=request.item.pk %}">{{ request.item }}</a></td>
+      <td>{{ request.item.serial }}</td>
+      <td>{{ request.item.description }}</td>
+      <td><a class="action-link text-success" role="button" href="{% url 'checkout.views.checkout_item' p=person.pk i=request.item.pk %}">approve</a> | <a class="action-link text-danger" role="button" href="{% url 'checkout.views.cancel_request' request.pk %}">cancel</a></td>
       </tr>
     {% endfor %}
 </table>

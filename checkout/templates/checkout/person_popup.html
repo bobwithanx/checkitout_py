@@ -6,22 +6,22 @@
 <div class="modal-body">
     <div class="te">
                 <table class="table table-striped table-condensed">
-    {% if reservations|length > 0 %}
+    {% if requests|length > 0 %}
 			  <thead>
 				<tr>
-				  <th>Reservations</th>
+				  <th>Requests</th>
 				  <th></th>
 				  <th></th>
 				  <th></th>
 				</tr>
 			  </thead>
 			  <tbody>
-              {% for reservation in reservations %}
+              {% for request in requests %}
 				<tr class="warning">
-				  <td>{{ reservation.item.brand }} {{ reservation.item.model }}</td>
-				  <td>{{ reservation.item.serial }}</td>
-				  <td>{{ reservation.item.category }}</td>
-              	  <td><a class="action-link text-success" role="button" href="{% url 'checkout.views.checkout_item' p=person.pk i=reservation.item.pk %}">approve</a> | <a class="action-link text-danger" role="button" href="{% url 'checkout.views.cancel_reservation' reservation.pk %}">cancel</a></td>
+				  <td>{{ request.item.brand }} {{ request.item.model }}</td>
+				  <td>{{ request.item.serial }}</td>
+				  <td>{{ request.item.category }}</td>
+              	  <td><a class="action-link text-success" role="button" href="{% url 'checkout.views.checkout_item' p=person.pk i=request.item.pk %}">approve</a> | <a class="action-link text-danger" role="button" href="{% url 'checkout.views.cancel_request' request.pk %}">cancel</a></td>
 				</tr>
 			  {% endfor %}
 			  </tbody>

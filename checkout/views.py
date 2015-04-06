@@ -9,10 +9,10 @@ def dashboard(request):
     transactions = Transaction.objects.all()
     all_people = Person.objects.all()
     active_people = Person.objects.filter(pk__in=transactions)
-    reservations = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=True).values_list('person', flat=True)])
+    requests = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=True).values_list('person', flat=True)])
     active_items = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)])
 
-    return render(request, 'checkout/dashboard.html', {'transactions': transactions, 'all_people': all_people, 'active_people': active_people, 'active_items': active_items, 'reservations': reservations})
+    return render(request, 'checkout/dashboard.html', {'transactions': transactions, 'all_people': all_people, 'active_people': active_people, 'active_items': active_items, 'requests': requests})
 
 def search(request):
     transactions = Transaction.objects.all()
@@ -57,19 +57,19 @@ def person_popup(request, pk):
     person = get_object_or_404(Person, pk=pk)
     transactions = Transaction.objects.all()
     inventory = Transaction.objects.filter(person=pk).filter(time_out__isnull=False)
-    reservations = Transaction.objects.filter(person=pk).filter(time_out__isnull=True)
+    requests = Transaction.objects.filter(person=pk).filter(time_out__isnull=True)
     available_items = Item.objects.exclude(pk__in = [x for x in Transaction.objects.values_list('item', flat=True)])
     history = TransactionHistory.objects.filter(person=pk)
-    return render(request, 'checkout/person_popup.html', {'person': person, 'inventory': inventory, 'reservations': reservations, 'available_items': available_items, 'history': history})
+    return render(request, 'checkout/person_popup.html', {'person': person, 'inventory': inventory, 'requests': requests, 'available_items': available_items, 'history': history})
 
 def person_detail(request, pk):
     person = get_object_or_404(Person, pk=pk)
     transactions = Transaction.objects.all()
     inventory = Transaction.objects.filter(person=pk).filter(time_out__isnull=False)
-    reservations = Transaction.objects.filter(person=pk).filter(time_out__isnull=True)
+    requests = Transaction.objects.filter(person=pk).filter(time_out__isnull=True)
     available_items = Item.objects.exclude(pk__in = [x for x in Transaction.objects.values_list('item', flat=True)])
     history = TransactionHistory.objects.filter(person=pk)
-    return render(request, 'checkout/person_detail.html', {'person': person, 'inventory': inventory, 'reservations': reservations, 'available_items': available_items, 'history': history})
+    return render(request, 'checkout/person_detail.html', {'person': person, 'inventory': inventory, 'requests': requests, 'available_items': available_items, 'history': history})
 
 def person_history(request, pk):
     person = get_object_or_404(Person, pk=pk)
@@ -77,10 +77,10 @@ def person_history(request, pk):
     history = TransactionHistory.objects.filter(person=pk)
     return render(request, 'checkout/person_history.html', {'person': person, 'history': history})
 
-def reservations(request):
+def requests(request):
     transactions = Transaction.objects.all()
     people = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=True).values_list('person', flat=True)])
-    return render(request, 'checkout/reservations.html', {'people': people})
+    return render(request, 'checkout/requests.html', {'people': people})
 
 def check_in(request):
     transactions = Transaction.objects.all()
@@ -94,7 +94,7 @@ def item_search(request, pk):
       #return response
       person = get_object_or_404(Person, pk=pk)
       item = get_object_or_404(Item, barcode_id=request.POST.get('item', None))
-      return reserve_item(request, p=person.pk, i=item.pk)
+      return request_item(request, p=person.pk, i=item.pk)
     else:
 	  return person_detail(request, pk)
 	  
@@ -125,7 +125,7 @@ def list_available_items(request, p, c):
     available_items = Item.available_items.filter(category=category)
     return render(request, 'checkout/item_list.html', {'person': person, 'category': category, 'items': available_items})
 
-def reserve_item(request, p, i):
+def request_item(request, p, i):
     person = get_object_or_404(Person, pk=p)
     item = get_object_or_404(Item, pk=i)
     try:
@@ -134,15 +134,15 @@ def reserve_item(request, p, i):
     	transaction = Transaction.objects.create(person=person, item=item)
     return redirect('checkout.views.person_detail', pk=person.pk)
 
-def person_cancel_reservation(request, pk):
+def person_cancel_request(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
-    transaction.cancel_reservation()
+    transaction.cancel_request()
     return redirect('checkout.views.person_detail', pk=transaction.person.pk)
 
-def cancel_reservation(request, pk):
+def cancel_request(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
-    transaction.cancel_reservation()
-    return redirect('checkout.views.reservations')
+    transaction.cancel_request()
+    return redirect('checkout.views.requests')
 
 def checkout_item(request, p, i):
     person = get_object_or_404(Person, pk=p)
@@ -150,4 +150,4 @@ def checkout_item(request, p, i):
     transaction = Transaction.objects.get(person=person, item=item)
     transaction.check_out()
 
-    return redirect('checkout.views.reservations')
+    return redirect('checkout.views.requests')

@@ -3,40 +3,81 @@
 
 {% block content %}
 
-<script type="text/javascript">
+<style>
+body { font-size: 140%; }
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+	color: #333 !important;
+border: 1px solid #cacaca;
+background-color: #fff;
+}
+
+.dataTables_wrapper {
+position: relative;
+clear: both;
+zoom: 1;
+}
+
+.dataTables_wrapper .dataTables_info {
+	clear: both;
+	float: left;
+	}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+color: white !important;
+border: 1px solid #111;
+background-color: #585858;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+	box-sizing: border-box;
+display: inline-block;
+min-width: 1.5em;
+padding: 0.5em 1em;
+margin-left: 2px;
+text-align: center;
+text-decoration: none !important;
+cursor: pointer;
+border: 1px solid transparent;
+}
+
+div.dataTables_paginate {
+white-space: nowrap;
+}
+</style>
+
+<script>
 $(function () {
-    $( '#items' ).searchable({
-        striped: true,
-        oddRow: { 'background-color': '#f5f5f5' },
-        evenRow: { 'background-color': '#fff' },
-        searchType: 'default'
-    });
-    
-    $( '#searchable-container' ).searchable({
-        searchField: '#container-search',
-        selector: '.row',
-        childSelector: '.col-xs-4',
-        show: function( elem ) {
-            elem.slideDown(100);
-        },
-        hide: function( elem ) {
-            elem.slideUp( 100 );
-        }
-    })
-});
+  $('[data-toggle="popover"]').popover()
+})
 </script>
 
 <style>
-#table-scroll {  
-    height: 400px;
-    overflow: auto;
-}​
+.btn-items {
+  line-height: 2.0 !important;
+}
 </style>
 
 <div class="col-md-12 main">
-  <div class="page-header h1">{{ person.full_name }} <small>{{ person.id_number }}</small>  <span class="h4 pull-right"><a href="{% url 'checkout.views.person_detail' pk=person.pk %}">View Details</a></span></div>
+  <div class="page-header h1">{{ person.full_name }} <small>{{ person.id_number }}</small>
+  {% if person.inventory|length > 0 %}
+  <div class="btn-group" role="group" data-placement="right" data-html=True data-toggle="popover" title="Current Loans" data-content="{% for transaction in person.inventory %}{{ transaction.item }}<br/>{% endfor %}">
+  {% else %}
+  <div class="btn-group" role="group">
+  {% endif %}
+    <button type="button" class="btn btn-items btn-success">
+      <span class="glyphicon glyphicon-tags btn-items" aria-hidden="true"></span>
+    </button>
+  <button type="button" class="btn btn-items btn-default">{{ person.inventory|length }} Items</button>
+  </div>
+  </div>
 <div class="row">
 <div class="col-sm-12 col-md-12">
+	<ul class="nav nav-tabs">
+		<li role="presentation"><a href="{% url 'checkout.views.person_detail' pk=person.pk %}">Available Items</a></li>
+		<li role="presentation" class="active"><a href="{% url 'checkout.views.person_history' pk=person.pk %}">Borrowing History</a></li>
+	</ul>
+
 <div class="h3">Your History</div>
     {% if history|length > 0 %}
     <div class="table-responsive">
@@ -52,7 +93,7 @@ $(function () {
 <tbody>
     {% for transaction in person.history %}
       <tr>
-      <td>{{ transaction.item.brand }} {{ transaction.item.model }}</td>
+      <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
       <td>{{ transaction.item.serial }}</td>
       <td>{{ transaction.item.category }}</td>
       <td>{{ transaction.time_out|naturaltime }}</td>
@@ -69,5 +110,25 @@ $(function () {
   </div> <!-- row -->
 
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" modal-lg>
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                 <h4 class="modal-title">Modal title</h4>
+            </div>
+            <div class="modal-body"><div class="te"></div></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
 
 {% endblock content %}

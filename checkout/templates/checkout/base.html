@@ -1,5 +1,4 @@
 {% load staticfiles %}
-{% load navtag %}
 
 <html>
 	<head>
@@ -8,8 +7,8 @@
 		<link rel="stylesheet" href="{% static 'bootstrap/3.3.2/css/bootstrap.min.css' %}">
 		<link rel="stylesheet" href="{% static 'bootstrap/3.3.2/css/bootstrap-theme.min.css' %}">
 		<link rel="stylesheet" href="{% static 'bootstrap/3.3.2/css/dashboard.css' %}">
-		<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-		<link rel="stylesheet" href="http://cdn.datatables.net/1.10.5/css/jquery.dataTables.min.css">
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="http://cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
 		<script src="http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js"></script>
 		<script src="{% static 'bootstrap/3.3.2/js/bootstrap.min.js' %}"></script>
 		<script src="{% static 'js/jquery.searchable.js' %}"></script>
@@ -83,14 +82,12 @@ text-shadow: none;
     </div>
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
-{% block nav %}
-{% nav text 'class="active"' %}
     <!-- Collect the nav links, forms, and other content for toggling -->
       <ul class="nav navbar-nav">
 {% if user.is_staff %}
-      <li {{ nav.dashboard }}><a href="{% url 'checkout.views.dashboard' %}"><i class="fa fa-check-circle fa-fw"></i> Dashboard</a></li>
+      <li {{ nav.dashboard }}><a href="{% url 'checkout.views.dashboard' %}"><i class="fa fa-tachometer fa-fw"></i> Dashboard</a></li>
       <li {{ nav.check_in }}><a href="{% url 'checkout.views.check_in' %}"><i class="fa fa-check-circle fa-fw"></i> Check In</a></li>
-      <li {{ nav.reservations }}><a href="{% url 'checkout.views.reservations' %}"><i class="fa fa-calendar fa-fw"></i> Reservations</a></li>
+      <li {{ nav.requests }}><a href="{% url 'checkout.views.requests' %}"><i class="fa fa-calendar fa-fw"></i> Requests</a></li>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-cogs"></i> Admin <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
@@ -99,7 +96,9 @@ text-shadow: none;
             <li class="divider"></li>
       <li {{ nav.students }}><a href="{% url 'checkout.views.person_list' %}"><i class="fa fa-users fa-fw"></i> Students</a></li>
       <li {{ nav.equipment }}><a href="{% url 'checkout.views.item_list' %}"><i class="fa fa-camera fa-fw"></i> Equipment</a></li>
-          </ul>
+             <li class="divider"></li>
+      <li><a href="/admin/"><i class="fa fa-database fa-fw"></i> Database</a></li>
+         </ul>
         </li>
 
 {% endif %}
@@ -111,7 +110,6 @@ text-shadow: none;
       <li><a href="/login/"><i class="fa fa-sign-in"></i> Login</a></li>
 {% endif %}
     </ul>
-{% endblock %}
 
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->

@@ -19,22 +19,22 @@ class TransactionHistory(models.Model):
 
 class Transaction(models.Model):
     status_assigned = 'ASSIGNED'
-    status_reserved = 'RESERVED'
+    status_requested = 'REQUESTED'
     
     person = models.ForeignKey('Person')
     item = models.ForeignKey('Item')
     time_requested = models.DateTimeField(blank=True, null=True)
     time_out = models.DateTimeField(blank=True, null=True)
 	
-    def is_reserved(self):
-        return self.status() == self.status_reserved
+    def is_requested(self):
+        return self.status() == self.status_requested
         
-    def cancel_reservation(self):
+    def cancel_request(self):
         self.delete()
     
     def get_status(self):
         if self.time_out == None:
-            return self.status_reserved
+            return self.status_requested
         else:
             return self.status_assigned
 
@@ -67,6 +67,7 @@ class Item(models.Model):
     inventory_tag = models.CharField(max_length=255, blank=True, null=True)
     barcode_id = models.CharField(max_length=255, blank=True, null=True)
     description = models.CharField(max_length=255, blank=True, null=True)
+    image_name = models.CharField(max_length=255, blank=True, null=True)
 
     def _get_history(self):
         "Returns all items assigned to the person."
@@ -115,7 +116,7 @@ class Person(models.Model):
         "Returns all items assigned to the person."
         return TransactionHistory.objects.filter(person=self)
 
-    def _get_reservations(self):
+    def _get_requests(self):
         """Returns all items currently assigned to the person."""
         return Transaction.objects.filter(person=self).exclude(time_out__isnull=False)
 
@@ -128,7 +129,7 @@ class Person(models.Model):
         return '%s %s' % (self.first_name, self.last_name)
 
     history = property(_get_history)
-    reservations = property(_get_reservations)
+    requests = property(_get_requests)
     inventory = property(_get_inventory)
     full_name = property(_get_full_name)
     objects = models.Manager()
