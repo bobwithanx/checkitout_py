@@ -80,10 +80,11 @@ white-space: nowrap;
   <div class="page-header h1">{{ person.full_name }} <small>{{ person.id_number }}</small>
   {% if person.inventory|length > 0 %}
   <div class="btn-group" role="group" data-placement="right" data-html=True data-toggle="popover" title="Current Loans" data-content="{% for transaction in person.inventory %}{{ transaction.item }}<br/>{% endfor %}">
+    <button type="button" class="btn btn-items btn-success">
   {% else %}
   <div class="btn-group" role="group">
+    <button type="button" class="btn btn-items">
   {% endif %}
-    <button type="button" class="btn btn-items btn-success">
       <span class="glyphicon glyphicon-tags btn-items" aria-hidden="true"></span>
     </button>
   <button type="button" class="btn btn-items btn-default">{{ person.inventory|length }} Items</button>

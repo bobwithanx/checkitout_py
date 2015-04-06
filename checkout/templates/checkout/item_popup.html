@@ -1,5 +1,13 @@
 {% load staticfiles %}
 
+<style>
+.product-image {
+max-width:200px;
+height:auto;
+}
+</style>
+
+
 <body>
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -8,7 +16,7 @@
 <div class="modal-body">
     <div class="te">
     <div class="row"><div class="col-md-4">
-<img width=200 height=200 src="{% static 'images/'|add:item.image_name %}"></div><div class="col-md-1"></div>
+<img class="product-image" src="{% static 'images/'|add:item.image_name %}"></div><div class="col-md-1"></div>
 <div class="col-md-7">      <table class="table table-striped table-condensed">
             <tr>
 <th>Category</th><td>{{ item.category }}</td>

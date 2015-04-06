@@ -85,19 +85,15 @@ text-shadow: none;
     <!-- Collect the nav links, forms, and other content for toggling -->
       <ul class="nav navbar-nav">
 {% if user.is_staff %}
-      <li {{ nav.dashboard }}><a href="{% url 'checkout.views.dashboard' %}"><i class="fa fa-tachometer fa-fw"></i> Dashboard</a></li>
-      <li {{ nav.check_in }}><a href="{% url 'checkout.views.check_in' %}"><i class="fa fa-check-circle fa-fw"></i> Check In</a></li>
-      <li {{ nav.requests }}><a href="{% url 'checkout.views.requests' %}"><i class="fa fa-calendar fa-fw"></i> Requests</a></li>
+      <li {{ nav.dashboard }}><a href="{% url 'checkout.views.dashboard' %}"><i class="fa fa-th-large fa-fw"></i> Dashboard</a></li>
+      <li {{ nav.reports }}><a href="{% url 'checkout.views.reports' %}"><i class="fa fa-bar-chart-o fa-fw"></i> Reports</a></li>
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-cogs"></i> Admin <span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-list-alt"></i> Listings <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
       <li {{ nav.history }}><a href="{% url 'checkout.views.history' %}"><i class="fa fa-clock-o fa-fw"></i> History</a></li>
-      <li {{ nav.reports }}><a href="{% url 'checkout.views.reports' %}"><i class="fa fa-bar-chart fa-fw"></i> Reports</a></li>
             <li class="divider"></li>
       <li {{ nav.students }}><a href="{% url 'checkout.views.person_list' %}"><i class="fa fa-users fa-fw"></i> Students</a></li>
       <li {{ nav.equipment }}><a href="{% url 'checkout.views.item_list' %}"><i class="fa fa-camera fa-fw"></i> Equipment</a></li>
-             <li class="divider"></li>
-      <li><a href="/admin/"><i class="fa fa-database fa-fw"></i> Database</a></li>
          </ul>
         </li>
 
@@ -105,6 +101,8 @@ text-shadow: none;
     </ul>
       <ul class="nav navbar-nav navbar-right">
 {% if user.is_staff %}
+      <li><a href="/admin/"><i class="fa fa-database fa-fw"></i> Database</a></li>
+
 	  <li><a href="/logout/"><i class="fa fa-sign-out"></i> Logout</a></li>
 {% else %}
       <li><a href="/login/"><i class="fa fa-sign-in"></i> Login</a></li>

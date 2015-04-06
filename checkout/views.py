@@ -101,7 +101,7 @@ def item_search(request, pk):
 def item_checkin(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
     transaction.check_in()
-    return redirect('checkout.views.check_in')
+    return redirect('checkout.views.dashboard')
 
 def item_popup(request, pk):
     item = get_object_or_404(Item, pk=pk)
@@ -142,7 +142,7 @@ def person_cancel_request(request, pk):
 def cancel_request(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
     transaction.cancel_request()
-    return redirect('checkout.views.requests')
+    return redirect('checkout.views.dashboard')
 
 def checkout_item(request, p, i):
     person = get_object_or_404(Person, pk=p)
@@ -150,4 +150,4 @@ def checkout_item(request, p, i):
     transaction = Transaction.objects.get(person=person, item=item)
     transaction.check_out()
 
-    return redirect('checkout.views.requests')
+    return redirect('checkout.views.dashboard')
