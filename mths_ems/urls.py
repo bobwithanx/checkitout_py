@@ -13,11 +13,9 @@ urlpatterns = patterns('',
     url(r'^history/$', 'checkout.views.history', name="history"),
     url(r'^admin/', include(admin.site.urls), name="admin"),
     url(r'^item/$', 'checkout.views.item_list'),
-    url(r'^item/(?P<pk>[0-9]+)$', 'checkout.views.item_detail'),
     url(r'^item/(?P<pk>[0-9]+)/details$', 'checkout.views.item_popup', name="item-popup"),
-    url(r'^check_in/$', 'checkout.views.check_in', name="check-in"),
-    url(r'^requests/$', 'checkout.views.requests', name="request-list"),
-    url(r'^requests/cancel/(?P<pk>[0-9]+)/$', 'checkout.views.cancel_request', name="cancel-request"),
+    url(r'^request/cancel/(?P<pk>[0-9]+)/$', 'checkout.views.cancel_request', name="cancel-request"),
+    url(r'^transaction/cancel/(?P<t>[0-9]+)/$', 'checkout.views.delete_transaction', name="delete-transaction"),
     
     # Login/Logout URLs
     url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'checkout/login.html'}),

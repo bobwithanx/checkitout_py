@@ -3,59 +3,11 @@
 
 {% block content %}
 
-<style>
-body { font-size: 140%; }
-
-.dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-	color: #333 !important;
-border: 1px solid #cacaca;
-background-color: #fff;
-}
-
-.dataTables_wrapper {
-position: relative;
-clear: both;
-zoom: 1;
-}
-
-.dataTables_wrapper .dataTables_info {
-	clear: both;
-	float: left;
-	}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
-color: white !important;
-border: 1px solid #111;
-background-color: #585858;
-}
-
-.dataTables_wrapper .dataTables_paginate .paginate_button {
-	box-sizing: border-box;
-display: inline-block;
-min-width: 1.5em;
-padding: 0.5em 1em;
-margin-left: 2px;
-text-align: center;
-text-decoration: none !important;
-cursor: pointer;
-border: 1px solid transparent;
-}
-
-div.dataTables_paginate {
-white-space: nowrap;
-}
-</style>
-
 <script>
 $(function () {
   $('[data-toggle="popover"]').popover()
 })
-
-$('body').on('hidden.bs.modal', '.modal', function () {
-  $(this).removeData('bs.modal');
-});
 </script>
-
 
 <style>
 .btn-items {
@@ -117,24 +69,6 @@ $('body').on('hidden.bs.modal', '.modal', function () {
 
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" modal-lg>
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                 <h4 class="modal-title">Modal title</h4>
-            </div>
-            <div class="modal-body"><div class="te"></div></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-<!-- /.modal -->
+{% include 'checkout/popup.html' %}
 
 {% endblock content %}

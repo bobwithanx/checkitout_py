@@ -11,82 +11,69 @@
 
 <div class="row">
 
-<div class="col-md-6">
-  <table class="table table-condensed">
-    <tr>
-      <th>Category</th>
-      <th>Value</th>
-    </tr>
-    <tr>
-      <td>Total people</td>
-      <td>{{ all_people|length }}</td>
-    </tr>
-    <tr>
-      <td>Total transactions</td>
-      <td>{{ history|length }}</td>
-    </tr>
-    <tr>
-      <td>Borrowers</td>
-      <td>{{ history_people|length }}</td>
-    </tr>
-    <tr>
-      <td>Items loaned</td>
-      <td>{{ history_items|length }}</td>
-    </tr>
-  </table>
+<div class="col-sm-6 col-md-6">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Overall
+    </div>
+  </div>
+  <div class="list-group scroll-box">
+    <div class="list-group-item">Total people<span class="badge pull-right">{{ all_people|length }}</span></div>
+    <div class="list-group-item">Total transactions<span class="badge pull-right">{{ history|length }}</span></div>
+    <div class="list-group-item">Borrowers<span class="badge pull-right">{{ history_people|length }}</span></div>
+    <div class="list-group-item">Items loaned<span class="badge pull-right">{{ history_items|length }}</span></div>
+  </div>
+</div>
 </div>
 
-<div class="col-md-6">
-  <table class="table table-condensed">
-    <tr>
-      <th>Person</th>
-      <th>Count</th>
-      <th>% Borrowed</th>
-    </tr>
-      {% for person in history_people %}
-    <tr>
-      <td>{{ person.person__first_name }} {{ person.person__last_name }}</td>
-      <td>{{ person.count }}</td>
-      <td>{% widthratio person.count history|length 100 %}%</td>
-    </tr>
+<div class="col-sm-6 col-md-6">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Borrowers
+    </div>
+  </div>
+  <div class="list-group scroll-box">
+{% for person in history_people %}
+    <div class="list-group-item"><a href="{% url 'checkout.views.person_detail' pk=person.person__pk %}">{{ person.person__first_name }} {{ person.person__last_name }}</a><span class=" pull-right">{{ person.count }} times ({% widthratio person.count history|length 100 %}%)</span></div>
       {% endfor %}
-  </table>
+  </div>
+</div>
 </div>
 
-<div class="col-md-6">
-  <table class="table table-condensed">
-    <tr>
-      <th>Item Category</th>
-      <th>Count</th>
-      <th>% Borrowed</th>
-    </tr>
-      {% for category in history_category %}
-    <tr>
-      <td>{{ category.item__category__name }}</td>
-      <td>{{ category.count }}</td>
-      <td>{% widthratio category.count history|length 100 %}%</td>
-    </tr>
+<div class="col-sm-6 col-md-6">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Categories
+    </div>
+  </div>
+  <div class="list-group scroll-box">
+    {% for category in history_category %}
+    <div class="list-group-item">{{ category.item__category__name }}<span class=" pull-right">{{ category.count }} times ({% widthratio category.count history|length 100 %}%)</span></div>
       {% endfor %}
-  </table>
+  </div>
+</div>
 </div>
 
-<div class="col-md-6">
-  <table class="table table-condensed">
-    <tr>
-      <th>Item</th>
-      <th>Count</th>
-      <th>% Borrowed</th>
-    </tr>
-      {% for item in history_items %}
-    <tr>
-      <td>{{ item.item__brand__name }} {{ item.item__model }}<br/><span class="text-muted">{{ item.item__description }}</span></td>
-      <td>{{ item.count }}</td>
-      <td>{% widthratio item.count history|length 100 %}%</td>
-    </tr>
+<div class="col-sm-6 col-md-6">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Items
+    </div>
+  </div>
+  <div class="list-group scroll-box">
+    {% for item in history_items %}
+    <div class="list-group-item"><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=item.item__pk %}" data-target="#myModal">{{ item.item__brand__name }} {{ item.item__model }}</a><span class=" pull-right">{{ item.count }} times ({% widthratio item.count history|length 100 %}%)</span></div>
       {% endfor %}
-  </table>
+  </div>
 </div>
 </div>
+</div>
+
+{% include 'checkout/popup.html' %}
 
 {% endblock content %}
 

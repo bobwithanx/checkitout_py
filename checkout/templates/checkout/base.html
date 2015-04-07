@@ -7,29 +7,16 @@
 		<link rel="stylesheet" href="{% static 'bootstrap/3.3.2/css/bootstrap.min.css' %}">
 		<link rel="stylesheet" href="{% static 'bootstrap/3.3.2/css/bootstrap-theme.min.css' %}">
 		<link rel="stylesheet" href="{% static 'bootstrap/3.3.2/css/dashboard.css' %}">
+		<link rel="stylesheet" href="{% static 'css/dataTables.css' %}">
 		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 		<link rel="stylesheet" href="http://cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
 		<script src="http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js"></script>
 		<script src="{% static 'bootstrap/3.3.2/js/bootstrap.min.js' %}"></script>
-		<script src="{% static 'js/jquery.searchable.js' %}"></script>
-		<script src="{% static 'js/bootbox.min.js' %}"></script>
 <style>
 
-  .panel-green {
-    border-color: #5cb85c;
-  }
-  .panel-green .panel-heading {
-    border-color: #5cb85c;
-    color: #fff;
-    background-color: #5cb85c;
-  }
-  .panel-green a {
-    color: #5cb85c;
-  }
-  
 .btn-default {
-background-image: none;
-text-shadow: none;
+		background-image: none;
+		text-shadow: none;
 }
 .box {
     border-radius: 3px;
@@ -66,6 +53,7 @@ text-shadow: none;
     text-align: justify;
 }
 </style>
+
 	</head>
 	<body>
 <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -102,7 +90,6 @@ text-shadow: none;
       <ul class="nav navbar-nav navbar-right">
 {% if user.is_staff %}
       <li><a href="/admin/"><i class="fa fa-database fa-fw"></i> Database</a></li>
-
 	  <li><a href="/logout/"><i class="fa fa-sign-out"></i> Logout</a></li>
 {% else %}
       <li><a href="/login/"><i class="fa fa-sign-in"></i> Login</a></li>
@@ -112,7 +99,6 @@ text-shadow: none;
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
-
 {% block content %}
 {% endblock %}
   </body>

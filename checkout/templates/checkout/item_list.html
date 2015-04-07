@@ -1,71 +1,19 @@
 {% extends 'checkout/base.html' %}
 
 {% block content %}
-<script>
-$('body').on('hidden.bs.modal', '.modal', function () {
-  $(this).removeData('bs.modal');
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#myTable').DataTable( {
+    "lengthChange": false
+    } );
 });
 </script>
-
-<style media="screen" type="text/css">
-
-@import url(http://weloveiconfonts.com/api/?family=iconicfill);
-
-/* iconicfill */
-[class*="iconicfill-"]:before {
-  font-family: 'IconicFill', sans-serif;
-}
-.badge-right {
-  -webkit-border-top-left-radius: 0px;
-  -moz-border-top-left-radius: 0px;
-  border-top-left-radius: 0px;
-  -webkit-border-bottom-left-radius: 0px;
-  -moz-border-bottom-left-radius: 0px;
-  border-bottom-left-radius: 0px;
-  margin-left:-3px;
-  padding-left:5px;
-}
-
-.badge-left {
-  -webkit-border-top-right-radius: 0px;
-  -moz-border-top-right-radius: 0px;
-  border-top-right-radius: 0px;
-  -webkit-border-bottom-right-radius: 0px;
-  -moz-border-bottom-right-radius: 0px;
-  border-bottom-right-radius: 0px;
-  margin-right:-3px;
-  padding-right:5px;
-}
-
-.badge-middle {
-  -webkit-border-radius: 0px;
-  -moz-border-radius: 0px;
-  border-radius: 0px;
-  margin-right:0px;
-  margin-left:0px;
-  padding-right:5px;
-  padding-left:5px;
-}
-
-.badge-light {
-	background-color: #eee;
-	color: #666;
-}
-
-.badge-warning {
-	background-color: #eeac57;
-}
-
-.badge-success {
-	background-color: #5fb760;
-}
-
-</style>
 
         <div class="col-sm-9 col-md-10 main">
           <h1 class="page-header">Library Items</h1>
           <div class="table-responsive">
-            <table class="table table-striped table-condensed">
+            <table id="myTable" class="table table-striped table-condensed">
 <thead>
       <tr>
       <th>Item</th>
@@ -91,26 +39,6 @@ $('body').on('hidden.bs.modal', '.modal', function () {
 
 </div>
 </div>
-
-
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" modal-lg>
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                 <h4 class="modal-title">Modal title</h4>
-            </div>
-            <div class="modal-body"><div class="te"></div></div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-<!-- /.modal -->
+{% include 'checkout/popup.html' %}
 
 {% endblock content %}

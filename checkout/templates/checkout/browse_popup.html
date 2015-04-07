@@ -1,0 +1,51 @@
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#popupTable').DataTable( {
+    "lengthChange": false
+    } );
+});
+
+function myFilter( categoryFilter ) {
+  $('#popupTable').DataTable().search(categoryFilter);
+	$('#popupTable').DataTable().draw();
+};
+</script>
+
+<div class="h3">Available Items</div>
+<div class="btn-group" data-toggle="buttons">
+  <label class="btn btn-default active" onClick="myFilter('')">
+    <input type="radio" checked>Show All
+  </label>
+{% for category in categories %}
+  <label class="btn btn-default" onClick="myFilter('{{ category.name }}')">
+    <input type="radio" >{{ category.name }}
+  </label>
+{% endfor %}
+</div>
+
+    <table id="popupTable" class="table table-condensed table-striped">
+      <thead> 
+        <tr>
+					<th>Item</th>
+					<th>Serial #</th>
+					<th>Inventory Tag</th>
+					<th>Category</th>
+					<th>Description</th>
+					<th>Action</th>
+     		</tr>
+     	</thead>
+     	<tbody>
+     		{% for item in available_items %}
+	 				<tr> 
+						<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=item.pk %}" data-target="#myModal">{{ item }}</a></td>
+						<td>{{ item.serial }}</td>
+						<td>{{ item.inventory_tag }}</td>
+						<td>{{ item.category }}</td>
+						<td>{{ item.description }}</td>
+					  <td><a class="action-link" role="button" href="{% url 'checkout.views.request_item' p=person.pk i=item.pk %}">request</a></td>
+					</tr>
+			  {% endfor %}
+			</tbody>
+		</table>
+  </div>  <!-- col -->
+</div>  <!-- row -->

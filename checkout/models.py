@@ -28,10 +28,10 @@ class Transaction(models.Model):
 	
     def is_requested(self):
         return self.status() == self.status_requested
-        
+
     def cancel_request(self):
         self.delete()
-    
+
     def get_status(self):
         if self.time_out == None:
             return self.status_requested
