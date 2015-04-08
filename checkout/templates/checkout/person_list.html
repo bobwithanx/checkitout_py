@@ -1,0 +1,61 @@
+{% extends 'checkout/base.html' %}
+
+{% block content %}
+ 
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#myTable').DataTable( {
+    "lengthChange": false
+    } );
+});
+</script>
+
+<style>
+.row-padding {
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+</style>
+
+  <div class="col-sm-5 col-md-6 main">
+          <h1 class="page-header">Students</h1>
+          <div class="table-responsive">
+            <table id="myTable" class="table table-striped">
+<thead>
+      <tr>
+      <th>Name</th>
+      <th>ID #</th>
+      <th>Group</th>
+      <th>Inventory</th>
+    </tr>
+</thead>
+    {% for person in people %}
+      {% if person.inventory|length > 0 %}
+        <tr class="warning">
+      {% else %}
+        <tr> 
+      {% endif %}
+            <td>
+                <a href="{% url 'checkout.views.person_detail' pk=person.pk %}">
+                {{ person.full_name }}
+                </a>
+            </td>
+            <td>
+              {{ person.id_number }}
+            </td>
+            <td>
+              {{ person.group.name }}
+            </td>
+            <td>
+                {% if person.inventory|length > 0 %}
+                <span class="badge badge-info">{{ person.inventory|length }}</span>
+                {% endif %}
+            </td>
+          </tr>
+      {% endfor %}
+     </table>
+</div>
+</div>
+</div>
+</div>
+{% endblock content %}

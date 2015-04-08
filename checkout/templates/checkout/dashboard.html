@@ -1,113 +1,88 @@
 {% extends 'checkout/base.html' %}
 
 {% block content %}
+{% load humanize %}
 
-<style>
-  .panel-green {
-    border-color: #5cb85c;
-  }
-  .panel-green .panel-heading {
-    border-color: #5cb85c;
-    color: #fff;
-    background-color: #5cb85c;
-  }
-  .panel-green a {
-    color: #5cb85c;
-  }
-</style>
+<div class="col-md-12 main">
+  <h1 class="page-header">Dashboard</h1>
+  <div class="row">
 
-<div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-        <li class="active"><a href="/"><i class="fa fa-tachometer fa-fw"></i> Dashboard</a></li>
-        <li><a href="{% url 'checkout.views.student_list' %}"><i class="fa fa-users fa-fw"></i> Students</a></li>
-        <li><a href="{% url 'checkout.views.list_categories' %}"><i class="fa fa-camera fa-fw"></i> Equipment</a></li>
-            <li><a href="#">Reports</a></li>
-            <li><a href="#">Analytics</a></li>
-            <li><a href="#">Export</a></li>
-          </ul>
-        </div>
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Dashboard</h1>
-
-<div class="row">
-<div class="col-lg-3 col-md-6">
-<div class="panel panel-primary">
-  <div class="panel-heading">
-          <div class="row">
-            <div class="col-xs-3">
-              <i class="fa fa-users fa-5x"></i>
-	    </div>
-	    <div class="col-xs-9 text-right">
-    	
-	      <div class="h2">{{ open_transactions.count }}</div>
-	    </div>
-	  </div>
+{% for person in requests %}
+	<div class="col-md-6">
+      <div class="panel panel-warning">
+        <div class="panel-heading">
+          <div class="panel-title">
+      <a href="{% url 'checkout.views.person_detail' pk=person.pk %}">{{ person }}</a>
+    </div>
   </div>
-<a href="{% url 'checkout.views.student_list' %}">
-<div class="panel-footer">
-<span class="pull-left">All Students</span>
-<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-<div class="clearfix"></div>
-</div>
-</a>
-</div>
-</div>
-<div class="col-lg-3 col-md-6">
-<div class="panel panel-green">
-  <div class="panel-heading">
-          <div class="row">
-            <div class="col-xs-3">
-              <i class="fa fa-camera fa-5x"></i>
-	    </div>
-	    <div class="col-xs-9 text-right">
-	      <div class="h2">{{ items.count }}</div>
-	    </div>
-	  </div>
-  </div>
-<a href="{% url 'checkout.views.list_categories' %}">
-<div class="panel-footer">
-<span class="pull-left">All Equipment</span>
-<span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
-<div class="clearfix"></div>
-</div>
-</a>
-</div>
-</div>
-</div>
-</div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h2 class="sub-header">Current Activity</h2>
-          <div class="table-responsive">
-    <table id="current" class="table table-striped">
+  <div class="panel-body">
+           <div class="table-responsive">
+            <table id="myTable" class="table table-striped table-condensed">
 <thead>
       <tr>
-      <th>Name</th>
-      <th>Item Count</th>
-      <th>Inventory</th>
-      <th>Last Checkout</th>
+      <th>Item</th>
+      <th>Serial</th>
+      <th>Description</th>
+      <th>Action</th>
     </tr>
-    </thead>
-    {% for student in students %}
-          <tr> 
-            <td>
-               <a href="{% url 'checkout.views.student_detail' pk=student.pk %}">
-                {{ student.full_name }}
-                </a>
-            </td>
-            <td>
-                <span class="badge badge-info">{{ student.inventory_count }}</span>
-            </td>
-            <td>
-		{% for item in student.inventory %}
-		{{ item }}<br/>
-		{% endfor %}
-            </td>
-            <td></td>
-          </tr>
-      {% endfor %}
-     </table>
+</thead>
+  {% for request in person.requests %}
+
+      <tr>
+      <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=request.item.pk %}" data-target="#myModal">{{ request.item }}</a></td>
+      <td>{{ request.item.serial }}</td>
+      <td>{{ request.item.description }}</td>
+      <td><a class="action-link text-success" role="button" href="{% url 'checkout.views.checkout_item' p=person.pk i=request.item.pk %}">approve</a> | <a class="action-link text-danger" role="button" href="{% url 'checkout.views.cancel_request' request.pk %}">cancel</a></td>
+      </tr>
+    {% endfor %}
+</table>
+</div>
+  </div>
 </div>
 </div>
+{% endfor %}
+
+
+
+{% for person in active_items %}
+<div class="col-md-6">
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <div class="panel-title">
+      <a href="{% url 'checkout.views.person_detail' pk=person.pk %}">{{ person }}</a>
+    </div>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table id="myTable" class="table table-striped table-condensed">
+<thead>
+      <tr>
+      <th>Item</th>
+      <th>Description</th>
+      <th>Out</th>
+      <th>Action</th>
+    </tr>
+</thead>
+  {% for transaction in person.inventory %}
+      <tr>
+      <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">
+{{ transaction.item }}</a></td>
+      <td>{{ transaction.item.description }}</td>
+      <td>{{ transaction.time_out|naturaltime }}</td>
+      <td><a class="action-link" role="button" href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}">check in</a> | <a class="action-link text-danger" role="button" href="{% url 'checkout.views.delete_transaction' t=transaction.pk %}">cancel</a></td>
+      </tr>
+    {% endfor %}
+</table>
+</div>
+</div> <!-- panel-body -->
+</div> <!-- panel -->
+</div> <!-- col -->
+{% endfor %}
+
+  </div>  <!-- row -->
+
+</div>
+
+{% include 'checkout/popup.html' %}
+
 {% endblock content %}

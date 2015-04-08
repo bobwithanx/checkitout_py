@@ -1,64 +1,157 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.db.models import Count 
-from .models import Transaction, Student, Item, Category
+from django.db.models import Count, F
+from .models import Transaction, TransactionHistory, Person, Item, Category
 from .forms import TransactionForm
+from django.http import HttpRequest, HttpResponse
 
 def dashboard(request):
-  open_transactions = Transaction.with_inventory.all()
-  assigned_equipment = Item.assigned_items.all()
-  students = Student.objects.all()
-  return render(request, 'checkout/dashboard.html', {'open_transactions': open_transactions, 'students': students, 'items': assigned_equipment})
+    transactions = Transaction.objects.all()
+    all_people = Person.objects.all()
+    active_people = Person.objects.filter(pk__in=transactions)
+    requests = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=True).values_list('person', flat=True)])
+    active_items = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)])
 
-def student_list(request):
-    students = Student.objects.all()
-    return render(request, 'checkout/student_list.html', {'students': students})
+    return render(request, 'checkout/dashboard.html', {'transactions': transactions, 'all_people': all_people, 'active_people': active_people, 'active_items': active_items, 'requests': requests})
 
-def student_detail(request, pk):
-    student = get_object_or_404(Student, pk=pk)
-    transactions = Transaction.objects.filter(student=student).exclude(in_time__isnull=False)
-    return render(request, 'checkout/student_detail.html', {'student': student, 'transactions': transactions})
+def search(request):
+    transactions = Transaction.objects.all()
+    all_people = Person.objects.all()
+    active_people = Person.objects.filter(pk__in=transactions)
+    active_items = Item.objects.filter(pk__in=transactions)
+    return render(request, 'checkout/search.html', {'transactions': transactions, 'all_people': all_people, 'active_people': active_people, 'active_items': active_items})
 
+def reports(request):
+    transactions = Transaction.objects.all()
+    history = TransactionHistory.objects.all()
+    all_people = Person.objects.all()
+    active_people = Person.objects.filter(pk__in=transactions)
+    active_items = Item.objects.filter(pk__in=transactions)
+    borrowers = Person.objects.filter(pk__in=history)
+    loaned_items = Item.objects.filter(pk__in=history)
+    history_category = history.values('item__category__name').annotate(count=Count("item")).order_by('-count')
+    history_items = history.values('item__brand__name', 'item__model', 'item__serial', 'item__description', 'item__pk').annotate(count=Count("item__id")).order_by('-count')
+    history_people = history.values('person__first_name', 'person__last_name', 'person__pk').annotate(count=Count("person")).order_by('-count')
+
+    return render(request, 'checkout/reports.html', {'history': history, 'history_category': history_category, 'history_items': history_items, 'history_people': history_people, 'transactions': transactions, 'all_people': all_people, 'borrowers': borrowers, 'loaned_items': loaned_items, 'active_people': active_people, 'active_items': active_items})
+
+def history(request):
+    history = TransactionHistory.objects.all().order_by('-time_in')
+    return render(request, 'checkout/history.html', {'history': history})
+
+def person_list(request):
+    people = Person.objects.all()
+    return render(request, 'checkout/person_list.html', {'people': people})
+
+def person_search(request):
+    if request.method == "POST":
+      #response = HttpResponse("You are searching for: " + request.POST.get('person', 'Bob'))
+      #return response
+      person = get_object_or_404(Person, id_number=request.POST.get('person', None))
+      return person_detail(request, pk=person.pk)
+    else:
+	  return person_list(request)
+    
+def person_detail(request, pk):
+    person = get_object_or_404(Person, pk=pk)
+    transactions = Transaction.objects.all()
+    inventory = Transaction.objects.filter(person=pk).filter(time_out__isnull=False)
+    requests = Transaction.objects.filter(person=pk).filter(time_out__isnull=True)
+    available_items = Item.objects.exclude(pk__in = [x for x in Transaction.objects.values_list('item', flat=True)])
+
+    categories = Category.objects.all().order_by('name')
+
+    history = TransactionHistory.objects.filter(person=pk)
+    return render(request, 'checkout/person_detail.html', {'categories': categories, 'person': person, 'inventory': inventory, 'requests': requests, 'available_items': available_items, 'history': history})
+
+def person_history(request, pk):
+    person = get_object_or_404(Person, pk=pk)
+    transactions = Transaction.objects.all()
+    history = TransactionHistory.objects.filter(person=pk)
+    return render(request, 'checkout/person_history.html', {'person': person, 'history': history})
+
+def requests(request):
+    transactions = Transaction.objects.all()
+    people = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=True).values_list('person', flat=True)])
+    return render(request, 'checkout/requests.html', {'people': people})
+
+def check_in(request):
+    transactions = Transaction.objects.all()
+    people = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)])
+    return render(request, 'checkout/check_in.html', {'people': people})
+	
+def item_search(request, pk):
+    if request.method == "POST":
+      #response = HttpResponse("You are searching for: " + request.POST.get('person', 'Bob'))
+      #return response
+      person = get_object_or_404(Person, pk=pk)
+      item = get_object_or_404(Item, barcode_id=request.POST.get('item', None))
+      return request_item(request, p=person.pk, i=item.pk)
+    else:
+	  return person_detail(request, pk)
+	  
 def item_checkin(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
-    transaction.in_time = timezone.now()
-    transaction.save()
-    transaction.item.assigned_to = None
-    transaction.item.save()
-    return redirect('checkout.views.student_detail', pk=transaction.student.pk)
+    transaction.check_in()
+    return redirect('checkout.views.dashboard')
 
-def list_categories(request):
+def item_popup(request, pk):
+    item = get_object_or_404(Item, pk=pk)
+    transactions = Transaction.objects.all()
+    history = TransactionHistory.objects.filter(item=pk)
+    return render(request, 'checkout/item_popup.html', {'item': item, 'history': history})
+
+def browse_popup(request, pk):
+    person = get_object_or_404(Person, pk=pk)
+    transactions = Transaction.objects.all()
+    available_items = Item.objects.exclude(pk__in = [x for x in Transaction.objects.values_list('item', flat=True)])
     categories = Category.objects.all().order_by('name')
-    return render(request, 'checkout/category_list.html', {'categories': categories})
+    return render(request, 'checkout/person_reserve.html', {'categories': categories, 'person': person, 'available_items': available_items})
 
-def category_list(request, pk):
-    student = get_object_or_404(Student, pk=pk)
-    categories = Category.objects.all().order_by('name')
-    return render(request, 'checkout/list_categories.html', {'student': student, 'categories': categories})
+def item_list(request):
+    items = Item.objects.all().order_by('category')
+    return render(request, 'checkout/item_list.html', {'items': items})
 
-def list_available_items(request, s, c):
-    student = get_object_or_404(Student, pk=s)
-    category = get_object_or_404(Category, pk=c)
-    available_items = Item.objects.filter(category=category).filter(assigned_to__isnull=True)
-    return render(request, 'checkout/item_list.html', {'student': student, 'category': category, 'items': available_items})
+def request_item(request, p, i):
+    person = get_object_or_404(Person, pk=p)
+    item = get_object_or_404(Item, pk=i)
+    try:
+      transaction = Transaction.objects.get(item=item.pk)
+    except Transaction.DoesNotExist:
+    	transaction = Transaction.objects.create(person=person, item=item)
+    return redirect('checkout.views.person_detail', pk=person.pk)
 
-def item_checkout(request, s, c, i):
-    	  student = get_object_or_404(Student, pk=s)
-    	  item = get_object_or_404(Item, pk=i)
-       	  transaction = Transaction.objects.create(item=item, student=student, out_time=timezone.now())
-	  item.assigned_to = student
-	  item.save()
-	  transaction.save()
-	  return redirect('checkout.views.student_detail', pk=student.pk)
-
-def transaction_new(request):
+def quick_checkout(request, p):
+    person = get_object_or_404(Person, pk=p)
     if request.method == "POST":
-       form = TransactionForm(request.POST)
-       if form.is_valid():
-	  transaction = form.save(commit=False)
-	  transaction.out_time = timezone.now()
-	  transaction.save()
-	  return redirect('checkout.views.transaction_detail', pk=transaction.pk)
-    else:
-       form = TransactionForm()
-    return render(request, 'checkout/transaction_edit.html', {'form': form})
+      item = get_object_or_404(Item, barcode_id=request.POST.get('item', None))
+    try:
+        transaction = Transaction.objects.get(item=item.pk)
+    except Transaction.DoesNotExist:
+    	transaction = Transaction.objects.create(person=person, item=item)
+    transaction.check_out()
+    return redirect('checkout.views.person_detail', pk=person.pk)
+
+def person_cancel_request(request, pk):
+    transaction = get_object_or_404(Transaction, pk=pk)
+    transaction.cancel_request()
+    return redirect('checkout.views.person_detail', pk=transaction.person.pk)
+
+def cancel_request(request, pk):
+    transaction = get_object_or_404(Transaction, pk=pk)
+    transaction.cancel_request()
+    return redirect('checkout.views.dashboard')
+
+def checkout_item(request, p, i):
+    person = get_object_or_404(Person, pk=p)
+    item = get_object_or_404(Item, pk=i)
+    transaction = Transaction.objects.get(person=person, item=item)
+    transaction.check_out()
+
+    return redirect('checkout.views.dashboard')
+    
+def delete_transaction(request, t):
+    transaction = get_object_or_404(Transaction, pk=t)
+    transaction.cancel_request()
+
+    return redirect('checkout.views.dashboard')

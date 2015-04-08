@@ -21,8 +21,8 @@ with open('import/inventory.csv', 'rb') as csvfile:
 	
 	for my_item in reader:
 		item = Item()  
-		item.category = Category.objects.get(pk=my_item[0])
-		item.brand = Brand.objects.get(pk=my_item[1])
+		item.category, created = Category.objects.get_or_create(name=my_item[0])
+		item.brand, created = Brand.objects.get_or_create(name=my_item[1])
 		item.model = my_item[2]
 		item.serial = my_item[3]
 		item.save()
