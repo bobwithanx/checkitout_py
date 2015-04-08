@@ -1,0 +1,154 @@
+{% extends 'checkout/base.html' %}
+
+{% block content %}
+{% load humanize %}
+
+<script type="text/javascript">
+$(function () {
+  $('[data-toggle="popover"]').popover()
+})
+
+$(document).ready(function(){
+    $('#myTable').DataTable( {
+    "lengthChange": false,
+    "paging": false,
+    "searching": false,
+    "order": [[ 4, 'dsc' ]]
+    } );
+});
+
+function myFilter( categoryFilter ) {
+  $('#myTable').DataTable().search(categoryFilter);
+	$('#myTable').DataTable().draw();
+};
+</script>
+
+<style>
+.btn-items {
+  line-height: 2.0 !important;
+}
+
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th {
+	font-size: 14px;
+}
+
+#sidebar-wrapper {
+	width: 120px;
+	padding-top: 100px;
+}
+#sidebar-wrapper a:hover {
+	background-color: inherit;
+}
+
+ul.sidebar-nav li {
+    margin-top: 25px;
+}
+
+#wrapper {
+	padding-left: 120px;
+}
+
+</style>
+
+<div id="wrapper">
+	<!-- Sidebar -->
+	<div id="sidebar-wrapper">
+		<ul class="sidebar-nav">
+			<li><a href="/"><i class="fa fa-search fa-2x fa-fw"></i></a></li>
+			<li><a href="{% url 'checkout.views.person_detail' pk=person.pk %}"><i class="fa fa-calendar fa-2x fa-fw"></i></a></li>
+			<li><a href="{% url 'checkout.views.person_history' pk=person.pk %}"><i class="fa fa-history fa-2x fa-fw"></i></a></li>
+			<li><a href="{% url 'checkout.views.browse_popup' pk=person.pk %}"><i class="fa fa-plus-circle fa-2x fa-fw"></i></a></li>
+    </ul>
+
+	</div>
+	<!-- /#sidebar-wrapper -->
+
+	<!-- Page Content -->
+	<div id="page-content-wrapper">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="page-header">
+						<span class="h1">{{ person.full_name }}</span>
+						<span class="h4 text-muted">{{ person.id_number }}</span>
+						<span class="label label-success">{{ person.inventory|length }} Items</span>
+						<span class="label label-warning">{{ person.requests|length }} Requests</span>			 
+					</div>
+				</div>
+			</div>
+	<div class="row">
+		<div class="col-sm-6 col-md-6" id="quick_checkout">
+			{% if user.is_staff %}
+				<div class="h4">Quick Checkout</div>
+				<form action="{% url 'checkout.views.quick_checkout' p=person.pk %}" method="POST">
+					{% csrf_token %}
+					<input autofocus="true" text="search" name="item" id="search" value="" class="form-control" placeholder="Scan an Item"/>
+				</form>
+			{% endif %}
+		</div>
+	</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#popupTable').DataTable( {
+    "lengthChange": false
+    } );
+});
+
+function myFilter( categoryFilter ) {
+  $('#popupTable').DataTable().search(categoryFilter);
+	$('#popupTable').DataTable().draw();
+};
+</script>
+
+<div class="h3">Available Items</div>
+<div class="btn-group" data-toggle="buttons">
+  <label class="btn btn-default active" onClick="myFilter('')">
+    <input type="radio" checked>Show All
+  </label>
+{% for category in categories %}
+  <label class="btn btn-default" onClick="myFilter('{{ category.name }}')">
+    <input type="radio" >{{ category.name }}
+  </label>
+{% endfor %}
+</div>
+
+	<div class="row">
+		<div class="col-sm-12 col-md-12">
+    <table id="popupTable" class="table table-condensed table-striped">
+      <thead> 
+        <tr>
+					<th>Item</th>
+					<th>Serial #</th>
+					<th>Inventory Tag</th>
+					<th>Category</th>
+					<th>Description</th>
+					<th>Action</th>
+     		</tr>
+     	</thead>
+     	<tbody>
+     		{% for item in available_items %}
+	 				<tr> 
+						<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=item.pk %}" data-target="#myModal">{{ item }}</a></td>
+						<td>{{ item.serial }}</td>
+						<td>{{ item.inventory_tag }}</td>
+						<td>{{ item.category }}</td>
+						<td>{{ item.description }}</td>
+					  <td><a class="action-link" role="button" href="{% url 'checkout.views.request_item' p=person.pk i=item.pk %}">request</a></td>
+					</tr>
+			  {% endfor %}
+			</tbody>
+		</table>
+  </div>  <!-- col -->
+</div>  <!-- row -->
+
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /#page-content-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
+{% endblock content %}

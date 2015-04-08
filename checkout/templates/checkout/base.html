@@ -12,6 +12,8 @@
 		<link rel="stylesheet" href="http://cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
 		<script src="http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js"></script>
 		<script src="{% static 'bootstrap/3.3.2/js/bootstrap.min.js' %}"></script>
+    <!-- Custom CSS -->
+    <link href="{% static 'css/simple-sidebar.css' %}" rel="stylesheet">
 <style>
 
 .btn-default {
@@ -56,7 +58,7 @@
 
 	</head>
 	<body>
-<nav class="navbar navbar-inverse navbar-fixed-top">
+<nav class="navbar  navbar-fixed-top">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
@@ -66,12 +68,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="/">Equipment Checkout System</a>
+      <a class="navbar-brand" href="">Equipment Checkout System</a>
     </div>
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
     <!-- Collect the nav links, forms, and other content for toggling -->
-      <ul class="nav navbar-nav">
+      <ul class="nav navbar-nav navbar-admin navbar-right">
 {% if user.is_staff %}
       <li {{ nav.dashboard }}><a href="{% url 'checkout.views.dashboard' %}"><i class="fa fa-th-large fa-fw"></i> Dashboard</a></li>
       <li {{ nav.reports }}><a href="{% url 'checkout.views.reports' %}"><i class="fa fa-bar-chart-o fa-fw"></i> Reports</a></li>
@@ -84,12 +86,7 @@
       <li {{ nav.equipment }}><a href="{% url 'checkout.views.item_list' %}"><i class="fa fa-camera fa-fw"></i> Equipment</a></li>
          </ul>
         </li>
-
-{% endif %}
-    </ul>
-      <ul class="nav navbar-nav navbar-right">
-{% if user.is_staff %}
-      <li><a href="/admin/"><i class="fa fa-database fa-fw"></i> Database</a></li>
+      <li><a href="/admin/" target="_blank"><i class="fa fa-database fa-fw"></i> Database</a></li>
 	  <li><a href="/logout/"><i class="fa fa-sign-out"></i> Logout</a></li>
 {% else %}
       <li><a href="/login/"><i class="fa fa-sign-in"></i> Login</a></li>

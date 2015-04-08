@@ -106,7 +106,7 @@ def browse_popup(request, pk):
     transactions = Transaction.objects.all()
     available_items = Item.objects.exclude(pk__in = [x for x in Transaction.objects.values_list('item', flat=True)])
     categories = Category.objects.all().order_by('name')
-    return render(request, 'checkout/browse_popup.html', {'categories': categories, 'person': person, 'available_items': available_items})
+    return render(request, 'checkout/person_reserve.html', {'categories': categories, 'person': person, 'available_items': available_items})
 
 def item_list(request):
     items = Item.objects.all().order_by('category')

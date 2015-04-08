@@ -13,28 +13,50 @@ $(function () {
 .btn-items {
   line-height: 2.0 !important;
 }
+#sidebar-wrapper {
+	width: 120px;
+	padding-top: 100px;
+}
+#sidebar-wrapper a:hover {
+	background-color: inherit;
+}
+
+ul.sidebar-nav li {
+    margin-top: 25px;
+}
+
+#wrapper {
+	padding-left: 120px;
+}
+
 </style>
 
-<div class="col-md-12 main">
-  <div class="page-header h1">{{ person.full_name }} <small>{{ person.id_number }}</small>
-  {% if person.inventory|length > 0 %}
-  <div class="btn-group" role="group" data-placement="right" data-html=True data-toggle="popover" title="Current Loans" data-content="{% for transaction in person.inventory %}{{ transaction.item }}<br/>{% endfor %}">
-    <button type="button" class="btn btn-items btn-success">
-  {% else %}
-  <div class="btn-group" role="group">
-    <button type="button" class="btn btn-items">
-  {% endif %}
-      <span class="glyphicon glyphicon-tags btn-items" aria-hidden="true"></span>
-    </button>
-  <button type="button" class="btn btn-items btn-default">{{ person.inventory|length }} Items</button>
-  </div>
-  </div>
-<div class="row">
-<div class="col-sm-12 col-md-12">
-	<ul class="nav nav-tabs">
-		<li role="presentation"><a href="{% url 'checkout.views.person_detail' pk=person.pk %}">Available Items</a></li>
-		<li role="presentation" class="active"><a href="{% url 'checkout.views.person_history' pk=person.pk %}">Borrowing History</a></li>
-	</ul>
+<div id="wrapper">
+	<!-- Sidebar -->
+	<div id="sidebar-wrapper">
+		<ul class="sidebar-nav">
+			<li><a href="/"><i class="fa fa-search fa-2x fa-fw"></i></a></li>
+			<li><a href="{% url 'checkout.views.person_detail' pk=person.pk %}"><i class="fa fa-calendar fa-2x fa-fw"></i></a></li>
+			<li><a href="{% url 'checkout.views.person_history' pk=person.pk %}"><i class="fa fa-history fa-2x fa-fw"></i></a></li>
+			<li><a href="{% url 'checkout.views.browse_popup' pk=person.pk %}"><i class="fa fa-plus-circle fa-2x fa-fw"></i></a></li>
+    </ul>
+
+	</div>
+	<!-- /#sidebar-wrapper -->
+
+	<!-- Page Content -->
+	<div id="page-content-wrapper">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="page-header">
+						<span class="h1">{{ person.full_name }}</span>
+						<span class="h4 text-muted">{{ person.id_number }}</span>
+						<span class="label label-success">{{ person.inventory|length }} Items</span>
+						<span class="label label-warning">{{ person.requests|length }} Requests</span>			 
+					</div>
+				</div>
+			</div>
 
 <div class="h3">Your History</div>
     {% if history|length > 0 %}

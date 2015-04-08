@@ -18,8 +18,8 @@ class TransactionHistory(models.Model):
 
 
 class Transaction(models.Model):
-    status_assigned = 'ASSIGNED'
-    status_requested = 'REQUESTED'
+    status_assigned = 'Assigned'
+    status_requested = 'Requested'
     
     person = models.ForeignKey('Person')
     item = models.ForeignKey('Item')
