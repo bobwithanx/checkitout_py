@@ -1,61 +1,49 @@
 {% extends 'checkout/base.html' %}
 
 {% block content %}
- 
+
 <script type="text/javascript">
-$(document).ready(function(){
-    $('#myTable').DataTable( {
-    "lengthChange": false
-    } );
-});
+    $(document).pjax('a', '#pjax-container');
+
+if ($.support.pjax) {
+  $(document).on('click', 'a[data-pjax]', function(event) {
+    var container = $(this).closest('[data-pjax-container]')
+    $.pjax.click(event, {container: container})
+  })
+}
 </script>
 
-<style>
-.row-padding {
-    margin-top: 25px;
-    margin-bottom: 25px;
-}
-</style>
+<div class="container bootcards-container push-right">
+  <div class="row">
+    <div class="col-sm-5 bootcards-list">
 
-  <div class="col-sm-5 col-md-6 main">
-          <h1 class="page-header">Students</h1>
-          <div class="table-responsive">
-            <table id="myTable" class="table table-striped">
-<thead>
-      <tr>
-      <th>Name</th>
-      <th>ID #</th>
-      <th>Group</th>
-      <th>Inventory</th>
-    </tr>
-</thead>
-    {% for person in people %}
-      {% if person.inventory|length > 0 %}
-        <tr class="warning">
-      {% else %}
-        <tr> 
-      {% endif %}
-            <td>
-                <a href="{% url 'checkout.views.person_detail' pk=person.pk %}">
-                {{ person.full_name }}
-                </a>
-            </td>
-            <td>
+      <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+          <h3 class="panel-title pull-left">All Students</h3>
+        </div>
+        <div class="list-group">
+          {% for person in people %}
+            <a data-pjax class="list-group-item" href="{% url 'checkout.views.person_detail' pk=person.pk %}">
+              <h4 class="list-group-item-heading">
+                {{ person }}
+              <span class="label label-warning">{% if person.requests|length > 0 %}{{ person.requests|length }}{% endif %}</span>
+              <span class="label label-left label-success">{% if person.inventory|length > 0 %}{{ person.inventory|length }}{% endif %}</span>
+              </h4>
+              <p class="list-group-item-text">
               {{ person.id_number }}
-            </td>
-            <td>
-              {{ person.group.name }}
-            </td>
-            <td>
-                {% if person.inventory|length > 0 %}
-                <span class="badge badge-info">{{ person.inventory|length }}</span>
-                {% endif %}
-            </td>
-          </tr>
-      {% endfor %}
-     </table>
+              </p>
+            </a>
+          {% endfor %}
+        </div>
+      </div>			
+		</div>
+		
+		<div class="col-sm-7 bootcards-cards">
+            <div class="container" id="pjax-container">
+            </div>
+
+		</div>
+	</div>
 </div>
-</div>
-</div>
-</div>
+
 {% endblock content %}

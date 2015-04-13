@@ -1,0 +1,144 @@
+{% extends 'checkout/base.html'|pjax:request %}
+{% load humanize %}
+
+{% block content %}
+
+<script type="text/javascript">
+$(function () {
+  $('[data-toggle="popover"]').popover()
+});
+
+$(document).ready(function(){
+    $('#myTable').DataTable( {
+    "lengthChange": false,
+    "paging": false,
+    "searching": false,
+    "ordering": false,
+    "info": false,
+    "columns": [
+				null,
+				{ "visible": false },
+				{ "visible": false },
+				null,
+				null,
+				null,
+			],
+    "order": [[ 4, 'dsc' ]]
+    } );
+});
+
+function myFilter( categoryFilter ) {
+  $('#myTable').DataTable().search(categoryFilter);
+	$('#myTable').DataTable().draw();
+};
+</script>
+    
+<div class="section">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="page-header">
+					<h1>{{ person.full_name }}
+						<small>{{ person.id_number }}</small>
+					</h1>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="section">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<ul class="nav nav-tabs">
+					<li class="active">
+						<a href="#">Current</a>
+					</li>
+					<li>
+						<a href="{% url 'checkout.views.person_history' pk=person.pk %}">History</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="section">
+	<div class="container">                
+	<div class="row">
+                    <div class="col-sm-6 col-md-6 col-lg-6">
+                        <form role="form" action="{% url 'checkout.views.quick_checkout' p=person.pk %}" method="POST">
+                            <div class="form-group">
+                            								{% csrf_token %}
+                                <div class="input-group">
+                                    <input autofocus="true" text="search" name="item" id="search" value="" class="form-control" placeholder="Scan an Item"/>
+                                    <span class="input-group-btn">
+                                        <a class="btn btn-success" type="submit">Go</a>
+                                    </span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-md-4">
+                        <a class="btn btn-primary" href="{% url 'checkout.views.browse_items' pk=person.pk %}">Browse</a>
+                    </div>
+                </div>
+
+		<div class="row">
+			<div class="col-md-12">
+				{% if person.requests|length > 0 %}
+					<h3>Requests</h3>
+					<table class="table table-condensed table-hover">
+						<tbody>
+							{% for transaction in person.requests %}
+								<tr>
+									<td>{{ forloop.counter }}</td>
+									<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
+									<td>{{ transaction.item.serial }}</td>
+									<td>Requested</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Item</th>
+								<th>Serial</th>
+								<th>Time</th>
+							</tr>
+						</thead>
+					</table>
+				{% endif %}
+
+					<h3>Current Loans</h3>
+				{% if person.inventory|length > 0 %}
+					<table class="table table-condensed table-hover">
+						<tbody>
+							{% for transaction in person.inventory %}
+								<tr>
+									<td>{{ forloop.counter }}</td>
+									<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
+									<td>{{ transaction.item.serial }}</td>
+									<td>{{ transaction.item.time_out|naturaltime }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Item</th>
+								<th>Serial</th>
+								<th>Time</th>
+							</tr>
+						</thead>
+					</table>
+				{% else %}
+					<p>No items are currently on loan.</p>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,99 @@
+{% extends 'checkout/base.html' %}
+
+{% block content %}
+{% load humanize %}
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#myTable').DataTable( {
+    "lengthChange": false,
+    "info": false,
+    "ordering": false,
+    "paging": false,
+    "columns": [
+    null,
+    null,
+    { "visible": false },
+    { "visible": false },
+    null,
+    null,
+  ],
+    "order": [[ 4, 'dsc' ]]
+    } );
+});
+
+function myFilter( categoryFilter ) {
+  $('#myTable').DataTable().search(categoryFilter);
+	$('#myTable').DataTable().draw();
+};
+</script>
+
+<style>
+#myTable_filter {
+  display: none;
+}
+</style>
+
+        <div class="section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="page-header">
+                            <h1>{{ person.full_name }}
+                                <small>{{ person.id_number }}</small>
+                            </h1>
+                            <p><a href="{% url 'checkout.views.person_detail' pk=person.pk %}"><i class="fa fa-arrow-left"></i> Back</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12 col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Available Items</h3>
+        </div>
+        <div class="btn-group" role="group" aria-label="...">
+          {% for category in categories %}
+            <button  onClick="myFilter('{{ category.name }}')" type="button" class="btn btn-default">
+              {{ category.name }}
+            </button>
+          {% endfor %}
+        </div>
+        <div class="table-responsive">
+          <table id="myTable" class="table table-condensed table-hover">
+            <thead> 
+              <tr>
+                <th>Item</th>
+                <th>Serial #</th>
+                <th>Tag</th>
+                <th>Category</th>
+                <th>Description</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in available_items %}
+                <tr> 
+                  <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=item.pk %}" data-target="#myModal">{{ item }}</a></td>
+                  <td>{{ item.serial }}</td>
+                  <td>{{ item.inventory_tag }}</td>
+                  <td>{{ item.category }}</td>
+                  <td>{{ item.description }}</td>
+                  <td><a class="action-link" role="button" href="{% url 'checkout.views.request_item' p=person.pk i=item.pk %}">request</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>  <!--  -->
+      </div>  <!--  -->
+    </div>
+  </div>
+</div>
+
+<!-- /#wrapper -->
+
+{% endblock content %}

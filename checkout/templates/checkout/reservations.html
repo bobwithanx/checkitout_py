@@ -1,0 +1,30 @@
+{% extends 'checkout/base.html' %}
+
+{% block content %}
+{% load humanize %}
+
+<div class="container bootcards-container push-right">
+  <div class="row">
+    <div class="col-sm-5 bootcards-list">
+
+      <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+          <h3 class="panel-title pull-left">Reservations</h3>
+        </div>
+        <div class="list-group">
+          {% for person in active_people %}
+            <a class="list-group-item"href="{% url 'checkout.views.person_detail' pk=person.pk %}">
+              <h4 class="list-group-item-heading">
+                {{ person }}
+              <span class="label label-warning pull-right">{% if person.requests|length > 0 %}{{ person.requests|length }}{% endif %}</span>
+              <span class="label label-left label-success pull-right">{% if person.inventory|length > 0 %}{{ person.inventory|length }}{% endif %}</span>
+              </h4>
+            </a>
+          {% endfor %}
+          </div>
+        </div>			
+		</div>
+	</div>
+</div>
+
+{% endblock content %}
