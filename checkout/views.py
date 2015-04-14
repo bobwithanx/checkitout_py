@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.db.models import Count, F
-from .models import Transaction, TransactionHistory, Person, Item, Category
+from .models import Transaction, TransactionHistory, Person, Catalog, Item, Category
 from .forms import TransactionForm
 from django.http import HttpRequest, HttpResponse
 
@@ -48,9 +48,16 @@ def history(request):
     history = TransactionHistory.objects.all().order_by('-time_in')
     return render(request, 'checkout/history.html', {'history': history})
 
-def person_list(request):
-    people = Person.objects.all()
-    return render(request, 'checkout/person_list.html', {'people': people})
+def person_list(request, tab='all'):
+    if tab == 'reservations':
+      people = Person.objects.filter(pk__in=[x for x in Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)])
+    elif tab == 'loans':
+      people = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=True).values_list('person', flat=True)])
+    else:
+      people = Person.objects.all()
+
+    return render(request, 'checkout/person_list.html', {'people': people, 'tab': tab})
+
 
 def person_search(request):
     if request.method == "POST":
@@ -64,14 +71,14 @@ def person_search(request):
 def person_detail(request, pk):
     person = get_object_or_404(Person, pk=pk)
     transactions = Transaction.objects.all()
-    inventory = Transaction.objects.filter(person=pk).filter(time_out__isnull=False)
+    item = Transaction.objects.filter(person=pk).filter(time_out__isnull=False)
     requests = Transaction.objects.filter(person=pk).filter(time_out__isnull=True)
     available_items = Item.objects.exclude(pk__in = [x for x in Transaction.objects.values_list('item', flat=True)])
 
     categories = Category.objects.all().order_by('name')
 
     history = TransactionHistory.objects.filter(person=pk)
-    return render(request, 'checkout/person_detail.html', {'categories': categories, 'person': person, 'inventory': inventory, 'requests': requests, 'available_items': available_items, 'history': history})
+    return render(request, 'checkout/person_detail.html', {'categories': categories, 'person': person, 'item': item, 'requests': requests, 'available_items': available_items, 'history': history})
 
 def person_history(request, pk):
     person = get_object_or_404(Person, pk=pk)
@@ -94,7 +101,7 @@ def item_search(request, pk):
       #response = HttpResponse("You are searching for: " + request.POST.get('person', 'Bob'))
       #return response
       person = get_object_or_404(Person, pk=pk)
-      item = get_object_or_404(Item, barcode_id=request.POST.get('item', None))
+      item = get_object_or_404(Item, inventory_id=request.POST.get('item', None))
       return request_item(request, p=person.pk, i=item.pk)
     else:
 	  return person_detail(request, pk)
@@ -113,7 +120,7 @@ def item_popup(request, pk):
 def browse_items(request, pk):
     person = get_object_or_404(Person, pk=pk)
     transactions = Transaction.objects.all()
-    available_items = Item.objects.exclude(pk__in = [x for x in Transaction.objects.values_list('item', flat=True)])
+    available_items = Catalog.objects.exclude(pk__in = [x for x in Transaction.objects.values_list('item', flat=True)])
     categories = Category.objects.all().order_by('name')
     return render(request, 'checkout/browse_items.html', {'categories': categories, 'person': person, 'available_items': available_items})
 
@@ -133,7 +140,7 @@ def request_item(request, p, i):
 def quick_checkout(request, p):
     person = get_object_or_404(Person, pk=p)
     if request.method == "POST":
-      item = get_object_or_404(Item, barcode_id=request.POST.get('item', None))
+      item = get_object_or_404(Item, inventory_id=request.POST.get('item', None))
     try:
         transaction = Transaction.objects.get(item=item.pk)
     except Transaction.DoesNotExist:

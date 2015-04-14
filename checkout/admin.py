@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Transaction, TransactionHistory, Item, Category, Brand, Person, Group
+from .models import Transaction, TransactionHistory, Catalog, Item, Category, Brand, Person, Group
 
 class PersonAdmin(admin.ModelAdmin):
         list_display = ('full_name', 'id_number', 'group')
@@ -10,6 +10,7 @@ class TransactionAdmin(admin.ModelAdmin):
 admin.site.register(Transaction, TransactionAdmin)
 admin.site.register(TransactionHistory)
 admin.site.register(Item)
+admin.site.register(Catalog)
 admin.site.register(Category)
 admin.site.register(Brand)
 admin.site.register(Person, PersonAdmin)

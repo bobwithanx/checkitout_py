@@ -59,30 +59,41 @@ class Transaction(models.Model):
         encoded = text.encode("utf-8")
         return encoded
 
+class Catalog(models.Model):
+	category = models.ForeignKey('Category')
+	brand = models.ForeignKey('Brand')
+	model = models.CharField(max_length=255)
+	display_name = models.CharField(max_length=255, blank=True, null=True)
+	image_name = models.CharField(max_length=255, blank=True, null=True)
+
+	def __str__(self):
+		return self.display_name.encode("utf-8")
+
+
 class Item(models.Model):
-    category = models.ForeignKey('Category')
-    brand = models.ForeignKey('Brand')
-    model = models.CharField(max_length=255)
-    serial = models.CharField(max_length=255, blank=True, null=True)
-    inventory_tag = models.CharField(max_length=255, blank=True, null=True)
-    barcode_id = models.CharField(max_length=255, blank=True, null=True)
-    description = models.CharField(max_length=255, blank=True, null=True)
-    image_name = models.CharField(max_length=255, blank=True, null=True)
+	item = models.ForeignKey('Catalog', null=True)
+	category = models.ForeignKey('Category')
+	brand = models.ForeignKey('Brand')
+	model = models.CharField(max_length=255)
+	serial = models.CharField(max_length=255, blank=True, null=True)
+	inventory_tag = models.CharField(max_length=255, blank=True, null=True)
+	description = models.CharField(max_length=255, blank=True, null=True)
+	image_name = models.CharField(max_length=255, blank=True, null=True)
 
-    def _get_history(self):
-        "Returns all items assigned to the person."
-        return TransactionHistory.objects.filter(item=self)
+	def _get_history(self):
+		"Returns all items assigned to the person."
+		return TransactionHistory.objects.filter(item=self)
 
-    history = property(_get_history)
+	history = property(_get_history)
 
-    def is_available(self):
-        #return( self.current_activity == None )
-        pass
+	def is_available(self):
+		#return( self.current_activity == None )
+		pass
 
-    def __str__(self):
-        text = ' '.join([self.brand.name, self.model])
-        encoded = text.encode("utf-8")
-        return encoded
+	def __str__(self):
+		text = ' '.join([self.brand.name, self.model])
+		encoded = text.encode("utf-8")
+		return encoded
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
@@ -121,7 +132,7 @@ class Person(models.Model):
         return Transaction.objects.filter(person=self).exclude(time_out__isnull=False)
 
     def _get_inventory(self):
-        """Returns all items currently assigned to the person."""
+        """Returns all inventory currently assigned to the person."""
         return Transaction.objects.filter(person=self).filter(time_out__isnull=False)
 
     def _get_full_name(self):

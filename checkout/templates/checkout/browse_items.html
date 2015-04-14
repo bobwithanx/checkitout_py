@@ -2,6 +2,7 @@
 
 {% block content %}
 {% load humanize %}
+{% load staticfiles %}
 
 <script type="text/javascript">
 $(document).ready(function(){
@@ -13,7 +14,6 @@ $(document).ready(function(){
     "columns": [
     null,
     null,
-    { "visible": false },
     { "visible": false },
     null,
     null,
@@ -34,27 +34,27 @@ function myFilter( categoryFilter ) {
 }
 </style>
 
-        <div class="section">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="page-header">
-                            <h1>{{ person.full_name }}
-                                <small>{{ person.id_number }}</small>
-                            </h1>
-                            <p><a href="{% url 'checkout.views.person_detail' pk=person.pk %}"><i class="fa fa-arrow-left"></i> Back</a></p>
-                        </div>
-                    </div>
+<div class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-header">
+                    <h1>{{ person.full_name }}
+                        <small>{{ person.id_number }}</small>
+                    </h1>
+                    <p><a href="{% url 'checkout.views.person_detail' pk=person.pk %}"><i class="fa fa-arrow-left"></i> Back</a></p>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
 <div class="container">
   <div class="row">
     <div class="col-sm-12 col-md-12">
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h3 class="panel-title">Available Items</h3>
+          <h3 class="panel-title">Available Item</h3>
         </div>
         <div class="btn-group" role="group" aria-label="...">
           {% for category in categories %}
@@ -63,32 +63,19 @@ function myFilter( categoryFilter ) {
             </button>
           {% endfor %}
         </div>
-        <div class="table-responsive">
-          <table id="myTable" class="table table-condensed table-hover">
-            <thead> 
-              <tr>
-                <th>Item</th>
-                <th>Serial #</th>
-                <th>Tag</th>
-                <th>Category</th>
-                <th>Description</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in available_items %}
-                <tr> 
-                  <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=item.pk %}" data-target="#myModal">{{ item }}</a></td>
-                  <td>{{ item.serial }}</td>
-                  <td>{{ item.inventory_tag }}</td>
-                  <td>{{ item.category }}</td>
-                  <td>{{ item.description }}</td>
-                  <td><a class="action-link" role="button" href="{% url 'checkout.views.request_item' p=person.pk i=item.pk %}">request</a></td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>  <!--  -->
+          <div class="row">
+        {% for item in available_items %}
+            <div class="col-xs-6 col-md-3">
+              <a href="{% url 'checkout.views.item_popup' pk=item.pk %}" class="thumbnail product-image">
+                <img src="{% static 'images/'|add:item.image_name %}" alt="...">
+              <div class="caption text-center">
+                {{ item }}
+              </div>
+              </a>
+            </div>
+              
+        {% endfor %}
+            </div>
       </div>  <!--  -->
     </div>
   </div>

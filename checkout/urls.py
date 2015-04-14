@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = patterns('',
     url(r'^$', views.person_list, name="person-list"),
+    url(r'^(?P<tab>[a-z]+)/$', views.person_list, name="person-list"),
     url(r'^search/$', views.person_search, name="person-search"),
     url(r'^(?P<pk>[0-9]+)/$', views.person_detail, name="person-detail"),
     url(r'^(?P<pk>[0-9]+)/history$', views.person_history, name="person-history"),
