@@ -1,98 +1,95 @@
-{% extends 'checkout/base.html'|pjax:request %}
+{% extends 'checkout/base.html' %}
 {% load humanize %}
 
 {% block content %}
 
-<script type="text/javascript">
-$(function () {
-  $('[data-toggle="popover"]').popover()
-});
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="page-header">
+        <h1>{{ person.full_name }}
+          <small>{{ person.id_number }}</small>
+        </h1>
+      </div>
+    </div>
+  </div>
+</div>
 
-$(document).ready(function(){
-    $('#myTable').DataTable( {
-    "lengthChange": false,
-    "paging": false,
-    "searching": false,
-    "ordering": false,
-    "info": false,
-    "columns": [
-				null,
-				{ "visible": false },
-				{ "visible": false },
-				null,
-				null,
-				null,
-			],
-    "order": [[ 4, 'dsc' ]]
-    } );
-});
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <ul class="nav nav-tabs">
+        <li>
+          <a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">Current</a>
+        </li>
+        <li class="active">
+          <a href="{% url 'checkout.views.person_history' id_number=person.id_number %}">History</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
 
-function myFilter( categoryFilter ) {
-  $('#myTable').DataTable().search(categoryFilter);
-	$('#myTable').DataTable().draw();
-};
-</script>
-    
-        <div class="section">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="page-header">
-                            <h1>{{ person.full_name }}
-                                <small>{{ person.id_number }}</small>
-                            </h1>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="container">
+  <div class="row padded-row">
+    <div class="col-md-12">
+				<h4>Current Loans</h4>
+      {% if person.inventory|length > 0 %}
+        <table class="table table-condensed table-hover">
+          <tbody>
+            {% for transaction in person.inventory %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
+                <td class="hidden-xs">{{ transaction.item.description }}</td>
+                <td>{{ transaction.item.serial }}</td>
+                <td>{{ transaction.time_out|naturaltime }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Item</th>
+              <th class="hidden-xs">Description</th>
+              <th>Serial</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+        </table>
+      {% endif %}
 
-        <div class="section">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-12">
-                        <ul class="nav nav-tabs">
-                            <li>
-                              <a href="{% url 'checkout.views.person_detail' pk=person.pk %}">Current</a>
-                            </li>
-                            <li class="active">
-                                <a href="{% url 'checkout.views.person_history' pk=person.pk %}">History</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+      {% if person.history|length > 0 %}
+				<h4>Past Loans</h4>
+        <table class="table table-condensed table-hover">
+          <tbody>
+            {% for transaction in person.history %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
+                <td>{{ transaction.item.serial }}</td>
+                <td>{{ transaction.time_out|naturaltime }}</td>
+                <td>{{ transaction.time_in|naturaltime }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Item</th>
+              <th>Serial</th>
+              <th>Out</th>
+              <th>Returned</th>
+            </tr>
+          </thead>
+        </table>
+      {% elif person.inventory|length = 0 %}
+        <p>No items have been borrowed.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
 
-        <div class="section">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-12">
-                      {% if person.history|length > 0 %}
-                        <table class="table table-condensed table-hover">
-                            <tbody>
-															{% for transaction in person.history %}
-																<tr>
-                                    <td>{{ forloop.counter }}</td>
-																<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
-																<td>{{ transaction.item.serial }}</td>
-																<td>{{ transaction.time_out|naturaltime }}</td>
-																</tr>
-															{% endfor %}
-                            </tbody>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Item</th>
-                                    <th>Serial</th>
-                                    <th>Time</th>
-                                </tr>
-                            </thead>
-                        </table>
-                        {% else %}
-                            <p>No items have been borrowed.</p>
-                        {% endif %}
-                    </div>
-                </div>
+{% include 'checkout/popup.html' %}
 
 {% endblock content %}

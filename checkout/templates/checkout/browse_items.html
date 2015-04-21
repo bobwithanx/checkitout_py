@@ -4,83 +4,75 @@
 {% load humanize %}
 {% load staticfiles %}
 
-<script type="text/javascript">
-$(document).ready(function(){
-    $('#myTable').DataTable( {
-    "lengthChange": false,
-    "info": false,
-    "ordering": false,
-    "paging": false,
-    "columns": [
-    null,
-    null,
-    { "visible": false },
-    null,
-    null,
-  ],
-    "order": [[ 4, 'dsc' ]]
-    } );
-});
-
-function myFilter( categoryFilter ) {
-  $('#myTable').DataTable().search(categoryFilter);
-	$('#myTable').DataTable().draw();
-};
-</script>
-
 <style>
-#myTable_filter {
-  display: none;
-}
-</style>
+  .panel-title {
+    font-size: 2.5vmin;
+    text-align: center;
+  }
 
-<div class="section">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="page-header">
-                    <h1>{{ person.full_name }}
-                        <small>{{ person.id_number }}</small>
-                    </h1>
-                    <p><a href="{% url 'checkout.views.person_detail' pk=person.pk %}"><i class="fa fa-arrow-left"></i> Back</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+  .panel-body {
+    padding: 0px;
+  }
+
+  .tab-wrapper {
+    display:table;
+    margin-top: 20px;
+  }
+
+  .tab-content {
+    display:table-row;
+  }
+</style>
 
 <div class="container">
   <div class="row">
-    <div class="col-sm-12 col-md-12">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Available Item</h3>
-        </div>
-        <div class="btn-group" role="group" aria-label="...">
-          {% for category in categories %}
-            <button  onClick="myFilter('{{ category.name }}')" type="button" class="btn btn-default">
-              {{ category.name }}
-            </button>
-          {% endfor %}
-        </div>
-          <div class="row">
-        {% for item in available_items %}
-            <div class="col-xs-6 col-md-3">
-              <a href="{% url 'checkout.views.item_popup' pk=item.pk %}" class="thumbnail product-image">
-                <img src="{% static 'images/'|add:item.image_name %}" alt="...">
-              <div class="caption text-center">
-                {{ item }}
-              </div>
-              </a>
-            </div>
-              
-        {% endfor %}
-            </div>
-      </div>  <!--  -->
+    <div class="col-md-12">
+      <div class="page-header">
+      <h3>Available Items</h3>
+        <p><a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}"><i class="fa fa-arrow-left"></i> Back to {{ person.full_name }}</a></p>
+      </div>
     </div>
   </div>
 </div>
 
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <ul class="nav nav-tabs">
+        {% for category in categories %}
+          <li class="nav {% if category.name = "Camera" %}active{% endif %}"><a href="#{{ category.name }}" data-toggle="tab">{{ category.name }}</a></li>
+        {% endfor %}
+      </ul>
+      <div class="tab-wrapper">
+        <div class="tab-content">
+          {% for category in categories %}
+            <div class="tab-pane {% if category.name = "Camera" %}active{% endif %}" id="{{ category.name }}">
+              <div class="row">      
+                {% for item in category.item_set.all %}
+                  <div class="col-lg-2 col-md-2 col-sm-3 col-xs-4">
+                    <div class="panel panel-default ">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">{{ item.brand }} {{ item.model }}</h3>
+                      </div>
+                      <div class="panel-body ">
+                        <a href="{% url 'checkout.views.item_popup' pk=item.pk %}" data-toggle="modal" data-target="#myModal" class="btn btn-default"><img src="{% if item.image_name and item.image_name.strip %}{% static 'images/'|add:item.image_name %}{% else %}{% static 'images/'|add:category.icon %}{% endif %}" class="img-responsive"/></a>
+                      </div>
+                      <div class="btn-group btn-group-justified">
+                        <a href="{% url 'checkout.views.request_item' id_number=person.id_number i=item.pk %}" class="btn btn-primary"><i class="fa fa-plus"></i><span class="hidden-xs"> Request</span></a>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>  <!-- tab-pane -->
+          {% endfor %}
+        </div>  <!-- tab-content -->
+      </div>  <!-- tab-wrapper -->
+    </div> <!-- col -->
+  </div> <!-- row -->
+</div> <!-- container -->
+
 <!-- /#wrapper -->
+{% include 'checkout/popup.html' %}
 
 {% endblock content %}

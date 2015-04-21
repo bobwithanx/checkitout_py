@@ -1,34 +1,44 @@
 {% extends 'checkout/base.html' %}
+{% load staticfiles %}
 
 {% block content %}
 
-{% load staticfiles %}
-
 <style>
-.col-centered{
-    float: none;
-    margin: 0 auto;
-}
+	.vertical-center {
+		min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+		min-height: 100vh; /* These two lines are counted as one :-)       */
+
+		display: flex;
+		align-items: center;
+	}
+
+	.col-centered {
+			float: none;
+			margin: 0 auto;
+	}
+	
+	#search {
+		font-size: 1.2em;
+	}
 </style>
 
-<div class="cover">
-	<div class="cover-image"></div>
+<div class="jumbotron vertical-center">
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12 text-center">
-				<h1>Student ID</h1>
+				<h2>Equipment Checkout</h2>
 				<div class="container-fluid">
-					<div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-centered">
+					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-4 col-centered">
 						<form action="{% url 'checkout.views.person_search' %}" method="POST" role="form">
 							<div class="form-group">
 								<div class="input-group">
-									<input autofocus text="search" name="person" id="search" value="" class="form-control " placeholder="Type or scan your ID number."/>
+									{% csrf_token %}
+									<input autofocus text="search" name="person" id="search" value="" class="form-control" placeholder="Type or scan your ID number."/>
 									<span class="input-group-btn">
 										<button class="btn btn-success" type="submit">Go</button>
 									</span>
 								</div>
 							</div>
-							{% csrf_token %}
 						</form>
 					</div>
 				</div>

@@ -14,9 +14,8 @@ height:auto;
      <h4 class="modal-title">{{ item.brand.name }} {{ item.model }} <small>{{ item.category }}</small></h4>
 </div>
 <div class="modal-body">
-    <div class="te">
-    <div class="row"><div class="col-md-4">
-<img class="product-image" src="{% static 'images/'|add:item.image_name %}"></div><div class="col-md-1"></div>
+    <div class="row"><div class="col-md-5">
+<img src="{% if item.image_name and item.image_name.strip %}{% static 'images/'|add:item.image_name %}{% else %}{% static 'images/'|add:item.category.icon %}{% endif %}" class="img-responsive product-image"/></div>
 <div class="col-md-7">      <table class="table table-striped table-condensed">
             <tr>
 <th>Serial #</th><td>{{ item.serial }}</td>

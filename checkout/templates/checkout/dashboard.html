@@ -1,0 +1,68 @@
+{% extends 'checkout/base.html' %}
+
+{% block content %}
+
+<style>
+  .label-container {
+    margin-right: 25px;;
+  }
+  .list-group-item .h4 {
+  	margin: 0;
+  }
+</style>
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+				<div class="page-header">
+					<h1>Dashboard
+					</h1>
+				</div>
+		</div>
+	</div>
+</div>
+
+<div class="container">
+	<div class="row">
+		<div class="col-xs-10 col-sm-6 col-md-6 col-lg-6">
+			<div class="h3">Requests</div>
+			<div class="panel panel-default">
+				<div class="list-group">
+					{% for person in reservations %}
+						<a class="list-group-item" href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">
+							<div class="h4 list-group-item-heading">
+								{{ person }} <small>{{ person.id_number }}</small>
+							<span class="label-container pull-right">
+								<span class="label label-warning">{% if person.requests|length > 0 %}{{ person.requests|length }}{% endif %}</span>
+								<span class="label label-left label-success">{% if person.inventory|length > 0 %}{{ person.inventory|length }}{% endif %}</span>
+							</span>
+							</div>
+						</a>
+					{% endfor %}
+				</div>
+			</div>			
+		</div>
+
+		<div class="col-xs-10 col-sm-6 col-md-6 col-lg-6">
+				<div class="h3">Loans</div>
+			<div class="panel panel-default">
+				<div class="list-group">
+					{% for person in loans %}
+						<a class="list-group-item" href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">
+							<div class="h4 list-group-item-heading">
+								{{ person }} <small>{{ person.id_number }}</small>
+							<span class="label-container pull-right">
+								<span class="label label-warning">{% if person.requests|length > 0 %}{{ person.requests|length }}{% endif %}</span>
+								<span class="label label-left label-success">{% if person.inventory|length > 0 %}{{ person.inventory|length }}{% endif %}</span>
+							</span>
+							</div>
+						</a>
+					{% endfor %}
+				</div>
+			</div>			
+		</div>
+
+	</div>
+</div>
+
+{% endblock content %}

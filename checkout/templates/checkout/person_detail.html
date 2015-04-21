@@ -1,117 +1,83 @@
-{% extends 'checkout/base.html'|pjax:request %}
+{% extends 'checkout/base.html' %}
 {% load humanize %}
 
 {% block content %}
 
-<script type="text/javascript">
-$(function () {
-  $('[data-toggle="popover"]').popover()
-});
-
-$(document).ready(function(){
-    $('#myTable').DataTable( {
-    "lengthChange": false,
-    "paging": false,
-    "searching": false,
-    "ordering": false,
-    "info": false,
-    "columns": [
-				null,
-				{ "visible": false },
-				{ "visible": false },
-				null,
-				null,
-				null,
-			],
-    "order": [[ 4, 'dsc' ]]
-    } );
-});
-
-function myFilter( categoryFilter ) {
-  $('#myTable').DataTable().search(categoryFilter);
-	$('#myTable').DataTable().draw();
-};
-</script>
-    
-<div class="section">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-12">
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
 				<div class="page-header">
 					<h1>{{ person.full_name }}
 						<small>{{ person.id_number }}</small>
 					</h1>
 				</div>
-			</div>
 		</div>
 	</div>
 </div>
 
-<div class="section">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-12">
-				<ul class="nav nav-tabs">
-					<li class="active">
-						<a href="#">Current</a>
-					</li>
-					<li>
-						<a href="{% url 'checkout.views.person_history' pk=person.pk %}">History</a>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div class="section">
-	<div class="container">                
+<div class="container">
 	<div class="row">
-                    <div class="col-sm-6 col-md-6 col-lg-6">
-                        <form role="form" action="{% url 'checkout.views.quick_checkout' p=person.pk %}" method="POST">
-                            <div class="form-group">
-                            								{% csrf_token %}
-                                <div class="input-group">
-                                    <input autofocus="true" text="search" name="item" id="search" value="" class="form-control" placeholder="Scan an Item"/>
-                                    <span class="input-group-btn">
-                                        <a class="btn btn-success" type="submit">Go</a>
-                                    </span>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="col-md-4">
-                        <a class="btn btn-primary" href="{% url 'checkout.views.browse_items' pk=person.pk %}">Browse</a>
-                    </div>
-                </div>
+		<div class="col-md-12">
+			<ul class="nav nav-tabs">
+				<li class="active">
+					<a href="#">Current</a>
+				</li>
+				<li>
+					<a href="{% url 'checkout.views.person_history' id_number=person.id_number %}">History</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="row padded-row">
+		{% if user.is_staff %}	
+			<div class="col-sm-6 col-md-6 col-lg-6">
+				<form role="form" action="{% url 'checkout.views.quick_checkout' p=person.pk %}" method="POST">
+					<div class="form-group">
+						{% csrf_token %}
+						<div class="input-group">
+							<input autofocus="true" text="search" name="item" id="search" value="" class="form-control" placeholder="Scan an Item"/>
+							<span class="input-group-btn">
+								<a class="btn btn-primary" type="submit">Go</a>
+							</span>
+						</div>
+					</div>
+				</form>
+			</div> <!-- col -->
+		{% endif %}
+		<div class="col-md-4">
+			<a class="btn btn-link" href="{% url 'checkout.views.browse_items' id_number=person.id_number %}">Request Items</a>
+		</div> <!-- col -->
+	</div> <!-- row -->
 
-		<div class="row">
-			<div class="col-md-12">
-				{% if person.requests|length > 0 %}
-					<h3>Requests</h3>
-					<table class="table table-condensed table-hover">
-						<tbody>
-							{% for transaction in person.requests %}
-								<tr>
-									<td>{{ forloop.counter }}</td>
-									<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
-									<td>{{ transaction.item.serial }}</td>
-									<td>Requested</td>
-								</tr>
-							{% endfor %}
-						</tbody>
-						<thead>
+	<div class="row">
+		<div class="col-md-12">
+			{% if person.requests|length > 0 %}
+				<h4>Requests</h4>
+				<table class="table table-condensed table-hover">
+					<tbody>
+						{% for transaction in person.requests %}
 							<tr>
-								<th>#</th>
-								<th>Item</th>
-								<th>Serial</th>
-								<th>Time</th>
+								<td>{{ forloop.counter }}</td>
+								<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
+								<td class="hidden-xs">{{ transaction.item.description }}</td>
+								<td>{{ transaction.item.inventory_tag }}</td>
+								<td>{% if user.is_staff %}<a href="{% url 'checkout.views.checkout_item' p=transaction.person.pk i=transaction.item.pk %}" class="btn btn-success btn-xs"><i class="fa fa-thumbs-up"></i> approve</a>{% endif %}  <a href="{% url 'checkout.views.person_cancel_request' pk=transaction.pk %}" class="btn btn-link btn-xs"><span class="text-danger"><i class="fa fa-times-circle"></i> cancel</span></a></td>
 							</tr>
-						</thead>
-					</table>
-				{% endif %}
+						{% endfor %}
+					</tbody>
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>Item</th>
+							<th class="hidden-xs">Description</th>
+							<th>Inventory Tag</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+				</table>
+			{% endif %}
 
-					<h3>Current Loans</h3>
+			<h4>Current Loans</h4>
 				{% if person.inventory|length > 0 %}
 					<table class="table table-condensed table-hover">
 						<tbody>
@@ -119,26 +85,32 @@ function myFilter( categoryFilter ) {
 								<tr>
 									<td>{{ forloop.counter }}</td>
 									<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
-									<td>{{ transaction.item.serial }}</td>
-									<td>{{ transaction.item.time_out|naturaltime }}</td>
+									<td class="hidden-xs">{{ transaction.item.description }}</td>
+									<td>{{ transaction.item.inventory_tag }}</td>
+									<td>{{ transaction.item.time_out|naturaltime }}{% if user.is_staff %}<a href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}" class="btn btn-primary btn-xs"><i class="fa fa-check-circle"></i> check in</a>
+									<a href="{% url 'checkout.views.delete_transaction' t=transaction.pk %}" class="btn btn-link btn-xs"><span class="text-danger"><i class="fa fa-times-circle"></i> remove</span></a>{% endif %}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
-						<thead>
-							<tr>
-								<th>#</th>
-								<th>Item</th>
-								<th>Serial</th>
-								<th>Time</th>
-							</tr>
-						</thead>
-					</table>
-				{% else %}
-					<p>No items are currently on loan.</p>
-				{% endif %}
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Item</th>
+									<th class="hidden-xs">Description</th>
+									<th>Inventory Tag</th>
+									<th>Actions</th>
+								</tr>
+							</thead>
+						</table>
+					{% else %}
+						<p>No items are currently on loan.</p>
+					{% endif %}
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
+
+{% include 'checkout/popup.html' %}
 
 {% endblock content %}

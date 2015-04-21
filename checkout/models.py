@@ -16,6 +16,14 @@ class TransactionHistory(models.Model):
         encoded = text.encode("utf-8")
         return encoded
 
+class Request:
+	person = models.ForeignKey('Person')
+	item = models.ForeignKey('Catalog')
+	time = models.DateTimeField()
+	
+	def cancel(self):
+		self.delete()
+    
 
 class Transaction(models.Model):
     status_assigned = 'Assigned'
@@ -66,6 +74,10 @@ class Catalog(models.Model):
 	display_name = models.CharField(max_length=255, blank=True, null=True)
 	image_name = models.CharField(max_length=255, blank=True, null=True)
 
+	def is_available(self):
+    # return Catalog.objects.exclude(pk__in = [x for x in Transaction.objects.values_list('item', flat=True)])
+		pass
+
 	def __str__(self):
 		return self.display_name.encode("utf-8")
 
@@ -91,7 +103,7 @@ class Item(models.Model):
 		pass
 
 	def __str__(self):
-		text = ' '.join([self.brand.name, self.model])
+		text = ''.join([' '.join([self.brand.name, self.model, ]), ' (', self.inventory_tag, ')'])
 		encoded = text.encode("utf-8")
 		return encoded
 
