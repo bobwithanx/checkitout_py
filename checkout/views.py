@@ -55,6 +55,9 @@ def dashboard(request):
 
     return render(request, 'checkout/dashboard.html', {'loans': loans, 'reservations': reservations})
 
+def login(request):
+    return render(request, 'checkout/login.html')
+
 def person_list(request, tab='all'):
     if tab == 'loans':
       people = Person.objects.filter(pk__in=[x for x in Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)])

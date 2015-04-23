@@ -42,8 +42,9 @@
 								<i class="fa fa-large fa-search"></i> Search
 							</a>
 						</li>
-
+					</ul>
 						{% if user.is_staff %}
+						<ul class="nav navbar-left navbar-nav">
 							<li>
 								<a href="{% url 'checkout.views.dashboard' %}">
 									<i class="fa fa-large fa-th-large"></i> Dashboard
@@ -54,6 +55,8 @@
 									<i class="fa fa-large fa-bar-chart-o"></i> Reports
 								</a>
 							</li>
+						</ul>
+						<ul class="nav navbar-right navbar-nav">
 							<li role="presentation" class="dropdown">
 								<a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">
 									<i class="fa fa-large fa-gears"></i> Admin <span class="caret"></span>
@@ -82,18 +85,21 @@
 									</li>
 									<li class="divider"></li>
 									<li>
-										<a href="/admin/logout/" target="_blank">
+										<a href="/admin/logout/?next=/">
 											<i class="fa fa-large fa-sign-out"></i> Logout
 										</a>
 									</li>
 								</ul>
 							</li>
+						</ul>
 						{% else %}
+					<ul class="nav navbar-right navbar-nav">
 							<li>
-								<a href="/admin" target="_blank">
+								<a href="/login">
 									<i class="fa fa-large fa-sign-in"></i> Login
 								</a>
 							</li>
+						</ul>
 						{% endif %}
 					</ul>
 				</div>          
