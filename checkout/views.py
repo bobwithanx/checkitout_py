@@ -76,6 +76,18 @@ def person_search(request):
 		else:
 			return search(request)
 
+
+def checkin(request):
+		if request.method == "POST":
+			person = get_object_or_404(Person, id_number=request.POST.get('person', None))
+			return redirect('checkout.views.person_detail', id_number=person.id_number)
+		else:
+			return search(request)
+
+
+def home(request):
+    return render(request, 'checkout/home.html')
+
     
 def person_detail(request, id_number):
     #person = get_object_or_404(Person, pk=pk)

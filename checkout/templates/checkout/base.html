@@ -31,18 +31,11 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" title="Checkout System" href="/"><span>Checkout System</span></a>
+					<a class="navbar-brand" title="Checkout System" href="/"><span>Metro Tech Film Checkout System</span></a>
 				</div>
 
 				<!--navbar menu options: shown on desktop only -->
 				<div class="navbar-collapse collapse">
-					<ul class="nav navbar-left navbar-nav">
-						<li>
-							<a href="{% url 'checkout.views.search' %}">
-								<i class="fa fa-large fa-search"></i> Search
-							</a>
-						</li>
-					</ul>
 						{% if user.is_staff %}
 						<ul class="nav navbar-left navbar-nav">
 							<li>
@@ -90,14 +83,6 @@
 										</a>
 									</li>
 								</ul>
-							</li>
-						</ul>
-						{% else %}
-					<ul class="nav navbar-right navbar-nav">
-							<li>
-								<a href="/login">
-									<i class="fa fa-large fa-sign-in"></i> Login
-								</a>
 							</li>
 						</ul>
 						{% endif %}

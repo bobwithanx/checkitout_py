@@ -36,6 +36,7 @@
             margin-bottom: 10px;
     padding-top: 10px;
     padding-bottom: 10px;
+    text-align: center;
   }
   .span-or {
     display: block;
@@ -52,6 +53,7 @@
     height: 1px;
     margin-top: 0px !important;
     margin-bottom: 0px !important;
+    text-align: center;
   }
   h3 {
     text-align: center;
@@ -63,31 +65,22 @@
 	<div class="container">
 		<div class="row">
 		  <div class="main">
-          <form action="/admin/login/" method="post" id="login-form">
-            {% csrf_token %}
-            <div class="form-row">
-              <label for="id_username" class="required">Username:</label> <input id="id_username" maxlength="254" name="username" type="text" class="form-control"/>
-            </div>
-            <div class="form-row">
-              <label for="id_password" class="required">Password:</label> <input id="id_password" name="password" type="password" class="form-control"/>
-              <input type="hidden" name="next" value="/" />
-            </div>
-  
-            {% if form.errors %}
-              <p class=" label label-danger">
-                  Your username and password didn't match. 
-                  Please try again.
-              </p>
-            {% endif %}
- 
-            <div class="submit-row">
-              <label>&nbsp;</label>
-            </div>
-            <div class="submit-row">
-              <input type="submit" value="Log In" class="btn btn-default" />
-              <input type="hidden" name="next" value="/" />
-            </div>
-          </form>
+        <h3>MTHS Inventory System</h3>
+        <div class="row">
+          <div class="col-xs-6 col-sm-6 col-md-12">
+            <a href="#" class="btn btn-lg btn-success btn-block">Return Item</a>
+          </div>
+          <div class="col-xs-6 col-sm-6 col-md-12">
+        <div class="login-or">
+            or
+          </div>
+                    </div>
+
+          <div class="col-xs-6 col-sm-6 col-md-12">
+            <a href="{% url 'checkout.views.search' %}" class="btn btn-lg btn-primary btn-block">Borrow Item</a>
+          </div>
+        </div>
+      </div>
 		</div>
 	</div>
 </div>
