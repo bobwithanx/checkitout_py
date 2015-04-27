@@ -5,6 +5,57 @@ from .models import Transaction, TransactionHistory, Person, Catalog, Item, Cate
 from .forms import TransactionForm
 from django.http import HttpRequest, HttpResponse
 
+
+def home(request):
+    return render(request, 'checkout/home.html')
+
+
+def display_checkout(request, status="", status_object=""):
+    item_requests = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=True).values_list('person', flat=True)])
+    return render(request, 'checkout/checkout.html', {'item_requests': item_requests, 'status': status, 'status_object': status_object})
+
+
+def display_checkin(request, status="", status_object=""):
+    loans = Person.objects.filter(pk__in=[x for x in Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)])
+    return render(request, 'checkout/return.html', {'loans': loans, 'status': status, 'status_object': status_object})
+
+
+def quick_checkin(request):
+	result = ""
+	barcode = ""
+	if request.method == "POST":
+		barcode = request.POST.get('barcode')
+		if barcode <> "":
+			try:
+				person = Person.objects.get(id_number=barcode)
+				return redirect('checkout.views.person_detail', id_number=barcode)
+			except Person.DoesNotExist:
+				try:
+					item = Item.objects.get(inventory_tag=barcode)
+					transaction = Transaction.objects.get(item=item.pk)
+					person = transaction.person
+					#result = transaction.check_in()
+					result = 0
+					return display_checkin(request, result, barcode)
+				except Item.DoesNotExist:
+					result = 1
+	return display_checkin(request, result, barcode)
+
+
+def person_search(request):
+	result = ""
+	barcode = ""
+	if request.method == "POST":
+		barcode = request.POST.get('barcode')
+		if barcode <> "":
+			try:
+				person = Person.objects.get(id_number=barcode)
+				return redirect('checkout.views.person_detail', id_number=barcode)
+			except Person.DoesNotExist:
+				result = 1
+	return display_checkout(request, result, barcode)
+
+
 def reservations(request):
     transactions = Transaction.objects.all()
     all_people = Person.objects.all()
@@ -22,14 +73,6 @@ def on_loan(request):
     active_items = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)])
 
     return render(request, 'checkout/on_loan.html', {'transactions': transactions, 'all_people': all_people, 'active_people': active_people, 'active_items': active_items, 'requests': requests})
-
-def search(request):
-    transactions = Transaction.objects.all()
-    all_people = Person.objects.all()
-    active_people = Person.objects.filter(pk__in=transactions)
-    active_items = Item.objects.filter(pk__in=transactions)
-    return render(request, 'checkout/search.html', {'transactions': transactions, 'all_people': all_people, 'active_people': active_people, 'active_items': active_items})
-
 
 def reports(request):
     transactions = Transaction.objects.all()
@@ -69,26 +112,6 @@ def person_list(request, tab='all'):
     return render(request, 'checkout/person_list.html', {'people': people, 'tab': tab})
 
 
-def person_search(request):
-		if request.method == "POST":
-			person = get_object_or_404(Person, id_number=request.POST.get('person', None))
-			return redirect('checkout.views.person_detail', id_number=person.id_number)
-		else:
-			return search(request)
-
-
-def checkin(request):
-		if request.method == "POST":
-			person = get_object_or_404(Person, id_number=request.POST.get('person', None))
-			return redirect('checkout.views.person_detail', id_number=person.id_number)
-		else:
-			return search(request)
-
-
-def home(request):
-    return render(request, 'checkout/home.html')
-
-    
 def person_detail(request, id_number):
     #person = get_object_or_404(Person, pk=pk)
     person = get_object_or_404(Person, id_number=id_number)
@@ -129,11 +152,6 @@ def item_search(request, pk):
     else:
 	  return person_detail(request, pk)
 	  
-def item_checkin(request, pk):
-    transaction = get_object_or_404(Transaction, pk=pk)
-    person=transaction.person
-    transaction.check_in()
-    return redirect('checkout.views.person_detail', id_number=person.id_number)
 
 
 def item_popup(request, pk):
@@ -161,6 +179,12 @@ def request_item(request, id_number, i):
     except Transaction.DoesNotExist:
     	transaction = Transaction.objects.create(person=person, item=item)
     return redirect('checkout.views.person_detail', id_number=id_number)
+
+def item_checkin(request, pk):
+    transaction = get_object_or_404(Transaction, pk=pk)
+    person=transaction.person
+    transaction.check_in()
+    return redirect('checkout.views.person_detail', id_number=person.id_number)
 
 def quick_checkout(request, p):
     person = get_object_or_404(Person, pk=p)

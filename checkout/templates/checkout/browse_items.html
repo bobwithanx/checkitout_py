@@ -57,9 +57,11 @@
                       <div class="panel-body ">
                         <a href="{% url 'checkout.views.item_popup' pk=item.pk %}" data-toggle="modal" data-target="#myModal" class="btn btn-default"><img src="{% if item.image_name and item.image_name.strip %}{% static 'images/'|add:item.image_name %}{% else %}{% static 'images/'|add:category.icon %}{% endif %}" class="img-responsive"/></a>
                       </div>
+                      {% if settings.ALLOW_RESERVATIONS or user.is_staff %}
                       <div class="btn-group btn-group-justified">
                         <a href="{% url 'checkout.views.request_item' id_number=person.id_number i=item.pk %}" class="btn btn-primary"><i class="fa fa-plus"></i><span class="hidden-xs"> Request</span></a>
                       </div>
+                      {% endif %}
                     </div>
                   </div>
                 {% endfor %}

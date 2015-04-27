@@ -25,7 +25,7 @@
     padding-top: 15px;
   }
   .main {
-    max-width: 320px;
+    max-width: 540px;
     margin: 0 auto;
   }
   .login-or {
@@ -55,7 +55,7 @@
     margin-bottom: 0px !important;
     text-align: center;
   }
-  h3 {
+  h2 {
     text-align: center;
     line-height: 300%;
   }
@@ -65,22 +65,66 @@
 	<div class="container">
 		<div class="row">
 		  <div class="main">
-        <h3>MTHS Inventory System</h3>
+        <h2>{{ settings.APP_NAME }}</h2>
+					{% if user.is_staff %}
         <div class="row">
-          <div class="col-xs-6 col-sm-6 col-md-12">
-            <a href="#" class="btn btn-lg btn-success btn-block">Return Item</a>
+          <div class="col-xs-6 col-sm-6 col-md-6">
+            <a href="{% url 'checkout.views.display_checkout' %}" class="btn btn-lg btn-success btn-block">
+              <div><i class="fa fa-4x fa-arrow-circle-o-up"></i></div>
+              Borrow Item
+            </a>
           </div>
-          <div class="col-xs-6 col-sm-6 col-md-12">
-        <div class="login-or">
-            or
+          <div class="col-xs-6 col-sm-6 col-md-6">
+            <a href="{% url 'checkout.views.display_checkin' %}" class="btn btn-lg btn-info btn-block">
+              <div><i class="fa fa-4x fa-arrow-circle-o-down"></i></div>
+              Return Item
+            </a>
           </div>
-                    </div>
-
-          <div class="col-xs-6 col-sm-6 col-md-12">
-            <a href="{% url 'checkout.views.search' %}" class="btn btn-lg btn-primary btn-block">Borrow Item</a>
+        </div>  <!-- row -->
+ 					{% endif %}
+       
+        <div class="row">
+          <h3>&nbsp;</h3>
+        </div>  <!-- row -->
+        
+        <div class="row">
+ 					{% if user.is_staff %}
+         <div class="col-xs-6 col-sm-6 col-md-6">
+            <a href="{% url 'checkout.views.person_list' %}" class="btn btn-lg btn-default btn-block">
+              <div><i class="fa fa-2x fa-users"></i></div>
+              All Students
+            </a>
+          </div>
+          {% endif %}
+          
+          <div class="col-xs-6 col-sm-6 col-md-6">
+            <a href="{% url 'checkout.views.item_list' %}" class="btn btn-lg btn-default btn-block">
+              <div><i class="fa fa-2x fa-tags"></i></div>
+              All Items
+            </a>
+          </div>
+        </div>  <!-- row -->
+        
+					{% if user.is_staff %}
+        <div class="row">
+          &nbsp;
+        </div>  <!-- row -->
+        
+         <div class="row">
+          <div class="col-xs-6 col-sm-6 col-md-6">
+          <a href="{% url 'checkout.views.history' %}" class="btn btn-lg btn-default btn-block">
+            <div><i class="fa fa-2x fa-history"></i></div>
+            History
+          </a>
+        </div>
+          <div class="col-xs-6 col-sm-6 col-md-6">
+            <a href="{% url 'checkout.views.reports' %}" class="btn btn-lg btn-default btn-block">
+              <div><i class="fa fa-2x fa-bar-chart-o"></i></div>
+              Reports
+            </a>
           </div>
         </div>
-      </div>
+        {% endif %}
 		</div>
 	</div>
 </div>

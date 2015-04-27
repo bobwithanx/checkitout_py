@@ -11,9 +11,7 @@
   <div class="row">
     <div class="col-md-12">
       <div class="page-header">
-        <h1>All Students
-          <small>{{ person.id_number }}</small>
-        </h1>
+        <h1>Student List</h1>
       </div>
     </div>
   </div>
@@ -21,30 +19,43 @@
 
   <div class="container">
     <div class="row">
-      <div class="col-xs-10 col-sm-6 col-md-6 col-lg-4">
-      
+      <div class="col-md-12">
         <ul class="nav nav-tabs">
           <li role="presentation" {% if tab = 'all' %}class="active"{% endif %}><a href="{% url 'checkout.views.person_list' tab='all' %}">All Students</a></li>
-          <li role="presentation" {% if tab = 'reservations' %}class="active"{% endif %}><a href="{% url 'checkout.views.person_list' tab='reservations' %}">Reservations</a></li>
-          <li role="presentation" {% if tab = 'loans' %}class="active"{% endif %}><a href="{% url 'checkout.views.person_list' tab='loans' %}">On Loan</a></li>
+          <li role="presentation" {% if tab = 'reservations' %}class="active"{% endif %}><a href="{% url 'checkout.views.person_list' tab='reservations' %}">Requests</a></li>
+          <li role="presentation" {% if tab = 'loans' %}class="active"{% endif %}><a href="{% url 'checkout.views.person_list' tab='loans' %}">Loans</a></li>
         </ul>
-        <div class="panel panel-default">
-          <div class="list-group">
-            {% for person in people %}
-              <a class="list-group-item" href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">
-                <h4 class="list-group-item-heading">
-                  {{ person }} <small>{{ person.id_number }}</small>
-                <span class="label-container pull-right">
-                  <span class="label label-warning">{% if person.requests|length > 0 %}{{ person.requests|length }}{% endif %}</span>
-                  <span class="label label-left label-success">{% if person.inventory|length > 0 %}{{ person.inventory|length }}{% endif %}</span>
-                </span>
-                </h4>
-              </a>
-            {% endfor %}
-          </div>
-        </div>			
       </div>
     </div>
 	</div>
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+      <div class="table-responsive">
+        <table id="myTable" class="table table-striped table-condensed">
+          <thead>
+                <tr>
+                <th>Person</th>
+                <th>ID Number</th>
+                <th>Group</th>
+                <th>Requests</th>
+                <th>Inventory</th>
+              </tr>
+          </thead>
+          {% for person in people %}
+            <tr>
+              <td><a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">{{ person }}</a></td>
+              <td>{{ person.id_number }}</a></td>
+              <td>{{ person.group }}</a></td>
+              <td><span class="label label-warning">{% if person.requests|length > 0 %}{{ person.requests|length }}{% endif %}</span></td>
+              <td><span class="label label-success">{% if person.inventory|length > 0 %}{{ person.inventory|length }}{% endif %}</span></td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock content %}
