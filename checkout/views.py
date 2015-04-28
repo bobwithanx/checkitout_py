@@ -34,9 +34,8 @@ def quick_checkin(request):
 					item = Item.objects.get(inventory_tag=barcode)
 					transaction = Transaction.objects.get(item=item.pk)
 					person = transaction.person
-					#result = transaction.check_in()
+					transaction.check_in()
 					result = 0
-					return display_checkin(request, result, barcode)
 				except Item.DoesNotExist:
 					result = 1
 	return display_checkin(request, result, barcode)
