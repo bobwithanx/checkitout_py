@@ -16,44 +16,59 @@
 			float: none;
 			margin: 0 auto;
 	}
+		
+	.jumbotron {
+		background-color:#dff0d8;
+	}
 	
-	#search {
-		font-size: 1.2em;
+	.jumbotron .panel {
+	border-color: #4cae4c;
 	}
 </style>
 
-<div class="jumbotron vertical-center">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-8 col-md-offset-2 ">
-        {% if status == 0 %}
-          <div class="alert-message alert-message-success" role="alert">
-            <h4>Success</h4>
-            <strong>{{ status_object }}</strong> was returned.
-          </div>
-        {% elif status == 1 %}
-          <div class="alert-message alert-message-danger" role="alert">
-            <h4>Error</h4>
-            Sorry, <strong>{{ status_object }}</strong> cannot be found.
-          </div>
-        {% endif %}
-      </div>
-			<div class="col-md-12 text-center">
-				<h2><i class="fa fa-large fa-arrow-circle-o-up"></i> Borrow Item</h2>
-				<div class="container-fluid">
-					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-4 col-centered">
-						<form action="{% url 'checkout.views.person_search' %}" method="POST" role="form">
-							<div class="form-group">
-								<div class="input-group">
-									{% csrf_token %}
-									<input autofocus text="search" name="barcode" id="search" value="" class="form-control" placeholder="Type or scan Student ID number."/>
-									<span class="input-group-btn">
-										<button class="btn btn-success" type="submit">Go</button>
-									</span>
+<div class="container">
+	<div class="jumbotron vertical-center">
+		<div class="panel">
+			<div class="row">
+				<div class="main">
+					<h2 class="text-center">
+						<i class="fa fa-large fa-arrow-circle-o-down"></i> Borrow Items
+					</h2>
+					<div class="container-fluid">
+						<div class="col-md-12">
+							<form action="{% url 'checkout.views.person_search' %}" method="POST" role="form">
+								<div class="form-group">
+									<div class="input-group">
+										{% csrf_token %}
+										<input autofocus text="search" name="barcode" id="search" value="" class="form-control" placeholder="Type or scan Student ID number."/>
+										<span class="input-group-btn">
+											<button class="btn btn-success" type="submit">Go</button>
+										</span>
+									</div>
 								</div>
-							</div>
-						</form>
+							</form>
+						</div> <!-- col -->
+					</div> <!-- row -->
+				</div> <!-- row -->
+			</div> <!-- row -->
+		<div class="col-md-12">
+			{% if status == 0 %}
+				<div class="alert-message alert-message-success" role="alert">
+					<h4>Success</h4>
+					<strong>{{ status_object }}</strong> was checked in.
 				</div>
+			{% elif status == 1 %}
+				<div class="alert-message alert-message-danger" role="alert">
+					<h4>Error</h4>
+					Sorry, <strong>{{ status_object }}</strong> cannot be found.
+				</div>
+			{% endif %}
+			</div>
+		</div> <!-- row -->
+	</div> <!-- container -->
+</div> <!-- jumbotron -->
+
+
 			</div>	
 			{% if item_requests|length > 0 %}
 				<div>
