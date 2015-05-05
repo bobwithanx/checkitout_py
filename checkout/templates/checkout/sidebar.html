@@ -1,0 +1,62 @@
+{% load base_extras %}
+
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <li class="sidebar-brand">
+                    <a href="/">
+                        {{ settings.APP_NAME }}
+                    </a>
+                </li>
+								<li>
+									Circulation
+								</li>
+													<li>
+ 				<a href="{% url 'checkout.views.display_checkout' %}" class="{% navactive request 'checkout.views.display_checkout' %}"
+>
+					<i class="fa fa-arrow-circle-o-up"></i> Checkout
+				</a>
+								</li>
+													<li>
+ 				<a href="{% url 'checkout.views.display_checkin' %}" class="{% navactive request 'checkout.views.display_checkin' %}">
+					<i class="fa fa-arrow-circle-o-down"></i> Returns
+				</a>
+								</li>
+																<li>
+									Lookups
+								</li>
+													<li>
+ 				<a href="{% url 'checkout.views.on_loan' %}" class="{% navactive request 'checkout.views.on_loan' %}">
+					<i class="fa fa-arrow-circle-o-down"></i> Loans
+				</a>
+								</li>
+
+                <li>
+							<a href="{% url 'checkout.views.person_list' %}" class="{% navactive request 'checkout.views.person_list' %}">
+								<i class="fa fa-users"></i> Students
+							</a>
+                </li>
+                <li>
+							<a href="{% url 'checkout.views.item_list' %}" class="{% navactive request 'checkout.views.item_list' %}">
+								<i class="fa fa-tags"></i> Inventory
+							</a>
+                </li>
+								<li>
+									Admin
+								</li>
+					{% if user.is_staff %}
+
+								<li>
+ 				<a href="{% url 'checkout.views.reports' %}" class="{% navactive request 'checkout.views.reports' %}">
+					<i class="fa fa-bar-chart-o"></i> Statistics
+				</a>
+								</li>
+								<li>
+ 				<a href="{% url 'checkout.views.history' %}" class="{% navactive request 'checkout.views.history' %}">
+					<i class="fa fa-history"></i> History
+				</a>
+								</li>
+						{% endif %}
+            </ul>
+        </div>
+        <!-- /#sidebar-wrapper -->

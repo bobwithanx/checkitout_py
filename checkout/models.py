@@ -101,6 +101,11 @@ class Item(models.Model):
 	def is_available(self):
 		#return( self.current_activity == None )
 		pass
+		
+	def name(self):
+		text = ' '.join([self.brand.name, self.model, ])
+		encoded = text.encode("utf-8")
+		return encoded
 
 	def __str__(self):
 		text = ''.join([' '.join([self.brand.name, self.model, ]), ' (', self.inventory_tag, ')'])

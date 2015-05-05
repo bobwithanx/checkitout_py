@@ -4,20 +4,43 @@ from django.db.models import Count, F
 from .models import Transaction, TransactionHistory, Person, Catalog, Item, Category
 from .forms import TransactionForm
 from django.http import HttpRequest, HttpResponse
-
+from datetime import datetime, timedelta, date
 
 def home(request):
-    return render(request, 'checkout/home.html')
+	open_transactions = Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)
+	borrowers = Person.objects.filter(pk__in=[x for x in open_transactions])
+	loans = Transaction.objects.all().order_by('-time_out')
+	history = TransactionHistory.objects.all().order_by('-time_in')
+	
+	person_metrics = {
+		'week': history.filter(time_out__startswith=date.today()-timedelta(days=7)).values_list('person', flat=True).distinct().count(), 
+		'yesterday': history.filter(time_out__startswith=date.today()-timedelta(days=1)).values_list('person', flat=True).distinct().count(),
+		'today': history.filter(time_out__startswith=date.today()).values_list('person', flat=True).distinct().count(), 
+		'current': loans.values_list('person', flat=True).distinct().count()
+		}
+	
+	item_metrics = {
+		'week': history.filter(time_out__startswith=date.today()-timedelta(days=7)).count(),
+		'yesterday': history.filter(time_out__startswith=date.today()-timedelta(days=1)).count(),
+		'today': history.filter(time_out__startswith=date.today()).count(),
+		'current': loans.count()
+	}
+	
+	return render(request, 'checkout/home.html', {'person_metrics': person_metrics, 'item_metrics': item_metrics, 'borrowers': borrowers, 'loans': loans, 'open_transactions': open_transactions})
 
 
 def display_checkout(request, status="", status_object=""):
-    item_requests = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=True).values_list('person', flat=True)])
-    return render(request, 'checkout/checkout.html', {'item_requests': item_requests, 'status': status, 'status_object': status_object})
+	open_transactions = Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)
+	borrowers = Person.objects.filter(pk__in=[x for x in open_transactions])
+	item_requests = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=True).values_list('person', flat=True)])
+	return render(request, 'checkout/checkout.html', {'borrowers': borrowers, 'open_transactions': open_transactions, 'item_requests': item_requests, 'status': status, 'status_object': status_object})
 
 
 def display_checkin(request, status="", status_object=""):
-    loans = Person.objects.filter(pk__in=[x for x in Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)])
-    return render(request, 'checkout/return.html', {'loans': loans, 'status': status, 'status_object': status_object})
+    borrowers = Person.objects.filter(pk__in=[x for x in Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)])
+    transactions = Transaction.objects.all().order_by('-time_out')
+    history = TransactionHistory.objects.all().order_by('-time_in')
+    return render(request, 'checkout/return.html', {'history': history, 'transactions': transactions, 'borrowers': borrowers, 'status': status, 'status_object': status_object})
 
 
 def quick_checkin(request):
@@ -55,6 +78,18 @@ def person_search(request):
 	return display_checkout(request, result, barcode)
 
 
+def quick_checkout(request, p):
+    person = get_object_or_404(Person, pk=p)
+    if request.method == "POST":
+      item = get_object_or_404(Item, inventory_tag=request.POST.get('item', None))
+    try:
+        transaction = Transaction.objects.get(item=item.pk)
+    except Transaction.DoesNotExist:
+    	transaction = Transaction.objects.create(person=person, item=item)
+    transaction.check_out()
+    return redirect('checkout.views.person_detail', id_number=person.id_number)
+
+
 def reservations(request):
     transactions = Transaction.objects.all()
     all_people = Person.objects.all()
@@ -65,13 +100,11 @@ def reservations(request):
     return render(request, 'checkout/reservations.html', {'transactions': transactions, 'all_people': all_people, 'active_people': active_people, 'active_items': active_items, 'requests': requests})
 
 def on_loan(request):
-    transactions = Transaction.objects.all()
-    all_people = Person.objects.all()
-    active_people = Person.objects.filter(pk__in=[x for x in Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)])
-    requests = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=True).values_list('person', flat=True)])
-    active_items = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)])
+		open_transactions = Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)
+		borrowers = Person.objects.filter(pk__in=[x for x in open_transactions])
+		item_requests = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=True).values_list('person', flat=True)])
 
-    return render(request, 'checkout/on_loan.html', {'transactions': transactions, 'all_people': all_people, 'active_people': active_people, 'active_items': active_items, 'requests': requests})
+		return render(request, 'checkout/on_loan.html', {'open_transactions': open_transactions, 'borrowers': borrowers, 'item_requests': item_requests})
 
 def reports(request):
     transactions = Transaction.objects.all()
@@ -183,17 +216,6 @@ def item_checkin(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk)
     person=transaction.person
     transaction.check_in()
-    return redirect('checkout.views.person_detail', id_number=person.id_number)
-
-def quick_checkout(request, p):
-    person = get_object_or_404(Person, pk=p)
-    if request.method == "POST":
-      item = get_object_or_404(Item, inventory_tag=request.POST.get('item', None))
-    try:
-        transaction = Transaction.objects.get(item=item.pk)
-    except Transaction.DoesNotExist:
-    	transaction = Transaction.objects.create(person=person, item=item)
-    transaction.check_out()
     return redirect('checkout.views.person_detail', id_number=person.id_number)
 
 def person_cancel_request(request, pk):

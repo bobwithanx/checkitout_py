@@ -31,87 +31,144 @@ color: #F4FDF0;
 </style>
 
 <script type="text/javascript">
+$(document).ready(function(){
+    $('#myTable').DataTable({
+        "lengthChange": false,
+         "order": [[ 4, 'asc' ], [ 1, 'asc' ]]
+    });
+});
+</script>
+		<link rel="stylesheet" href="http://cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
+
+<style>
+body { font-size: 140%; }
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+	color: #333 !important;
+border: 1px solid #cacaca;
+background-color: #fff;
+}
+
+.dataTables_wrapper {
+position: relative;
+clear: both;
+zoom: 1;
+}
+
+.dataTables_wrapper .dataTables_info {
+	clear: both;
+	float: left;
+	}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+color: white !important;
+border: 1px solid #111;
+background-color: #585858;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+	box-sizing: border-box;
+display: inline-block;
+min-width: 1.5em;
+padding: 0.5em 1em;
+margin-left: 2px;
+text-align: center;
+text-decoration: none !important;
+cursor: pointer;
+border: 1px solid transparent;
+}
+
+div.dataTables_paginate {
+white-space: nowrap;
+}
+</style>
+
+<script type="text/javascript">
   $(document).ready(function(){
       $('[data-toggle="tooltip"]').tooltip({viewport: '#viewport', html: true});
   });
 </script>
 
-<div class="container">
-	<div class="row">
-		<div class="col-md-12">
-				<div class="page-header">
-					<h1>Return Items <small></small>
-					</h1>
-				</div>
-		</div>
-	</div>
+<div class="row">
+  <div class="col-md-12">
+      <div class="section">
+        <h1>Returns <small></small>
+        </h1>
+      </div>
+  </div>
 </div>
+<div class="row">
+  <div class="col-xs-6 col-sm-6 col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <div class="panel-title">
+          <span ><i class="fa fa-barcode"></i> Scan Item</span>
+        </div>
+      </div>
+      <div class="panel-body">
+        <form action="{% url 'checkout.views.quick_checkin' %}" method="POST" role="form">
+          <div class="form-group">
+            <div class="input-group">
+              {% csrf_token %}
+              <input autofocus text="search" name="barcode" id="search" value="" class="form-control" placeholder="Scan barcode"/>
+              <span class="input-group-btn">
+                <button class="btn btn-success" type="submit">Go</button>
+              </span>
+            </div>
+          </div>
+        </form>
+        {% if status == 0 %}
+          <div class="alert-message alert-message-success" role="alert">
+            <h4>Success</h4>
+            <strong>{{ status_object }}</strong> was checked in.
+          </div>
+        {% elif status == 1 %}
+          <div class="alert-message alert-message-danger" role="alert">
+            <h4>Error</h4>
+            Sorry, <strong>{{ status_object }}</strong> cannot be found.
+          </div>
+        {% endif %}
+       </div>
+     </div>
+    </div>
+    {% if borrowers|length > 0 %}
+      <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <div class="panel-title">
+              Current Loans
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table id="myTable" class="table table-hover table-condensed">
+                <thead>
+                      <tr>
+                      <th>Person</th>
+                      <th>Item</th>
+                    </tr>
+                </thead>
+                    {% for person in borrowers %}
+                  <tr>
+                      <td>
+                        {{ person }} <small class="text-muted">{{ person.id_number }}</small> <a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}"><i class="fa fa-fw fa-arrow-circle-o-right"></i></a>
+                        <td class="pull-right">
+                        {% for transaction in person.inventory %}
+                          {{ transaction.item.name }} <small class="text-muted">{{transaction.item.inventory_tag}}</small><br/>
+                        {% endfor %}
+                        </td>
+                      </td>
+                    </tr>
 
-
-<div class="container">
-	<div class="row">
-    <div class="col-xs-6 col-sm-6 col-md-6">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <div class="panel-title">
-						<span ><i class="fa fa-barcode"></i> Scan Item</span>
+                    {% endfor %}
+              </table>
+            </div>
           </div>
         </div>
-        <div class="panel-body">
-					<form action="{% url 'checkout.views.quick_checkin' %}" method="POST" role="form">
-						<div class="form-group">
-							<div class="input-group">
-								{% csrf_token %}
-								<input autofocus text="search" name="barcode" id="search" value="" class="form-control" placeholder="Scan barcode"/>
-								<span class="input-group-btn">
-									<button class="btn btn-success" type="submit">Go</button>
-								</span>
-							</div>
-						</div>
-					</form>
-					{% if status == 0 %}
-						<div class="alert-message alert-message-success" role="alert">
-							<h4>Success</h4>
-							<strong>{{ status_object }}</strong> was checked in.
-						</div>
-					{% elif status == 1 %}
-						<div class="alert-message alert-message-danger" role="alert">
-							<h4>Error</h4>
-							Sorry, <strong>{{ status_object }}</strong> cannot be found.
-						</div>
-					{% endif %}
-         </div>
-			 </div>
-			</div>
-
-			{% if loans|length > 0 %}
-				<div class="col-xs-6 col-sm-6 col-md-6">
-					<div class="panel panel-warning">
-						<div class="panel-heading">
-							<div class="panel-title">
-								Current Borrowers
-							</div>
-						</div>
-						<div class="list-group scroll-box">
-							{% for person in loans %}
-								<div class="list-group-item">
-									<a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">{{ person }}</a>
-									<small>{{ person.id_number }}</small>
-									<a data-toggle="tooltip" data-content="{{ person.inventory }}" class="pull-right">
-									{% blocktrans count item_count=person.inventory|length %}
-										1 item
-									{% plural %}
-										{{ item_count }} items
-									{% endblocktrans %}
-									</a>
-								</div>
-							{% endfor %}
-						</div>
-					</div>
-				</div>
-			{% endif %}			
-		</div>
-	</div>
+      </div>
+    {% endif %}
+  </div>
 </div>
 
+{% include 'checkout/popup.html' %}
 {% endblock content %}

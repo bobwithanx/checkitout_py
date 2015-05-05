@@ -54,18 +54,14 @@ white-space: nowrap;
 }
 </style>
 
-<div class="container">
 	<div class="row">
 		<div class="col-md-12">
-				<div class="page-header">
+				<div class="section">
 					<h1>Transaction History
 					</h1>
 				</div>
 		</div>
 	</div>
-</div>
-
-<div class="container">
 	<div class="row">
 		<div class="col-md-12">
       <div class="table-responsive">
@@ -74,15 +70,13 @@ white-space: nowrap;
                 <tr>
                 <th>Item</th>
                 <th>Person</th>
-                <th>Out</th>
-                <th>In</th>
+                <th>Returned</th>
               </tr>
           </thead>
           {% for transaction in history %}
             <tr>
               <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item }}</a></td>
               <td><a href="{% url 'checkout.views.person_detail' id_number=transaction.person.id_number %}">{{ transaction.person }}</a></td>
-              <td>{{ transaction.time_out }}</td>
               <td>{{ transaction.time_in }}</td>
             </tr>
           {% endfor %}
@@ -90,7 +84,6 @@ white-space: nowrap;
       </div>
     </div>
   </div>
-</div>
 
 {% include 'checkout/popup.html' %}
 
