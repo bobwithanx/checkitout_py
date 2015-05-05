@@ -23,6 +23,10 @@
 color: #F4FDF0;
 }
 
+#borrower-list {
+  padding: 0;
+	list-style-type: none;
+}
 	
 	.jumbotron .panel {
 	border-color: #4cae4c;
@@ -83,12 +87,6 @@ white-space: nowrap;
 }
 </style>
 
-<script type="text/javascript">
-  $(document).ready(function(){
-      $('[data-toggle="tooltip"]').tooltip({viewport: '#viewport', html: true});
-  });
-</script>
-
 <div class="row">
   <div class="col-md-12">
       <div class="section">
@@ -98,13 +96,25 @@ white-space: nowrap;
   </div>
 </div>
 <div class="row">
-  <div class="col-xs-6 col-sm-6 col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <div class="panel-title">
-          <span ><i class="fa fa-barcode"></i> Scan Item</span>
+    <div class="col-xs-12 col-sm-8 col-md-8">
+      <div class="panel panel-default" id="search_panel">
+        <div class="panel-heading">
+          <div class="panel-title">
+						<div class="row">
+							<div class="col-xs-2 col-sm-3 col-md-2">
+								<span class="fa-stack fa-lg">
+									<i class="fa fa-square-o fa-stack-2x"></i>
+									<i class="fa fa-tag fa-stack-1x"></i>
+								</span>
+							</div>
+							<div class="col-md-6">
+								<strong>Scan Inventory Tag</strong>
+								<br/>
+								<small>or type the Inventory Tag number</small>
+							</div>
+						</div> 
+          </div>
         </div>
-      </div>
       <div class="panel-body">
         <form action="{% url 'checkout.views.quick_checkin' %}" method="POST" role="form">
           <div class="form-group">
@@ -132,37 +142,21 @@ white-space: nowrap;
      </div>
     </div>
     {% if borrowers|length > 0 %}
-      <div class="col-xs-12 col-sm-12 col-md-12">
-        <div class="panel panel-default">
+    <div class="col-xs-12 col-sm-4 col-md-4">
+        <div class="panel panel-warning">
           <div class="panel-heading">
             <div class="panel-title">
               Current Loans
             </div>
           </div>
           <div class="panel-body">
-            <div class="table-responsive">
-              <table id="myTable" class="table table-hover table-condensed">
-                <thead>
-                      <tr>
-                      <th>Person</th>
-                      <th>Item</th>
-                    </tr>
-                </thead>
+            <ul id="borrower-list">
                     {% for person in borrowers %}
-                  <tr>
-                      <td>
+                      <li>
                         {{ person }} <small class="text-muted">{{ person.id_number }}</small> <a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}"><i class="fa fa-fw fa-arrow-circle-o-right"></i></a>
-                        <td class="pull-right">
-                        {% for transaction in person.inventory %}
-                          {{ transaction.item.name }} <small class="text-muted">{{transaction.item.inventory_tag}}</small><br/>
-                        {% endfor %}
-                        </td>
-                      </td>
-                    </tr>
-
+                      </li>
                     {% endfor %}
-              </table>
-            </div>
+            </ul>
           </div>
         </div>
       </div>

@@ -1,12 +1,30 @@
 {% extends 'checkout/base.html' %}
+{% load staticfiles %}
 
 {% block content %}
 
 <style>
   .label-container {
-    margin-right: 25px;;
+    margin-right: 25px;
+  }
+  
+  .inventory-container {
+    margin-left: 15px;
   }
 </style>
+		<link rel="stylesheet" href="http://cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
+<link rel="stylesheet" href="{% static 'css/dataTables.css' %}">
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#myTable').DataTable( {
+    "lengthChange": false,
+    } );
+    $('.collapse').collapse("hide");
+
+});
+</script>
+
   <div class="row">
     <div class="col-md-12">
       <div class="section">
@@ -14,16 +32,6 @@
       </div>
     </div>
   </div>
-
-    <div class="row">
-      <div class="col-md-12">
-        <ul class="nav nav-tabs">
-          <li role="presentation" {% if tab = 'all' %}class="active"{% endif %}><a href="{% url 'checkout.views.person_list' tab='all' %}">All Students</a></li>
-          <li role="presentation" {% if tab = 'reservations' %}class="active"{% endif %}><a href="{% url 'checkout.views.person_list' tab='reservations' %}">Requests</a></li>
-          <li role="presentation" {% if tab = 'loans' %}class="active"{% endif %}><a href="{% url 'checkout.views.person_list' tab='loans' %}">Loans</a></li>
-        </ul>
-      </div>
-    </div>
 
 	<div class="row">
 		<div class="col-md-12">
@@ -34,17 +42,34 @@
                 <th>Person</th>
                 <th>ID Number</th>
                 <th>Group</th>
-                <th>Requests</th>
                 <th>Inventory</th>
               </tr>
           </thead>
           {% for person in people %}
-            <tr>
-              <td><a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">{{ person }}</a></td>
+            <tr {% if person.inventory|length > 0 %}class="warning"{% endif %}>
+              <td>
+              	<a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">{{ person }}</a>
+              	{% if person.requests|length > 0 %}
+              		<span class="label label-warning">
+              			{{ person.requests|length }}
+              		</span>
+              	{% endif %}
+								{% if person.inventory|length > 0 %}
+        					<small class="inventory-container text-danger">
+        						<i class="fa fa-{{ person.inventory|length|pluralize:"tag,tags" }}"></i> {{ person.inventory|length }} {{ person.inventory|length|pluralize:" item, items" }}
+              		</small>
+              	{% endif %}
+
+              </td>
               <td>{{ person.id_number }}</a></td>
               <td>{{ person.group }}</a></td>
-              <td><span class="label label-warning">{% if person.requests|length > 0 %}{{ person.requests|length }}{% endif %}</span></td>
-              <td><span class="label label-success">{% if person.inventory|length > 0 %}{{ person.inventory|length }}{% endif %}</span></td>
+              <td>
+								{% if person.inventory|length > 0 %}
+										{% for transaction in person.inventory %}
+											<small>{{ transaction.item.name }} <small class="text-muted">{{transaction.item.inventory_tag}}</small></small><br/>
+										{% endfor %}
+              	{% endif %}
+              </td>
             </tr>
           {% endfor %}
         </table>

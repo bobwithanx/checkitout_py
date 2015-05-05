@@ -21,8 +21,7 @@
 	<div class="row">
 		<div class="col-md-12">
 				<div class="section">
-					<h1>Checkout
-					</h1>
+					<h1>Checkout</h1>
 				</div>
 		</div>
 	</div>
@@ -32,13 +31,19 @@
       <div class="panel panel-default" id="search_panel">
         <div class="panel-heading">
           <div class="panel-title">
-						<div>
-							<span class="center-block">
+						<div class="row">
+							<div class="col-xs-2 col-sm-3 col-md-2">
+								<span class="fa-stack fa-lg">
+									<i class="fa fa-square-o fa-stack-2x"></i>
+									<i class="fa fa-user fa-stack-1x"></i>
+								</span>
+							</div>
+							<div class="col-md-6">
 								<strong>Scan your Student ID</strong>
 								<br/>
-								or type your Student ID Number
-							</span>
-						</div>
+								<small>or type your Student ID Number</small>
+							</div>
+						</div> 
           </div>
         </div>
         <div class="panel-body">
@@ -46,7 +51,7 @@
 						<div class="form-group">
 							<div class="input-group">
 								{% csrf_token %}
-								<input autofocus text="search" name="barcode" id="search" value="" class="form-control" placeholder="Scan barcode"/>
+								<input autofocus text="search" name="barcode" id="search" value="" class="form-control" placeholder="Student ID Number"/>
 								<span class="input-group-btn">
 									<button class="btn btn-success" type="submit">Go</button>
 								</span>
