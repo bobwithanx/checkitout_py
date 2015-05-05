@@ -1,0 +1,88 @@
+{% extends 'checkout/base.html' %}
+{% load humanize %}
+
+{% block content %}
+
+<div class="row">
+	<div class="col-md-12">
+			<div class="section">
+				<h1>Checkout</h1>
+			</div>
+	</div>
+</div>
+
+<div class="row">
+	{% if user.is_staff %}
+    <div class="col-xs-12 col-sm-8 col-md-8">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <div class="panel-title">
+						<div class="row">
+							<div class="col-xs-2 col-sm-3 col-md-2">
+								<span class="fa-stack fa-lg">
+									<i class="fa fa-square-o fa-stack-2x"></i>
+									<i class="fa fa-user fa-stack-1x"></i>
+								</span>
+							</div>
+									<div class="col-sm-6 col-md-6 col-lg-6">
+										<strong>{{ person.full_name }}</strong>
+										<br/>
+										<small>{{ person.id_number }}</small>
+									</div>
+								</div> 
+							</div> 
+						</div>
+					</div>
+					<div class="panel panel-primary" id="search_panel">
+						<div class="panel-heading">
+							<div class="panel-title">
+								<div class="row">
+									<div class="col-xs-2 col-sm-3 col-md-2">
+										<span class="fa-stack fa-lg">
+											<i class="fa fa-square-o fa-stack-2x"></i>
+											<i class="fa fa-tag fa-stack-1x"></i>
+										</span>
+									</div>
+									<div class="col-sm-6 col-md-6 col-lg-6">
+										<strong>Scan Inventory Tag</strong>
+										<br/>
+										<small>or type the Inventory Tag number</small>
+									</div>
+								</div> 
+							</div>
+						</div>
+						<div class="panel-body">
+							<form action="{% url 'checkout.views.quick_checkout' p=person.pk %}" method="POST" role="form">
+								<div class="form-group">
+									<div class="input-group">
+										{% csrf_token %}
+										<input autofocus text="search" name="barcode" id="search" value="" class="form-control" placeholder="Scan barcode"/>
+										<span class="input-group-btn">
+											<button class="btn btn-primary" type="submit">Go</button>
+										</span>
+									</div>
+								</div>
+							</form>
+							{% if status == 0 %}
+								<div class="alert-message alert-message-success" role="alert">
+									<h4>Success</h4>
+									<strong>{{ status_object }}</strong> was checked in.
+								</div>
+							{% elif status == 1 %}
+								<div class="alert-message alert-message-danger" role="alert">
+									<h4>Error</h4>
+									Sorry, <strong>{{ status_object }}</strong> cannot be found.
+								</div>
+							{% endif %}
+						 </div>
+					 </div>
+					</div> <!-- col -->
+				</div> <!-- col -->
+			</div> <!-- col -->
+		</div> <!-- row -->
+	{% endif %}
+</div> <!-- row -->
+
+{% include 'checkout/popup.html' %}
+
+{% endblock content %}

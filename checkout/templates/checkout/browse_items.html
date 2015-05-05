@@ -53,6 +53,7 @@
                     <div class="panel panel-default ">
                       <div class="panel-heading">
                         <h3 class="panel-title">{{ item.brand }} {{ item.model }}</h3>
+                        <div class="text-center text-muted">{{ item.inventory_tag }}</div>
                       </div>
                       <div class="panel-body ">
                         <a href="{% url 'checkout.views.item_popup' pk=item.pk %}" data-toggle="modal" data-target="#myModal" class="btn btn-default"><img src="{% if item.image_name and item.image_name.strip %}{% static 'images/'|add:item.image_name %}{% else %}{% static 'images/'|add:category.icon %}{% endif %}" class="img-responsive"/></a>

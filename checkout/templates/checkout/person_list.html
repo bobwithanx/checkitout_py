@@ -12,7 +12,7 @@
     margin-left: 15px;
   }
 </style>
-		<link rel="stylesheet" href="http://cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
+<link rel="stylesheet" href="http://cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
 <link rel="stylesheet" href="{% static 'css/dataTables.css' %}">
 
 <script type="text/javascript">
@@ -55,7 +55,7 @@ $(document).ready(function(){
               		</span>
               	{% endif %}
 								{% if person.inventory|length > 0 %}
-        					<small class="inventory-container text-danger">
+        					<small class="inventory-container text-info">
         						<i class="fa fa-{{ person.inventory|length|pluralize:"tag,tags" }}"></i> {{ person.inventory|length }} {{ person.inventory|length|pluralize:" item, items" }}
               		</small>
               	{% endif %}

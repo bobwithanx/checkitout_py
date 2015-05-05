@@ -7,7 +7,7 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^$', 'checkout.views.home', name='home'),
-    url(r'^checkout$', 'checkout.views.display_checkout', name='display_checkout'),
+    url(r'^checkout$', 'checkout.views.display_checkout'),
     url(r'^returns$', 'checkout.views.display_checkin', name="returns"),
     url(r'^quick_checkin$', 'checkout.views.quick_checkin', name='quick_checkin'),
     url(r'^dashboard/$', 'checkout.views.dashboard', name="dashboard"),

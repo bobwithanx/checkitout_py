@@ -28,18 +28,18 @@ $(document).ready(function(){
 								<tr>
 								<th>Item</th>
 								<th>Serial</th>
+								<th>Inventory Tag</th>
 								<th>Description</th>
 								<th>Category</th>
-								<th>Assigned To</th>
 							</tr>
 					</thead>
 					{% for item in items %}
 						<tr>
 						<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=item.pk %}" data-target="#myModal">{{ item }}</a></td>
 						<td>{{ item.serial }}</td>
+						<td>{{ item.inventory_tag }}</td>
 						<td>{{ item.description }}</td>
 						<td>{{ item.category }}</td>
-						<td>{{ item.is_available }}</td>
 						</tr>
 					{% endfor %}
 				</table>

@@ -18,15 +18,15 @@
 }
 </style>
 
-	<div class="row">
-		<div class="col-md-12">
-				<div class="section">
-					<h1>Checkout</h1>
-				</div>
-		</div>
+<div class="row">
+	<div class="col-md-12">
+			<div class="section">
+				<h1>Checkout</h1>
+			</div>
 	</div>
-	<div class="row">
-		{% if user.is_staff %}
+</div>
+<div class="row">
+	{% if user.is_staff %}
     <div class="col-xs-12 col-sm-8 col-md-8">
       <div class="panel panel-default" id="search_panel">
         <div class="panel-heading">
@@ -47,7 +47,7 @@
           </div>
         </div>
         <div class="panel-body">
-            <form action="{% url 'checkout.views.person_search' %}" method="POST" role="form">
+            <form action="{% url 'checkout.views.display_checkout' %}" method="POST" role="form">
 						<div class="form-group">
 							<div class="input-group">
 								{% csrf_token %}
@@ -73,9 +73,7 @@
 			 </div>
 			</div>
     </div>
-
-    {% endif %}
-		</div>
-	</div>
+	{% endif %}
+</div>
 
 {% endblock content %}
