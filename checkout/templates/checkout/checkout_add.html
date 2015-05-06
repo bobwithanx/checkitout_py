@@ -5,80 +5,133 @@
 
 <div class="row">
 	<div class="col-md-12">
-			<div class="section">
-				<h1>Checkout</h1>
-			</div>
+    <div class="section">
+      <h1>Checkout</h1>
+    </div>
 	</div>
 </div>
 
 <div class="row">
 	{% if user.is_staff %}
-    <div class="col-xs-12 col-sm-8 col-md-8">
+    <div class="col-xs-12 col-sm-6 col-md-6">
       <div class="panel panel-default">
         <div class="panel-heading">
-          <div class="panel-title">
+          <div class="panel-title" href="">
 						<div class="row">
-							<div class="col-xs-2 col-sm-3 col-md-2">
-								<span class="fa-stack fa-lg">
-									<i class="fa fa-square-o fa-stack-2x"></i>
-									<i class="fa fa-user fa-stack-1x"></i>
-								</span>
-							</div>
-									<div class="col-sm-6 col-md-6 col-lg-6">
-										<strong>{{ person.full_name }}</strong>
-										<br/>
-										<small>{{ person.id_number }}</small>
-									</div>
-								</div> 
-							</div> 
-						</div>
-					</div>
-					<div class="panel panel-primary" id="search_panel">
-						<div class="panel-heading">
-							<div class="panel-title">
-								<div class="row">
-									<div class="col-xs-2 col-sm-3 col-md-2">
-										<span class="fa-stack fa-lg">
-											<i class="fa fa-square-o fa-stack-2x"></i>
-											<i class="fa fa-tag fa-stack-1x"></i>
-										</span>
-									</div>
-									<div class="col-sm-6 col-md-6 col-lg-6">
-										<strong>Scan Inventory Tag</strong>
-										<br/>
-										<small>or type the Inventory Tag number</small>
-									</div>
-								</div> 
-							</div>
-						</div>
-						<div class="panel-body">
-							<form action="{% url 'checkout.views.quick_checkout' p=person.pk %}" method="POST" role="form">
-								<div class="form-group">
-									<div class="input-group">
-										{% csrf_token %}
-										<input autofocus text="search" name="barcode" id="search" value="" class="form-control" placeholder="Scan barcode"/>
-										<span class="input-group-btn">
-											<button class="btn btn-primary" type="submit">Go</button>
-										</span>
-									</div>
-								</div>
-							</form>
-							{% if status == 0 %}
-								<div class="alert-message alert-message-success" role="alert">
-									<h4>Success</h4>
-									<strong>{{ status_object }}</strong> was checked in.
-								</div>
-							{% elif status == 1 %}
-								<div class="alert-message alert-message-danger" role="alert">
-									<h4>Error</h4>
-									Sorry, <strong>{{ status_object }}</strong> cannot be found.
-								</div>
-							{% endif %}
-						 </div>
-					 </div>
-					</div> <!-- col -->
-				</div> <!-- col -->
-			</div> <!-- col -->
+							<div class="col-xs-10 col-sm-9 col-md-10">
+                <a class="text-muted" href="">Step 1 of 2</a>
+              </div> 
+            </div> 
+          </div> 
+        </div> 
+        <div class="panel-body">
+          <div class="panel-title">
+            <div class="row">
+              <div class="col-xs-2 col-sm-3 col-md-2">
+                <span class="fa-stack fa-lg">
+                  <i class="fa fa-square-o fa-stack-2x"></i>
+                  <i class="fa fa-user fa-stack-1x"></i>
+                </span>
+              </div>
+              <div class="col-xs-10 col-sm-9 col-md-10">
+                <strong>{{ person.full_name }}</strong>
+                <br/>
+                <small>{{ person.id_number }}</small>
+              </div>
+            </div> 
+          </div> 
+        </div> 
+        <div class="panel-body">
+          {% if person.inventory|length > 0 %}
+            <div class="table-responsive">
+              <table class="table table-condensed table-hover">
+                <tbody>
+                  {% for transaction in person.inventory %}
+                    <tr>
+                      <td>{{ forloop.counter }}</td>
+                      <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
+                      <td>{{ transaction.item.inventory_tag }}</td>
+                      <td>{{ transaction.time_out|naturaltime }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+                <thead>
+                  <tr>
+                    <th colspan=4>Current Inventory</th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+            {% else %}
+              <p>No items are currently on loan.</p>
+            {% endif %}
+        </div> 
+      </div>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          <div class="panel-title">
+            <div class="row">
+              <div class="col-xs-12 col-sm-12 col-md-12">
+                Step 2 of 2
+              </div>
+            </div> 
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="panel-title">
+            <div class="row">
+              <div class="col-xs-2 col-sm-3 col-md-2">
+                <span class="fa-stack fa-lg">
+                  <i class="fa fa-square-o fa-stack-2x"></i>
+                  <i class="fa fa-tag fa-stack-1x"></i>
+                </span>
+              </div>
+              <div class="col-xs-10 col-sm-9 col-md-10 col-lg-10">
+                <strong>Scan Inventory Tag</strong>
+                <br/>
+                <small>or type the Inventory Tag number</small>
+              </div>
+            </div> 
+          </div>
+        </div>
+        <div class="panel-body">
+          <form action="{% url 'checkout.views.display_checkout' id_number=person.id_number %}" method="POST" role="form">
+            <div class="form-group">
+              <div class="input-group">
+                {% csrf_token %}
+                <input autofocus text="search" name="inventory_tag" id="search" value="" class="form-control" placeholder="Scan barcode"/>
+                <span class="input-group-btn">
+                  <button class="btn btn-primary" type="submit">Go</button>
+                </span>
+              </div>
+            </div>
+          </form>
+          {% if status == "Transaction.Success" %}
+            <div class="alert-message alert-message-success" role="alert">
+              <h4>Success</h4>
+              <strong>{{ inventory_tag }}</strong> was checked out.
+            </div>
+          {% elif status == "Transaction.Duplicate" %}
+            <div class="alert-message alert-message-info" role="alert">
+              <h4>No Change</h4>
+              <strong>{{ person }}</strong> has already checked out <strong>{{ inventory_tag }}</strong>.
+            </div>
+          {% elif status == "Transaction.Conflict" %}
+            <div class="alert-message alert-message-danger" role="alert">
+              <h4>Conflict</h4>
+              Sorry, <strong>{{ inventory_tag }}</strong> is checked out to another person.
+            </div>
+          {% elif status == "Item.DoesNotExist" %}
+            <div class="alert-message alert-message-danger" role="alert">
+              <h4>Missing Item</h4>
+              Sorry, <strong>{{ inventory_tag }}</strong> cannot be found.
+            </div>
+          {% endif %}
+         </div>
+       </div>
+     </div>
 		</div> <!-- row -->
 	{% endif %}
 </div> <!-- row -->

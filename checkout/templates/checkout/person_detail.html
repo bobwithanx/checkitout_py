@@ -3,19 +3,14 @@
 
 {% block content %}
 
-<div class="container">
 	<div class="row">
 		<div class="col-md-12">
-				<div class="section">
 					<h1>{{ person.full_name }}
 						<small>{{ person.id_number }}</small>
 					</h1>
-				</div>
 		</div>
 	</div>
-</div>
 
-<div class="container">
 	<div class="row">
 		<div class="col-md-12">
 			<ul class="nav nav-tabs">
@@ -33,6 +28,7 @@
 		<div class="col-md-12">
 			{% if person.requests|length > 0 %}
 				<h4>Requests</h4>
+				<div class="table-responsive">
 				<table class="table table-condensed table-hover">
 					<tbody>
 						{% for transaction in person.requests %}
@@ -41,6 +37,7 @@
 								<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
 								<td class="hidden-xs">{{ transaction.item.description }}</td>
 								<td>{{ transaction.item.inventory_tag }}</td>
+								<td>{{ transaction.time_out }}</td>
 								<td>{% if user.is_staff %}<a href="{% url 'checkout.views.checkout_item' p=transaction.person.pk i=transaction.item.pk %}" class="btn btn-success btn-xs"><i class="fa fa-thumbs-up"></i> approve</a>{% endif %}  <a href="{% url 'checkout.views.person_cancel_request' pk=transaction.pk %}" class="btn btn-link btn-xs"><span class="text-danger"><i class="fa fa-times-circle"></i> cancel</span></a></td>
 							</tr>
 						{% endfor %}
@@ -51,14 +48,17 @@
 							<th>Item</th>
 							<th class="hidden-xs">Description</th>
 							<th>Inventory Tag</th>
+							<th>Out</th>
 							<th>Actions</th>
 						</tr>
 					</thead>
 				</table>
+				</div>
 			{% endif %}
 
 			<h4>Current Loans</h4>
 				{% if person.inventory|length > 0 %}
+				<div class="table-responsive">
 					<table class="table table-condensed table-hover">
 						<tbody>
 							{% for transaction in person.inventory %}
@@ -67,8 +67,8 @@
 									<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
 									<td class="hidden-xs">{{ transaction.item.description }}</td>
 									<td>{{ transaction.item.inventory_tag }}</td>
-									<td>{{ transaction.item.time_out|naturaltime }}{% if user.is_staff %}<a href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}" class="btn btn-primary btn-xs"><i class="fa fa-check-circle"></i> check in</a>
-									<a href="{% url 'checkout.views.delete_transaction' t=transaction.pk %}" class="btn btn-link btn-xs"><span class="text-danger"><i class="fa fa-times-circle"></i> remove</span></a>{% endif %}</td>
+									<td>{{ transaction.time_out|naturaltime }}</td>
+									<td>{% if user.is_staff %}<a href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}" class="btn btn-primary btn-xs"><i class="fa fa-check-circle"></i> check in</a>{% endif %}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -78,10 +78,13 @@
 									<th>Item</th>
 									<th class="hidden-xs">Description</th>
 									<th>Inventory Tag</th>
+									<th>Out</th>
 									<th>Actions</th>
 								</tr>
 							</thead>
 						</table>
+										</div>
+
 					{% else %}
 						<p>No items are currently on loan.</p>
 					{% endif %}
@@ -89,7 +92,6 @@
 			</div>
 		</div>
 	</div>
-</div>
 
 {% include 'checkout/popup.html' %}
 

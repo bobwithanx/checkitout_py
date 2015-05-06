@@ -108,7 +108,7 @@
                       {% for person in borrowers %}
                     <tr>
                         <td>
-                          {{ person }} <small class="text-muted">{{ person.id_number }}</small> <a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}"><i class="fa fa-fw fa-arrow-circle-o-right"></i></a>
+                          <a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">{{ person }}</a> <small class="text-muted">{{ person.id_number }}</small>
                           <td class="pull-right">
                           {% for transaction in person.inventory %}
                             {{ transaction.item.name }} <small class="text-muted">{{transaction.item.inventory_tag}}</small><br/>
@@ -127,6 +127,5 @@
     </div>
 
 {% include 'checkout/popup.html' %}
-
 
 {% endblock content %}

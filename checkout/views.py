@@ -29,24 +29,50 @@ def home(request):
 	return render(request, 'checkout/home.html', {'person_metrics': person_metrics, 'item_metrics': item_metrics, 'borrowers': borrowers, 'loans': loans, 'open_transactions': open_transactions})
 
 
-def display_checkout(request, status="", status_object="", id_number=""):
-	barcode = ""
-	if id_number == "":
-		if request.method == "POST":
-			barcode = request.POST.get('barcode')
-			if barcode <> "":
-				try:
-					person = Person.objects.get(id_number=barcode)
-					return redirect('checkout.views.display_checkout', id_number=barcode)
-				except Person.DoesNotExist:
-					result = 1
-		open_transactions = Transaction.objects.filter(time_out__isnull=False).values_list('person', flat=True)
-		borrowers = Person.objects.filter(pk__in=[x for x in open_transactions])
-		item_requests = Person.objects.filter(pk__in = [x for x in Transaction.objects.filter(time_out__isnull=True).values_list('person', flat=True)])
-		return render(request, 'checkout/checkout.html', {'borrowers': borrowers, 'open_transactions': open_transactions, 'item_requests': item_requests, 'status': status, 'status_object': status_object})
+def display_checkout(request, status="", person="", id_number="", inventory_tag=""):	
+	if request.method == "POST":
+		if id_number == "":
+			id_number = request.POST.get('id_number')
+		if inventory_tag == "":
+			inventory_tag = request.POST.get('inventory_tag')
 	else:
-		person = get_object_or_404(Person, id_number=id_number)
-		return render(request, 'checkout/checkout_add.html', {'person': person})
+		return render(request, 'checkout/checkout.html', {'status': status})
+
+	if id_number <> "":
+		try:
+			person = Person.objects.get(id_number__iexact=id_number)
+			status = "Person.Success"
+
+			if inventory_tag is not None and inventory_tag <> "":
+				try:
+					item = Item.objects.get(inventory_tag__iexact=inventory_tag)
+					status = "Item.Success"
+
+					try:
+						transaction = Transaction.objects.get(item=item.pk)
+						if transaction.person == person:
+							status = "Transaction.Duplicate"
+						else:
+							status = "Transaction.Conflict"
+
+					except Transaction.DoesNotExist:
+						transaction = Transaction.objects.create(person=person, item=item)
+						transaction.check_out()
+						status = "Transaction.Success"
+
+					return render(request, 'checkout/checkout_add.html', {'status': status, 'person': person, 'id_number': id_number, 'inventory_tag': inventory_tag})
+
+				except Item.DoesNotExist:
+					status = "Item.DoesNotExist"
+					
+		except Person.DoesNotExist:
+			status = "Person.DoesNotExist"
+			return render(request, 'checkout/checkout.html', {'status': status})
+	else:
+		return render(request, 'checkout/checkout.html', {'status': status})
+
+	return render(request, 'checkout/checkout_add.html', {'status': status, 'person': person, 'id_number': id_number, 'inventory_tag': inventory_tag})
+						
 
 
 def display_checkin(request, status="", status_object=""):
