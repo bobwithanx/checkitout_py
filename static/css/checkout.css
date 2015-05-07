@@ -33,6 +33,7 @@ h1 a {
 body {
 	padding-top: 20px;
 	padding-bottom: 20px;
+	background: #ccc;
 }
 
 		.padded-row {
