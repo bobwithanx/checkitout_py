@@ -88,7 +88,6 @@ $("#myTable tbody tr").click(function(){
                       <td>{{ forloop.counter }}</td>
                       <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
                       <td>{{ transaction.item.inventory_tag }}</td>
-                      <td>{{ transaction.time_out|naturaltime }}</td>
                     </tr>
                   {% endfor %}
                 </tbody>
