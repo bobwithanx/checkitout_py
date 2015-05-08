@@ -4,14 +4,11 @@
 
 {% block content %}
 
-<link rel="stylesheet" href="http://cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
-<link rel="stylesheet" href="{% static 'css/dataTables.css' %}">
-
 <script type="text/javascript">
 
 $(document).on("click", ".popup", function(e) {
 	bootbox.dialog({
-		title: "This is a form in a modal.",
+		title: "Browse Items",
 		message: '<div class="row">  ' +
 				'<div class="col-md-12"> ' +
 				'<div class="table-responsive">' + 
