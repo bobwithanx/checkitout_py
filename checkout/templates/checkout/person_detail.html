@@ -21,11 +21,9 @@
 					<a href="{% url 'checkout.views.person_history' id_number=person.id_number %}">History</a>
 				</li>
 			</ul>
-		</div>
-	</div>
 
-	<div class="row">
-		<div class="col-md-12">
+<div class="panel panel-default">
+  <div class="panel-body">
 			{% if person.requests|length > 0 %}
 				<h4>Requests</h4>
 				<div class="table-responsive">
@@ -91,6 +89,8 @@
 				</div>
 			</div>
 		</div>
+	</div>
+	</div>
 	</div>
 
 {% include 'checkout/popup.html' %}
