@@ -3,7 +3,8 @@
 
 <html>
 	<head>
-		<meta http-equiv="refresh" content="300;URL='/'">
+		{% url 'home' as home_url %}
+		{% if not request.get_full_path == home_url %}<meta http-equiv="refresh" content="300;URL='/'">{% endif %}
 		<title>{{ settings.APP_NAME }}</title>
 		<link rel="stylesheet" href="{% static 'bootstrap/3.3.2/css/bootstrap.min.css' %}">
 		<link rel="stylesheet" href="{% static 'font-awesome/4.3.0/css/font-awesome.min.css' %}">
