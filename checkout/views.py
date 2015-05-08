@@ -30,13 +30,16 @@ def home(request):
 
 
 def display_checkout(request, status="", person="", id_number="", inventory_tag=""):	
+	people = Person.objects.all()
+	inventory = Item.objects.all()
+
 	if request.method == "POST":
 		if id_number == "":
 			id_number = request.POST.get('id_number')
 		if inventory_tag == "":
 			inventory_tag = request.POST.get('inventory_tag')
 	else:
-		return render(request, 'checkout/checkout.html', {'status': status})
+		return render(request, 'checkout/checkout.html', {'status': status, 'people': people})
 
 	if id_number <> "":
 		try:
@@ -67,11 +70,11 @@ def display_checkout(request, status="", person="", id_number="", inventory_tag=
 					
 		except Person.DoesNotExist:
 			status = "Person.DoesNotExist"
-			return render(request, 'checkout/checkout.html', {'status': status})
+			return render(request, 'checkout/checkout.html', {'status': status, 'people': people})
 	else:
-		return render(request, 'checkout/checkout.html', {'status': status})
+		return render(request, 'checkout/checkout.html', {'status': status, 'people': people})
 
-	return render(request, 'checkout/checkout_add.html', {'status': status, 'person': person, 'id_number': id_number, 'inventory_tag': inventory_tag})
+	return render(request, 'checkout/checkout_add.html', {'status': status, 'inventory': inventory, 'person': person, 'id_number': id_number, 'inventory_tag': inventory_tag})
 						
 
 

@@ -4,6 +4,45 @@
 
 {% block content %}
 
+<link rel="stylesheet" href="http://cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
+<link rel="stylesheet" href="{% static 'css/dataTables.css' %}">
+
+<script type="text/javascript">
+
+$(document).on("click", ".popup", function(e) {
+	bootbox.dialog({
+		title: "This is a form in a modal.",
+		message: '<div class="row">  ' +
+				'<div class="col-md-12"> ' +
+				'<div class="table-responsive">' + 
+				'<table id="myTable" class="table table-hover table-condensed">' +
+				'<thead><tr><th>Person</th><th>ID Number</th><th>Group</th></tr></thead>' +
+				'{% for person in people %}' + 
+				'<tr data-val="{{ person.id_number }}" class="person_link"><td>{{ person }}</td><td>{{ person.id_number }}</td><td>{{ person.group }}</td></tr>' +
+				'{% endfor %}' +
+				'</table></div>' +
+				'</div> </div>',
+		buttons: {
+			success: {
+				label: "Close",
+				className: "btn-default",
+				callback: function () {
+				}
+			}
+		}
+	});
+	$('#myTable').DataTable( {
+    "lengthChange": false,
+    } );
+
+$("#myTable tbody tr").click(function(){
+    $('#search').val($(this).data('val'));
+		$('.bootbox').modal('hide');});
+});
+
+
+</script>
+
 <div class="row">
 	<div class="col-md-12">
 			<div class="section">
@@ -20,7 +59,7 @@
 						<div class="row">
 							<div class="col-xs-10 col-sm-9 col-md-10">
                 Step 1 of 2
-              </div> 
+              </div>
             </div> 
           </div> 
 				</div> 
@@ -42,14 +81,15 @@
           </div>
         </div>
         <div class="panel-body">
-            <form action="{% url 'checkout.views.display_checkout' %}" method="POST" role="form">
+					<form action="{% url 'checkout.views.display_checkout' %}" method="POST" role="form">
 						<div class="form-group">
 							<div class="input-group">
 								{% csrf_token %}
-								<input autofocus text="search" name="id_number" id="search" value="" class="form-control" placeholder="Student ID Number"/>
-								<span class="input-group-btn">
-									<button class="btn btn-primary" type="submit">Go</button>
-								</span>
+								  <span class="input-group-addon" id="basic-addon1"><a class="popup" href="#"><i class="fa fa-lg fa-search"></i></a></span>
+									<input autofocus text="search" name="id_number" id="search" value="" class="form-control" placeholder="Student ID Number"/>
+									<span class="input-group-btn">
+										<button class="btn btn-primary" type="submit">Go</button>
+									</span>
 							</div>
 						</div>
 					</form>
