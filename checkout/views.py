@@ -63,7 +63,7 @@ def display_checkout(request, status="", person="", id_number="", inventory_tag=
 						transaction.check_out()
 						status = "Transaction.Success"
 
-					return render(request, 'checkout/checkout_add.html', {'status': status, 'person': person, 'id_number': id_number, 'inventory_tag': inventory_tag})
+					return render(request, 'checkout/checkout_add.html', {'status': status, 'inventory': inventory, 'person': person, 'id_number': id_number, 'inventory_tag': inventory_tag})
 
 				except Item.DoesNotExist:
 					status = "Item.DoesNotExist"
@@ -140,6 +140,7 @@ def quick_checkout(request, p):
 def checkout_add(request, id_number):
     person = get_object_or_404(Person, id_number=id_number)
     transactions = Transaction.objects.all()
+    people = Person.objects.all()
     item = Transaction.objects.filter(person=person.pk).filter(time_out__isnull=False)
     requests = Transaction.objects.filter(person=person.pk).filter(time_out__isnull=True)
     available_items = Item.objects.exclude(pk__in = [x for x in Transaction.objects.values_list('item', flat=True)])
@@ -147,7 +148,7 @@ def checkout_add(request, id_number):
     categories = Category.objects.all().order_by('name')
 
     history = TransactionHistory.objects.filter(person=person.pk)
-    return render(request, 'checkout/checkout_add.html', {'categories': categories, 'person': person, 'item': item, 'requests': requests, 'available_items': available_items, 'history': history})
+    return render(request, 'checkout/checkout_add.html', {'people': people, 'categories': categories, 'person': person, 'item': item, 'requests': requests, 'available_items': available_items, 'history': history})
 
 
 def reservations(request):
