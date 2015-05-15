@@ -16,6 +16,11 @@
   color: #aaa;
 }
 
+.navbar-header .text-muted a:hover {
+  color: #eee;
+  text-decoration: none;
+}
+
 .nav .active a, .nav a:focus {
   background-color: #eee !important;
   color: #333 !important;
@@ -28,6 +33,13 @@ ul.nav-tabs {
 .nav-tabs>li>a {
   border-radius: inherit;
   margin: 0;
+  color: #999;
+}
+
+.nav-tabs>li>a:hover {
+  background-color: inherit;
+  border-color: transparent;
+  color: #eee;
 }
 
 .form-inline {

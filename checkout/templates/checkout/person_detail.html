@@ -3,6 +3,12 @@
 
 {% block content %}
 
+<style>
+	h1 {
+		color: #eee;
+	}
+</style>
+
 <script type="text/javascript">
 
 $(document).on("click", ".popup", function(e) {
@@ -58,7 +64,6 @@ $("#myTable tbody tr").click(function(){
 				</li>
 			</ul>
 			</div>
-			</div>
 
 	<div class="col-xs-12 col-sm-12 col-md-12">
 		<div class="panel panel-default">
@@ -102,6 +107,7 @@ $("#myTable tbody tr").click(function(){
 		</div>
 	{% endif %}
 	<div class="col-xs-12 col-sm-12 col-md-12">
+		<div class="well">
 			{% if person.requests|length > 0 %}
 				<h4>Requests</h4>
 				<div class="table-responsive">
@@ -170,6 +176,7 @@ $("#myTable tbody tr").click(function(){
 				</div>
 			</div>
 		</div>
+	</div>
 	</div>
 </div>
 

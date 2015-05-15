@@ -3,6 +3,12 @@
 
 {% block content %}
 
+<style>
+	h1 {
+		color: #eee;
+	}
+</style>
+
   <div class="row">
     <div class="col-md-12">
       <div class="section">
@@ -25,7 +31,7 @@
 			</div>
 			</div>
 
-	<div class="container-fluid">
+	  <div class="well">
 				<h4>Current Loans</h4>
       {% if person.inventory|length > 0 %}
         <table class="table table-condensed table-hover">
