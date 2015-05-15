@@ -12,7 +12,7 @@ class TransactionHistory(models.Model):
 		return objects.filter(person=person)
 
     def __str__(self):
-        text = ' *** '.join([self.item.brand.name, self.item.model, str(self.time_out), str(self.time_in), self.person.full_name])
+        text = ' *** '.join([self.item.name, str(self.time_out), str(self.time_in), self.person.full_name])
         encoded = text.encode("utf-8")
         return encoded
 
@@ -63,7 +63,7 @@ class Transaction(models.Model):
         self.delete()
 
     def __str__(self):
-        text = ' '.join([self.item.brand.name, self.item.model, str(self.time_out), '(', self.person.full_name, ')'])
+        text = ' '.join([self.item.name, str(self.time_out), '(', self.person.full_name, ')'])
         encoded = text.encode("utf-8")
         return encoded
 
@@ -81,16 +81,11 @@ class Catalog(models.Model):
 	def __str__(self):
 		return self.display_name.encode("utf-8")
 
-
 class Item(models.Model):
-	item = models.ForeignKey('Catalog', null=True)
-	category = models.ForeignKey('Category')
-	brand = models.ForeignKey('Brand')
-	model = models.CharField(max_length=255)
+	catalog_item = models.ForeignKey('Catalog', null=True)
 	serial = models.CharField(max_length=255, blank=True, null=True)
 	inventory_tag = models.CharField(max_length=255, blank=True, null=True)
 	description = models.CharField(max_length=255, blank=True, null=True)
-	image_name = models.CharField(max_length=255, blank=True, null=True)
 
 	def _get_history(self):
 		"Returns all items assigned to the person."
@@ -99,16 +94,34 @@ class Item(models.Model):
 	history = property(_get_history)
 
 	def is_available(self):
-		#return( self.current_activity == None )
-		pass
+		try:
+			transaction = Transaction.objects.get(item=self)
+			assigned_to = transaction.person
+			status = assigned_to.full_name
+		except Transaction.DoesNotExist:
+			status = "available"
+		return ( status )
 		
+	def category(self):
+		return self.catalog_item.category
+	
+	def brand(self):
+		return self.catalog_item.brand
+	
+	def model(self):
+		return self.catalog_item.model
+	
+	def image_name(self):
+		return self.catalog_item.image_name
+	
 	def name(self):
-		text = ' '.join([self.brand.name, self.model, ])
+		text = self.catalog_item.display_name
 		encoded = text.encode("utf-8")
 		return encoded
 
 	def __str__(self):
-		text = ''.join([' '.join([self.brand.name, self.model, ]), ' (', self.inventory_tag, ')'])
+		#text = ''.join([' '.join([self.brand.name, self.model, ]), ' (', self.inventory_tag, ')'])
+		text = self.catalog_item.display_name
 		encoded = text.encode("utf-8")
 		return encoded
 

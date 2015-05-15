@@ -43,13 +43,17 @@ $("#myTable tbody tr").click(function(){
 <div class="row">
 	<div class="col-md-12">
     <div class="section">
-      <h1>Checkout</h1>
+      <h1>Circulation</h1>
     </div>
 	</div>
 </div>
+  <ul class="nav nav-tabs nav-justified">
+  <li role="presentation"><a href="{% url 'checkout.views.home' %}">Dashboard</a></li>
+  <li role="presentation" class="active"><a href="{% url 'checkout.views.display_checkout' %}">Checkout</a></li>
+  <li role="presentation"><a href="{% url 'checkout.views.display_checkin' %}">Returns</a></li>
+</ul>
 
 <div class="row">
-	{% if user.is_staff %}
     <div class="col-xs-12 col-sm-6 col-md-6">
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -170,7 +174,6 @@ $("#myTable tbody tr").click(function(){
        </div>
      </div>
 		</div> <!-- row -->
-	{% endif %}
 </div> <!-- row -->
 
 {% include 'checkout/popup.html' %}

@@ -22,8 +22,10 @@
           <a href="{% url 'checkout.views.person_history' id_number=person.id_number %}">History</a>
         </li>
       </ul>
-<div class="panel panel-default">
-  <div class="panel-body">
+			</div>
+			</div>
+
+	<div class="container-fluid">
 				<h4>Current Loans</h4>
       {% if person.inventory|length > 0 %}
         <table class="table table-condensed table-hover">

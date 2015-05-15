@@ -63,7 +63,7 @@ def display_checkout(request, status="", person="", id_number="", inventory_tag=
 						transaction.check_out()
 						status = "Transaction.Success"
 
-					return render(request, 'checkout/checkout_add.html', {'status': status, 'inventory': inventory, 'person': person, 'id_number': id_number, 'inventory_tag': inventory_tag})
+					return render(request, 'checkout/person_detail.html', {'status': status, 'inventory': inventory, 'person': person, 'id_number': id_number, 'inventory_tag': inventory_tag})
 
 				except Item.DoesNotExist:
 					status = "Item.DoesNotExist"
@@ -74,7 +74,7 @@ def display_checkout(request, status="", person="", id_number="", inventory_tag=
 	else:
 		return render(request, 'checkout/checkout.html', {'status': status, 'people': people})
 
-	return render(request, 'checkout/checkout_add.html', {'status': status, 'inventory': inventory, 'person': person, 'id_number': id_number, 'inventory_tag': inventory_tag})
+	return render(request, 'checkout/person_detail.html', {'status': status, 'inventory': inventory, 'person': person, 'id_number': id_number, 'inventory_tag': inventory_tag})
 						
 
 
@@ -244,12 +244,12 @@ def item_search(request, pk):
 	  return person_detail(request, pk)
 	  
 
-
 def item_popup(request, pk):
     item = get_object_or_404(Item, pk=pk)
     transactions = Transaction.objects.all()
     history = TransactionHistory.objects.filter(item=pk)
     return render(request, 'checkout/item_popup.html', {'item': item, 'history': history})
+
 
 def browse_items(request, id_number):
     person = get_object_or_404(Person, id_number=id_number)
@@ -258,9 +258,10 @@ def browse_items(request, id_number):
     categories = Category.objects.all().order_by('name')
     return render(request, 'checkout/browse_items.html', {'categories': categories, 'person': person, 'available_items': available_items})
 
+
 def item_list(request):
-    items = Item.objects.all().order_by('category')
-    return render(request, 'checkout/item_list.html', {'items': items})
+    inventory = Item.objects.all().order_by('catalog_item__category')
+    return render(request, 'checkout/item_list.html', {'inventory': inventory})
 
 def request_item(request, id_number, i):
     person = get_object_or_404(Person, id_number=id_number)

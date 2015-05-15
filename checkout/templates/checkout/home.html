@@ -6,25 +6,13 @@
 
 {% block content %}
 
-<style>
-  h2 {
-    text-align: center;
-  }
-  
-  #search_panel {
-    border-color: #46b8da;
-  }
-
-</style>
-
-	<div class="row">
-		<div class="col-md-12">
-				<div class="section">
-					<h1>Dashboard <small></small>
-					</h1>
-				</div>
-		</div>
-	</div>
+<div class="row">
+	<div class="col-md-12">
+    <div class="section">
+      <h1>Home</h1>
+    </div>
+  </div>
+</div>
 	<div class="row">
         <div class="col-xs-6 col-sm-6 col-md-6">
 					<div class="panel panel-default">
@@ -38,11 +26,6 @@
                 <span class="h3"> {{ person_metrics.week }} </span>
                 <br/>
                 This Week
-						  </div>
-						  <div class="btn btn-info">
-                <span class="h3"> {{ person_metrics.yesterday }} </span>
-                <br/>
-                Yesterday
 						  </div>
 						  <div class="btn btn-success">
                 <span class="h3"> {{ person_metrics.today }} </span>
@@ -70,11 +53,6 @@
                 <br/>
                 This Week
 						  </div>
-						  <div class="btn btn-info">
-                <span class="h3"> {{ item_metrics.yesterday }} </span>
-                <br/>
-                Yesterday
-						  </div>
 						  <div class="btn btn-success">
                 <span class="h3"> {{ item_metrics.today }} </span>
                 <br/>
@@ -89,7 +67,7 @@
           </div>
         </div>
 			{% if borrowers|length > 0 %}
-				<div class="col-xs-12 col-sm-6 col-md-6">
+				<div class="col-xs-12 col-sm-12 col-md-12">
 					<div class="panel panel-warning">
 						<div class="panel-heading">
 							<div class="panel-title">

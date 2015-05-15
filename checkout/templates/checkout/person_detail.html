@@ -3,6 +3,42 @@
 
 {% block content %}
 
+<script type="text/javascript">
+
+$(document).on("click", ".popup", function(e) {
+	bootbox.dialog({
+		title: "Browse Items",
+		message: '<div class="row">  ' +
+				'<div class="col-md-12"> ' +
+				'<div class="table-responsive">' + 
+				'<table id="myTable" class="table table-hover table-condensed">' +
+				'<thead><tr><th>Item</th><th>Inventory Tag</th><th>Category</th></tr></thead>' +
+				'{% for item in inventory %}' + 
+				'<tr data-val="{{ item.inventory_tag }}" class="item_link"><td>{{ item }}</td><td>{{ item.inventory_tag }}</td><td>{{ item.category }}</td></tr>' +
+				'{% endfor %}' +
+				'</table></div>' +
+				'</div> </div>',
+		buttons: {
+			success: {
+				label: "Close",
+				className: "btn-default",
+				callback: function () {
+				}
+			}
+		}
+	});
+	$('#myTable').DataTable( {
+    "lengthChange": false,
+    } );
+
+$("#myTable tbody tr").click(function(){
+    $('#search').val($(this).data('val'));
+		$('.bootbox').modal('hide');});
+});
+
+
+</script>
+
 	<div class="row">
 		<div class="col-md-12">
 					<h1>{{ person.full_name }}
@@ -21,9 +57,51 @@
 					<a href="{% url 'checkout.views.person_history' id_number=person.id_number %}">History</a>
 				</li>
 			</ul>
+			</div>
+			</div>
 
-<div class="panel panel-default">
-  <div class="panel-body">
+	<div class="col-xs-12 col-sm-12 col-md-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+          <form action="{% url 'checkout.views.display_checkout' id_number=person.id_number %}" method="POST" role="form"  class="form-inline">
+					{% csrf_token %}
+					<div class="form-group">
+						<label for="search">Checkout </label>
+						<input autofocus text="search" name="inventory_tag" id="search" value="" class="form-control" placeholder="Enter Inventory Tag"/>
+						<button class="btn btn-primary" type="submit">Go</button>
+					</div>
+				</form>
+				{% if status == "Transaction.Success" %}
+					<div class="alert-message alert-message-success" role="alert">
+						<h4>Success</h4>
+						<strong>{{ inventory_tag }}</strong> was checked out.
+					</div>
+				{% elif status == "Transaction.Duplicate" %}
+					<div class="alert-message alert-message-info" role="alert">
+						<h4>No Change</h4>
+						<strong>{{ person }}</strong> has already checked out <strong>{{ inventory_tag }}</strong>.
+					</div>
+				{% elif status == "Transaction.Conflict" %}
+					<div class="alert-message alert-message-danger" role="alert">
+						<h4>Conflict</h4>
+						Sorry, <strong>{{ inventory_tag }}</strong> is checked out to another person.
+					</div>
+				{% elif status == "Item.DoesNotExist" %}
+					<div class="alert-message alert-message-danger" role="alert">
+						<h4>Missing Item</h4>
+						Sorry, <strong>{{ inventory_tag }}</strong> cannot be found.
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+	{% if status == "Person.DoesNotExist" %}
+		<div class="alert-message alert-message-danger" role="alert">
+			<h4>Error</h4>
+			Sorry, <strong>{{ id_number }}</strong> cannot be found.
+		</div>
+	{% endif %}
+	<div class="col-xs-12 col-sm-12 col-md-12">
 			{% if person.requests|length > 0 %}
 				<h4>Requests</h4>
 				<div class="table-responsive">
@@ -32,7 +110,7 @@
 						{% for transaction in person.requests %}
 							<tr>
 								<td>{{ forloop.counter }}</td>
-								<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
+								<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item }}</a></td>
 								<td class="hidden-xs">{{ transaction.item.description }}</td>
 								<td>{{ transaction.item.inventory_tag }}</td>
 								<td>{{ transaction.time_out }}</td>
@@ -45,6 +123,7 @@
 							<th>#</th>
 							<th>Item</th>
 							<th class="hidden-xs">Description</th>
+							<th>Category</th>
 							<th>Inventory Tag</th>
 							<th>Out</th>
 							<th>Actions</th>
@@ -62,8 +141,9 @@
 							{% for transaction in person.inventory %}
 								<tr>
 									<td>{{ forloop.counter }}</td>
-									<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
+									<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item }}</a></td>
 									<td class="hidden-xs">{{ transaction.item.description }}</td>
+									<td>{{ transaction.item.category }}</td>
 									<td>{{ transaction.item.inventory_tag }}</td>
 									<td>{{ transaction.time_out|naturaltime }}</td>
 									<td>{% if user.is_staff %}<a href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}" class="btn btn-primary btn-xs"><i class="fa fa-check-circle"></i> check in</a>{% endif %}</td>
@@ -75,6 +155,7 @@
 									<th>#</th>
 									<th>Item</th>
 									<th class="hidden-xs">Description</th>
+							<th>Category</th>
 									<th>Inventory Tag</th>
 									<th>Out</th>
 									<th>Actions</th>
@@ -90,8 +171,7 @@
 			</div>
 		</div>
 	</div>
-	</div>
-	</div>
+</div>
 
 {% include 'checkout/popup.html' %}
 
