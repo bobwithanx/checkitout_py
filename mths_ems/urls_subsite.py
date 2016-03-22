@@ -1,16 +1,12 @@
-#from django.conf.urls.defaults import *
-
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 
+#from django.conf.urls.defaults import *
 import settings
 
-#urlpatterns = patterns('',
-#    url(r'^$', 'checkout.views.home', name='home'),
-  #  url(r'^%s$' % settings.SUB_SITE, 'checkout.views.home', name='home'),
- #   url(r'^%s/' % settings.SUB_SITE, include('urls_subsite')),
-#)
-
+# NOTE: I don't really like defining this here, but the only other place it
+# should logically go is in an overall site-level app.  Seems like too much
+# overhead.
 from django.shortcuts import Http404
 def no_view(request):
     """
@@ -26,7 +22,7 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     # Special URL defined here, so that we have DRY in templates, without RequestContext.
-    url(r'static/$', no_view, name='static_root'),
+    url(r'^static/$', no_view, name='static_root'),
 
     url(r'^$', 'checkout.views.home', name='home'),
     url(r'^checkout$', 'checkout.views.display_checkout'),

@@ -1,4 +1,5 @@
 {% extends 'checkout/base.html' %}
+{% load base_extras %}
 {% load staticfiles %}
 {% load i18n %}
 
@@ -37,7 +38,6 @@ $("#myTable tbody tr").click(function(){
 		$('.bootbox').modal('hide');});
 });
 
-
 </script>
 
 <div class="row">
@@ -48,58 +48,39 @@ $("#myTable tbody tr").click(function(){
 	</div>
 </div>
 <div class="row">
-	{% if user.is_staff %}
-    <div class="col-xs-12 col-sm-6 col-md-6">
-      <div class="panel panel-primary">
+    <div class="col-xs-12 col-sm-12 col-md-12">
+      <div class="panel panel-default">
         <div class="panel-heading">
           <div class="panel-title">
-						<div class="row">
-							<div class="col-xs-10 col-sm-9 col-md-10">
-                Step 1 of 2
-              </div>
-            </div> 
-          </div> 
-				</div> 
-        <div class="panel-body">
-          <div class="panel-title">
-						<div class="row">
-							<div class="col-xs-2 col-sm-3 col-md-2">
-								<span class="fa-stack fa-lg">
-									<i class="fa fa-square-o fa-stack-2x"></i>
-									<i class="fa fa-user fa-stack-1x"></i>
-								</span>
-							</div>
-							<div class="col-xs-10 col-sm-9 col-md-10">
-								<strong>Scan your Student ID</strong>
-								<br/>
-								<small>or type your Student ID Number</small>
-							</div>
-						</div> 
+            Borrow Item
           </div>
         </div>
         <div class="panel-body">
-					<form action="{% url 'checkout.views.display_checkout' %}" method="POST" role="form">
-						<div class="form-group">
-							<div class="input-group">
-								{% csrf_token %}
-								  <span class="input-group-addon" id="basic-addon1"><a class="popup" href="#"><i class="fa fa-lg fa-search"></i></a></span>
-									<input autofocus text="search" name="id_number" id="search" value="" class="form-control" placeholder="Student ID Number"/>
-									<span class="input-group-btn">
-										<button class="btn btn-primary" type="submit">Go</button>
-									</span>
-							</div>
-						</div>
-					</form>
-					{% if status == "Person.DoesNotExist" %}
-						<div class="alert-message alert-message-danger" role="alert">
-							<h4>Error</h4>
-							Sorry, <strong>{{ id_number }}</strong> cannot be found.
-						</div>
-					{% endif %}
-         </div>
-			 </div>
+		<form action="{% url 'checkout.views.display_checkout' %}" method="POST" role="form" class="form-inline">
+			{% csrf_token %}
+			<div class="form-group">
+				<input autofocus text="search" name="id_number" id="search" value="" class="form-control" placeholder="Enter student ID"/>
+				<button class="btn btn-primary" type="submit">Go</button>
+				<a href="{% url 'checkout.views.person_list' %}">Browse</a>
 			</div>
-    </div>
+		</form>
+		{% if status == 0 %}
+			<div class="alert-message alert-message-success" role="alert">
+				<h4>Success</h4>
+				<strong>{{ status_object }}</strong> was checked in.
+			</div>
+		{% elif status == 1 %}
+			<div class="alert-message alert-message-danger" role="alert">
+				<h4>Error</h4>
+				Sorry, <strong>{{ status_object }}</strong> cannot be found.
+			</div>
+		{% endif %}
+	</div>
+	{% if status == "Person.DoesNotExist" %}
+		<div class="alert-message alert-message-danger" role="alert">
+			<h4>Error</h4>
+			Sorry, <strong>{{ id_number }}</strong> cannot be found.
+		</div>
 	{% endif %}
 </div>
 

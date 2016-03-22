@@ -3,12 +3,14 @@
 
 <html>
 	<head>
-		<meta http-equiv="refresh" content="300;URL='/'">
+		{% url 'home' as home_url %}
+		{% if not request.get_full_path == home_url %}<meta http-equiv="refresh" content="300;URL='/checkitout/'">{% endif %}
 		<title>{{ settings.APP_NAME }}</title>
-		<link rel="stylesheet" href="{% static 'bootstrap/3.3.2/css/bootstrap.min.css' %}">
+		<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
 		<link rel="stylesheet" href="{% static 'font-awesome/4.3.0/css/font-awesome.min.css' %}">
     <!-- Custom CSS -->
     <link href="{% static 'css/checkout.css' %}" rel="stylesheet">
+    <link href="{% static 'css/narrow.css' %}" rel="stylesheet">
 		<link rel="stylesheet" href="{% static 'css/dataTables.bootstrap.css' %}">
 		<link rel="stylesheet" href="{% static 'css/dataTables.css' %}">
 
@@ -16,7 +18,7 @@
 		<script src="{% static 'js/jquery-1.11.3.min.js' %}"></script>
 		
 		<script src="{% static 'js/bootbox.min.js' %}"></script>
-		<script src="{% static 'bootstrap/3.3.2/js/bootstrap.min.js' %}"></script>
+		<script src="{% static 'js/bootstrap.min.js' %}"></script>
 		<script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
 
 		<meta charset="utf-8">
@@ -25,84 +27,63 @@
 
 	<body id="page-{% block page_id %}return{% endblock %}">
 		<div class="container">
-			<nav class="navbar navbar-default navbar-inverse">
-				<div class="container-fluid">
+			<div class="header clearfix">
+				<nav>
+					<ul class="nav nav-pills pull-right">
+						<li class="{% navactive request 'checkout.views.display_checkout' %}">
+							<a href="{% url 'checkout.views.display_checkout' %}">Checkout</a>
+						</li>
+						<li class="{% navactive request 'checkout.views.display_checkin' %}">
+							<a href="{% url 'checkout.views.display_checkin' %}">Returns</a></li>
+						{% if user.is_staff %}
+							<li class="dropdown">
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-gear"></i>  <span class="caret"></span></a>
+								<ul class="dropdown-menu" role="menu">
+									<li>
+										<a href="{% url 'checkout.views.on_loan' %}" class="{% navactive request 'checkout.views.on_loan' %}"><i class="fa fa-arrow-circle-o-down"></i> Loans</a>
+									</li>
+									<li class="divider"></li>
+									<li class="{% navactive request 'checkout.views.person_list' %}">
+										<a href="{% url 'checkout.views.person_list' %}"><i class="fa fa-users"></i> Students</a>
+									</li>
+									<li>
+										<a href="{% url 'checkout.views.item_list' %}" class="{% navactive request 'checkout.views.item_list' %}"><i class="fa fa-tags"></i> Inventory</a>
+									</li>
+									<li class="divider"></li>
+									<li>
+										<a href="{% url 'checkout.views.reports' %}" class="{% navactive request 'checkout.views.reports' %}"><i class="fa fa-bar-chart-o"></i> Statistics</a>
+									</li>
+									<li>
+										<a href="{% url 'checkout.views.history' %}" class="{% navactive request 'checkout.views.history' %}"><i class="fa fa-history"></i> History</a>
+									</li>
+									<li class="divider"></li>
+									<li>
+										<a href="/checkitout/admin" target="_blank"><i class="fa fa-large fa-database"></i> Database</a>
+									</li>
+									<li class="divider"></li>
+									<li>
+										<a href="/checkitout/admin/logout/?next=/checkitout/"><i class="fa fa-large fa-sign-out"></i> Logout</a>
+									</li>
+								</ul>
+							</li>
+						{% else %}
+							<li>
+								<a href="/checkitout/login"><i class="fa fa-large fa-sign-in"></i> Login</a>
+							</li>
+						{% endif %}
+					</ul>
+				</nav>
 					<!-- Brand and toggle get grouped for better mobile display -->
 					<div class="navbar-header">
-						<a class="navbar-brand" href="/">{{ settings.APP_NAME }}</a>
+						<h3 class="text-muted"><a href="/checkitout/">{{ settings.APP_NAME }}</a></h3>
 					</div>  <!-- navbar-header -->
+		</div>  <!-- container -->
 
-					<!-- Collect the nav links, forms, and other content for toggling -->
-					<div class="collapse navbar-collapse" id="bs-navbar-collapse-1">
-						<ul class="nav navbar-nav">
-							<li class="{% navactive request 'checkout.views.home' %}">
-								<a href="{% url 'checkout.views.home' %}">
-									<div class="text-center">
-										<i class="fa fa-dashboard fa-2x"></i><br/>
-										Dashboard
-									</div>
-								</a>
-							</li>
-							<li class="{% navactive request 'checkout.views.display_checkout' %}">
-								<a href="{% url 'checkout.views.display_checkout' %}">
-									<div class="text-center">
-										<i class="fa fa-arrow-circle-o-up fa-2x"></i><br/>
-										Checkout
-									</div>
-								</a>
-							</li>
-							<li class="{% navactive request 'checkout.views.display_checkin' %}">
-								<a href="{% url 'checkout.views.display_checkin' %}">
-									<div class="text-center">
-										<i class="fa fa-arrow-circle-o-down fa-2x"></i><br/>
-										Returns
-									</div>
-								</a>
-							</li>       
-						</ul>
-						<ul class="nav navbar-nav navbar-right">
-							{% if user.is_staff %}
-								<li class="dropdown">
-									<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Admin <span class="caret"></span></a>
-									<ul class="dropdown-menu" role="menu">
-										<li>
-											<a href="{% url 'checkout.views.on_loan' %}" class="{% navactive request 'checkout.views.on_loan' %}"><i class="fa fa-arrow-circle-o-down"></i> Loans</a>
-										</li>
-										<li class="divider"></li>
-										<li>
-											<a href="{% url 'checkout.views.person_list' %}" class="{% navactive request 'checkout.views.person_list' %}"><i class="fa fa-users"></i> Students</a>
-										</li>
-										<li>
-											<a href="{% url 'checkout.views.item_list' %}" class="{% navactive request 'checkout.views.item_list' %}"><i class="fa fa-tags"></i> Inventory</a>
-										</li>
-										<li class="divider"></li>
-										<li>
-											<a href="{% url 'checkout.views.reports' %}" class="{% navactive request 'checkout.views.reports' %}"><i class="fa fa-bar-chart-o"></i> Statistics</a>
-										</li>
-										<li>
-											<a href="{% url 'checkout.views.history' %}" class="{% navactive request 'checkout.views.history' %}"><i class="fa fa-history"></i> History</a>
-										</li>
-										<li class="divider"></li>
-										<li>
-											<a href="/admin" target="_blank"><i class="fa fa-large fa-database"></i> Database</a>
-										</li>
-									</ul>
-								</li>
-								<li>
-									<a href="/admin/logout/?next=/"><i class="fa fa-large fa-sign-out"></i> Logout</a>
-								</li>
-							{% else %}
-								<li>
-									<a href="/login"><i class="fa fa-large fa-sign-in"></i> Login</a>
-								</li>
-							{% endif %}
-						</ul>
-					</div>  <!-- collapse navbar-collapse -->
-				</div>  <!-- container-fluid -->
-			</nav>
 		</div>  <!-- container -->
 
 		<div class="container">
+		
+		
 			{% block content %}
 			{% endblock %}
 		</div>  <!-- container -->

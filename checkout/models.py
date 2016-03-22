@@ -12,9 +12,12 @@ class TransactionHistory(models.Model):
 		return objects.filter(person=person)
 
     def __str__(self):
-        text = ' *** '.join([self.item.brand.name, self.item.model, str(self.time_out), str(self.time_in), self.person.full_name])
+        text = ' *** '.join([self.item.name, str(self.time_out), str(self.time_in), self.person.full_name])
         encoded = text.encode("utf-8")
         return encoded
+
+    class Meta:
+				verbose_name_plural = "transaction histories"
 
 class Request:
 	person = models.ForeignKey('Person')
@@ -63,7 +66,7 @@ class Transaction(models.Model):
         self.delete()
 
     def __str__(self):
-        text = ' '.join([self.item.brand.name, self.item.model, str(self.time_out), '(', self.person.full_name, ')'])
+        text = ' '.join([self.item.name, str(self.time_out), '(', self.person.full_name, ')'])
         encoded = text.encode("utf-8")
         return encoded
 
@@ -81,16 +84,11 @@ class Catalog(models.Model):
 	def __str__(self):
 		return self.display_name.encode("utf-8")
 
-
 class Item(models.Model):
-	item = models.ForeignKey('Catalog', null=True)
-	category = models.ForeignKey('Category')
-	brand = models.ForeignKey('Brand')
-	model = models.CharField(max_length=255)
+	catalog_item = models.ForeignKey('Catalog', null=True)
 	serial = models.CharField(max_length=255, blank=True, null=True)
 	inventory_tag = models.CharField(max_length=255, blank=True, null=True)
 	description = models.CharField(max_length=255, blank=True, null=True)
-	image_name = models.CharField(max_length=255, blank=True, null=True)
 
 	def _get_history(self):
 		"Returns all items assigned to the person."
@@ -99,16 +97,34 @@ class Item(models.Model):
 	history = property(_get_history)
 
 	def is_available(self):
-		#return( self.current_activity == None )
-		pass
+		try:
+			transaction = Transaction.objects.get(item=self)
+			assigned_to = transaction.person
+			status = assigned_to.full_name
+		except Transaction.DoesNotExist:
+			status = "available"
+		return ( status )
 		
+	def category(self):
+		return self.catalog_item.category
+	
+	def brand(self):
+		return self.catalog_item.brand
+	
+	def model(self):
+		return self.catalog_item.model
+	
+	def image_name(self):
+		return self.catalog_item.image_name
+	
 	def name(self):
-		text = ' '.join([self.brand.name, self.model, ])
+		text = self.catalog_item.display_name
 		encoded = text.encode("utf-8")
 		return encoded
 
 	def __str__(self):
-		text = ''.join([' '.join([self.brand.name, self.model, ]), ' (', self.inventory_tag, ')'])
+		#text = ''.join([' '.join([self.brand.name, self.model, ]), ' (', self.inventory_tag, ')'])
+		text = self.catalog_item.display_name
 		encoded = text.encode("utf-8")
 		return encoded
 
@@ -119,6 +135,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+				verbose_name_plural = "categories"
+				ordering = ['name']
 
 class Brand(models.Model):
     name = models.CharField(max_length=255)
@@ -126,6 +145,9 @@ class Brand(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+				ordering = ['name']
+				
 
 class Group(models.Model):
     name = models.CharField(max_length=255)
@@ -139,6 +161,11 @@ class Person(models.Model):
     last_name = models.CharField(max_length=255)
     id_number = models.CharField(max_length=255)
     group = models.ForeignKey('Group', blank=True, null=True)
+    active = models.BooleanField(default=True)
+
+    def _isActive(self):
+        "Is the user active in the system."
+        return self.active
 
     def _get_history(self):
         "Returns all items assigned to the person."
@@ -164,3 +191,7 @@ class Person(models.Model):
 
     def __str__(self):
         return self.full_name
+
+    class Meta:
+				ordering = ['-active', 'id_number']
+				verbose_name_plural = "people"

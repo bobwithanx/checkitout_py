@@ -60,14 +60,14 @@
         </div>
       </div>
       <div class="panel-body">
-        <form action="/admin/login/" method="post" id="login-form">
+        <form action="/checkitout/admin/login/" method="post" id="login-form">
           {% csrf_token %}
           <div class="form-row">
             <label for="id_username" class="required">Username:</label> <input id="id_username" maxlength="254" name="username" type="text" class="form-control"/>
           </div>
           <div class="form-row">
             <label for="id_password" class="required">Password:</label> <input id="id_password" name="password" type="password" class="form-control"/>
-            <input type="hidden" name="next" value="/" />
+            <input type="hidden" name="next" value="/checkitout/" />
           </div>
 
           {% if form.errors %}
@@ -82,7 +82,7 @@
           </div>
           <div class="submit-row">
             <input type="submit" value="Log In" class="btn btn-default" />
-            <input type="hidden" name="next" value="/" />
+            <input type="hidden" name="next" value="/checkitout/" />
           </div>
         </form>
       </div>

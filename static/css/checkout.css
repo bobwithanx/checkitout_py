@@ -1,46 +1,110 @@
-.page-header {
-    background-color: #5eb9e3;
-    margin-top: 0;
-    padding: 20px 20px 20px 40px;
+
+.navbar {
+  margin-bottom: 0;
+
 }
 
-.page-header h1, .page-header h1 a, .page-header h1 a:visited, .page-header h1 a:active {
-    color: #ffffff;
-    font-size: 36pt;
-    text-decoration: none;
+.nav a {
+  color: #aaa;
 }
 
-.content {
-    margin-left: 40px;
+.nav a:hover {
+  color: #eee;
+	background-color: inherit !important;
 }
 
-h1 a {
-	color: #5eb9e3;
+.navbar-header .text-muted a {
+  color: #aaa;
 }
 
-	<style>
-	
-.sidebar-nav .active {
-    background: #eee !important;
-    color: #333;
-    font-weight: bold;
+.navbar-header .text-muted a:hover {
+  color: #eee;
+  text-decoration: none;
 }
 
-.sidebar-nav .active:hover {
-	color: inherit;
+.nav .active a, .nav a:focus {
+  background-color: #eee !important;
+  color: #333 !important;
+}
+
+ul.nav-tabs {
+  margin-bottom: 20px;
+}
+
+.nav-tabs>li>a {
+  border-radius: inherit;
+  margin: 0;
+  color: #999;
+}
+
+.nav-tabs>li>a:hover {
+  background-color: inherit;
+  border-color: transparent;
+  color: #eee;
+}
+
+.form-inline {
+  margin-bottom: 0;
+}
+
+.section {
+  color: #fff;
+}
+
+.navbar-header .text-muted {
+  color: #ccc;
+}
+
+.dash-button {
+  background-color: #46AAA2 !important;
+  color: #fff !important;
+  margin: 40px 0px;
+}
+
+.dash-button:hover {
+  background-color: #999 !important;
+  color: #333 !important;
+}
+
+.dash-button .h2 {
+	font-weight: 200;
+	margin: 30px;
+}
+
+.dash-button a:hover {
+	text-decoration: none !important;
+}
+
+#exTab1 .nav-pills > li > a {
+  border-radius: 5px 5px 0 0;
+	padding: 10px;
+}
+
+.tab-content {
+	background-color: #eee;
+}
+
+.tab-pane .container-fluid {
+	background-color: #eee;
+	padding-top: 20px;
 }
 
 body {
-	padding-top: 20px;
-	padding-bottom: 20px;
-	background: #ccc;
+  background-image: url("../images/Blue_Background_big_2048.png");
 }
 
-		.padded-row {
-			margin-top: 20px;
-		}
-		
-		.alert-message
+.table {
+	font-size: 14px;
+	margin-bottom: 0;
+}
+
+.center-block {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.alert-message
 {
     margin: 20px 0;
     padding: 20px;
@@ -114,19 +178,3 @@ body {
 {
     color: #444;
 }
-
-.navbar-white {
-	background-color: #fff;
-	border-color: #e7e7e7;
-}
-
-div.navbar-header a, .navbar-nav a {
-	color: #333;
-	
-}
-
-	.table {
-		font-size: 14px;
-	}
-
-	</style>

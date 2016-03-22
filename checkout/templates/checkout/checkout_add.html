@@ -43,13 +43,17 @@ $("#myTable tbody tr").click(function(){
 <div class="row">
 	<div class="col-md-12">
     <div class="section">
-      <h1>Checkout</h1>
+      <h1>Circulation</h1>
     </div>
 	</div>
 </div>
+  <ul class="nav nav-tabs nav-justified">
+  <li role="presentation"><a href="{% url 'checkout.views.home' %}">Dashboard</a></li>
+  <li role="presentation" class="active"><a href="{% url 'checkout.views.display_checkout' %}">Checkout</a></li>
+  <li role="presentation"><a href="{% url 'checkout.views.display_checkin' %}">Returns</a></li>
+</ul>
 
 <div class="row">
-	{% if user.is_staff %}
     <div class="col-xs-12 col-sm-6 col-md-6">
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -88,7 +92,6 @@ $("#myTable tbody tr").click(function(){
                       <td>{{ forloop.counter }}</td>
                       <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
                       <td>{{ transaction.item.inventory_tag }}</td>
-                      <td>{{ transaction.time_out|naturaltime }}</td>
                     </tr>
                   {% endfor %}
                 </tbody>
@@ -171,7 +174,6 @@ $("#myTable tbody tr").click(function(){
        </div>
      </div>
 		</div> <!-- row -->
-	{% endif %}
 </div> <!-- row -->
 
 {% include 'checkout/popup.html' %}

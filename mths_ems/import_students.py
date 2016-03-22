@@ -8,7 +8,7 @@ import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mths_ems.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 from django.core.wsgi import get_wsgi_application
 
 application = get_wsgi_application()

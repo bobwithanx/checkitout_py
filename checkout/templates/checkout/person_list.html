@@ -21,8 +21,32 @@ $(document).ready(function(){
     "lengthChange": false,
     } );
     $('.collapse').collapse("hide");
-
+    $('#myTable').dataTable().fnFilterOnReturn();
+    $('div.dataTables_filter input').focus();
 });
+
+jQuery.fn.dataTableExt.oApi.fnFilterOnReturn = function (oSettings) {
+    var _that = this;
+ 
+    this.each(function (i) {
+        $.fn.dataTableExt.iApiIndex = i;
+        var $this = this;
+        var anControl = $('input', _that.fnSettings().aanFeatures.f);
+        anControl
+            .bind('keypress', function (e) {
+                if (e.which == 13) {
+                    $.fn.dataTableExt.iApiIndex = i;
+                    _that.fnFilter(anControl.val());
+                    if (anControl.val().length == 7) {
+											document.getElementById('id_number').value=anControl.val();
+                    	document.forms["myform"].submit();
+                    }
+                 }
+            });
+        return this;
+    });
+    return this;
+};
 </script>
 
   <div class="row">
@@ -35,7 +59,12 @@ $(document).ready(function(){
 
 	<div class="row">
 		<div class="col-md-12">
+		<div class="well">
       <div class="table-responsive">
+      <form action="{% url 'checkout.views.display_checkout' %}" id="myform" method="POST" role="form" class="form-inline">
+			<input type='hidden' name='id_number' id='id_number' />
+			{% csrf_token %}
+
         <table id="myTable" class="table table-hover table-condensed">
           <thead>
                 <tr>
@@ -61,7 +90,7 @@ $(document).ready(function(){
               	{% endif %}
 
               </td>
-              <td>{{ person.id_number }}</a></td>
+              <td><a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">{{ person.id_number }}</a></td>
               <td>{{ person.group }}</a></td>
               <td>
 								{% if person.inventory|length > 0 %}
@@ -73,7 +102,9 @@ $(document).ready(function(){
             </tr>
           {% endfor %}
         </table>
+		</form>
       </div>
+    </div>
     </div>
 
 {% endblock content %}
