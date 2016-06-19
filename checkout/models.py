@@ -9,45 +9,25 @@ class TransactionHistory(models.Model):
     time_in = models.DateTimeField()
 
     def get_history(self, person):
-		return objects.filter(person=person)
+        return objects.filter(person=person)
 
     def __str__(self):
-        text = ' *** '.join([self.item.name, str(self.time_out), str(self.time_in), self.person.full_name])
+        text = ' *** '.join([self.item.display_name, str(self.time_out), str(self.time_in), self.person.full_name])
         encoded = text.encode("utf-8")
         return encoded
 
     class Meta:
 				verbose_name_plural = "transaction histories"
 
-class Request:
-	person = models.ForeignKey('Person')
-	item = models.ForeignKey('Catalog')
-	time = models.DateTimeField()
-	
-	def cancel(self):
-		self.delete()
-    
-
 class Transaction(models.Model):
     status_assigned = 'Assigned'
-    status_requested = 'Requested'
     
     person = models.ForeignKey('Person')
     item = models.ForeignKey('Item')
-    time_requested = models.DateTimeField(blank=True, null=True)
     time_out = models.DateTimeField(blank=True, null=True)
 	
-    def is_requested(self):
-        return self.status() == self.status_requested
-
-    def cancel_request(self):
-        self.delete()
-
     def get_status(self):
-        if self.time_out == None:
-            return self.status_requested
-        else:
-            return self.status_assigned
+		return self.status_assigned
 
     def check_out(self):
         self.time_out = timezone.now()
@@ -66,101 +46,67 @@ class Transaction(models.Model):
         self.delete()
 
     def __str__(self):
-        text = ' '.join([self.item.name, str(self.time_out), '(', self.person.full_name, ')'])
+        text = ' '.join([self.item.display_name, str(self.time_out), '(', self.person.full_name, ')'])
         encoded = text.encode("utf-8")
         return encoded
 
-class Catalog(models.Model):
-	category = models.ForeignKey('Category')
-	brand = models.ForeignKey('Brand')
-	model = models.CharField(max_length=255)
-	display_name = models.CharField(max_length=255, blank=True, null=True)
-	image_name = models.CharField(max_length=255, blank=True, null=True)
-
-	def is_available(self):
-    # return Catalog.objects.exclude(pk__in = [x for x in Transaction.objects.values_list('item', flat=True)])
-		pass
-
-	def __str__(self):
-		return self.display_name.encode("utf-8")
-
 class Item(models.Model):
-	catalog_item = models.ForeignKey('Catalog', null=True)
-	serial = models.CharField(max_length=255, blank=True, null=True)
-	inventory_tag = models.CharField(max_length=255, blank=True, null=True)
-	description = models.CharField(max_length=255, blank=True, null=True)
+    category = models.ForeignKey('Category', blank=True, null=True)
+    display_name = models.CharField(max_length=255, blank=True, null=True)
+    image_name = models.CharField(max_length=255, blank=True, null=True)
+    serial = models.CharField(max_length=255, blank=True, null=True)
+    inventory_tag = models.CharField(max_length=255)
 
-	def _get_history(self):
-		"Returns all items assigned to the person."
-		return TransactionHistory.objects.filter(item=self)
+    def _get_history(self):
+      "Returns all items assigned to the person."
+      return TransactionHistory.objects.filter(item=self)
 
-	history = property(_get_history)
+    history = property(_get_history)
 
-	def is_available(self):
-		try:
-			transaction = Transaction.objects.get(item=self)
-			assigned_to = transaction.person
-			status = assigned_to.full_name
-		except Transaction.DoesNotExist:
-			status = "available"
-		return ( status )
-		
-	def category(self):
-		return self.catalog_item.category
-	
-	def brand(self):
-		return self.catalog_item.brand
-	
-	def model(self):
-		return self.catalog_item.model
-	
-	def image_name(self):
-		return self.catalog_item.image_name
-	
-	def name(self):
-		text = self.catalog_item.display_name
-		encoded = text.encode("utf-8")
-		return encoded
+    def is_available(self):
+      try:
+        transaction = Transaction.objects.get(item=self)
+        assigned_to = transaction.person
+        status = assigned_to.full_name
+      except Transaction.DoesNotExist:
+        status = "available"
+      return ( status )
+    
+    def name(self):
+      text = self.display_name
+      encoded = text.encode("utf-8")
+      return encoded
 
-	def __str__(self):
-		#text = ''.join([' '.join([self.brand.name, self.model, ]), ' (', self.inventory_tag, ')'])
-		text = self.catalog_item.display_name
-		encoded = text.encode("utf-8")
-		return encoded
+    def __str__(self):
+      text = self.display_name
+      encoded = text.encode("utf-8")
+      return encoded
+
+    class Meta:
+      ordering = ['display_name']
+				
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
     icon = models.CharField(max_length=255, blank=True, null=True)
-
     def __str__(self):
         return self.name
-
     class Meta:
 				verbose_name_plural = "categories"
 				ordering = ['name']
 
 class Brand(models.Model):
     name = models.CharField(max_length=255)
-
     def __str__(self):
         return self.name
-
     class Meta:
 				ordering = ['name']
-				
-
-class Group(models.Model):
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
 
 class Person(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     id_number = models.CharField(max_length=255)
-    group = models.ForeignKey('Group', blank=True, null=True)
+    graduation_year = models.CharField(max_length=4)
     active = models.BooleanField(default=True)
 
     def _isActive(self):
@@ -169,11 +115,7 @@ class Person(models.Model):
 
     def _get_history(self):
         "Returns all items assigned to the person."
-        return TransactionHistory.objects.filter(person=self)
-
-    def _get_requests(self):
-        """Returns all items currently assigned to the person."""
-        return Transaction.objects.filter(person=self).exclude(time_out__isnull=False)
+        return TransactionHistory.objects.filter(person=self).order_by('-time_out')
 
     def _get_inventory(self):
         """Returns all inventory currently assigned to the person."""
@@ -184,7 +126,6 @@ class Person(models.Model):
         return '%s %s' % (self.first_name, self.last_name)
 
     history = property(_get_history)
-    requests = property(_get_requests)
     inventory = property(_get_inventory)
     full_name = property(_get_full_name)
     objects = models.Manager()

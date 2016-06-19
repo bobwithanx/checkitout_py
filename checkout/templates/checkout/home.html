@@ -3,208 +3,52 @@
 {% load i18n %}
 {% load humanize %}
 
-
 {% block content %}
 
-<script type="text/javascript">
-
-$(document).on("click", ".popup", function(e) {
-	bootbox.dialog({
-		title: "Browse People",
-		message: '<div class="row">  ' +
-				'<div class="col-md-12"> ' +
-				'<div class="table-responsive">' + 
-				'<table id="myTable" class="table table-hover table-condensed">' +
-				'<thead><tr><th>Person</th><th>ID Number</th><th>Group</th></tr></thead>' +
-				'{% for person in people %}' + 
-				'<tr data-val="{{ person.id_number }}" class="person_link"><td>{{ person }}</td><td>{{ person.id_number }}</td><td>{{ person.group }}</td></tr>' +
-				'{% endfor %}' +
-				'</table></div>' +
-				'</div> </div>',
-		buttons: {
-			success: {
-				label: "Close",
-				className: "btn-default",
-				callback: function () {
-				}
-			}
-		}
-	});
-	$('#myTable').DataTable( {
-    "lengthChange": false,
-    } );
-
-$("#myTable tbody tr").click(function(){
-    $('#search').val($(this).data('val'));
-		$('.bootbox').modal('hide');});
-});
-
-</script>
-
+<div class="container page-content">
 <div class="row">
-	<div id="exTab1" class="container">	
-		<ul  class="nav nav-pills nav-justified">
-			<li class="active">
-        <a class="h3" href="#1a" data-toggle="tab">Checkout</a>
-			</li>
-			<li><a class="h3" href="#2a" data-toggle="tab">Returns</a>
-			</li>
-			<li>
-        <a class="h3" href="#3a" data-toggle="tab">Info</a>
-			</li>
-		</ul>
-
-		<div class="tab-content ">
-			<div class="tab-pane active" id="1a">
-				<div class="container-fluid">
-				<div class="panel panel-success">
-					<div class="panel-heading">
-						<div class="panel-title">
-							Borrow Item
-						</div>
-					</div>
-					<div class="panel-body">
-						<form action="{% url 'checkout.views.display_checkout' %}" method="POST" role="form" class="form-inline">
-							{% csrf_token %}
-							<div class="form-group">
-								<input autofocus text="search" name="id_number" id="search" value="" class="form-control" placeholder="Enter student ID"/>
-								<button class="btn btn-primary" type="submit">Go</button>
-								<a href="{% url 'checkout.views.person_list' %}">Browse</a>
-							</div>
-						</form>
-						{% if status == 0 %}
-							<div class="alert-message alert-message-success" role="alert">
-								<h4>Success</h4>
-								<strong>{{ status_object }}</strong> was checked in.
-							</div>
-						{% elif status == 1 %}
-							<div class="alert-message alert-message-danger" role="alert">
-								<h4>Error</h4>
-								Sorry, <strong>{{ status_object }}</strong> cannot be found.
-							</div>
-						{% endif %}
-					</div>
-					{% if status == "Person.DoesNotExist" %}
-						<div class="alert-message alert-message-danger" role="alert">
-							<h4>Error</h4>
-							Sorry, <strong>{{ id_number }}</strong> cannot be found.
-						</div>
-					{% endif %}
-				</div>
-			</div>
-			</div>
-
-			<div class="tab-pane" id="2a">
-				<div class="container-fluid">
-				{% if borrowers|length > 0 %}
-					<div class="panel panel-warning">
-						<div class="panel-heading">
-							<div class="panel-title">
-								Return Item
-							</div>
-						</div>
-						<div class="panel-body">
-							<form action="{% url 'checkout.views.quick_checkin' %}" method="POST" role="form" class="form-inline">
-								{% csrf_token %}
-								<div class="form-group">
-									<input autofocus text="search" name="barcode" id="search" value="" class="form-control" placeholder="Enter inventory tag"/>
-									<button class="btn btn-primary" type="submit">Go</button>
-								</div>
-							</form>
-							{% if status == 0 %}
-								<div class="alert-message alert-message-success" role="alert">
-									<h4>Success</h4>
-									<strong>{{ status_object }}</strong> was checked in.
-								</div>
-							{% elif status == 1 %}
-								<div class="alert-message alert-message-danger" role="alert">
-									<h4>Error</h4>
-									Sorry, <strong>{{ status_object }}</strong> cannot be found.
-								</div>
-							{% endif %}
-						</div>
-					</div>
-				{% endif %}
-				<div class="panel panel-info">
-					<div class="panel-heading">
-						<div class="panel-title">
-							Current Loans
-						</div>
-					</div>
-					<div class="panel-body">
-						{% if borrowers|length > 0 %}
-							<div class="table-responsive">
-								<table id="myTable" class="table table-hover table-condensed">
-									<thead>
-										<tr>
-											<th colspan=2>Person</th>
-											<th>Item</th>
-										</tr>
-									</thead>
-									{% for person in borrowers %}
-										<tr>
-											<td>{{ forloop.counter }}</td>
-											<td>
-												<a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">{{ person }}</a> <small class="hidden-xs text-muted">{{ person.id_number }}</small>
-												<td class="pull-right">
-												{% for transaction in person.inventory %}
-													{{ transaction.item.name }} <small class="hidden-xs text-muted">{{transaction.item.inventory_tag}}</small><br/>
-												{% endfor %}
-												</td>
-											</td>
-										</tr>
-									{% endfor %}
-								</table>
-						</div>
-					{% else %}
-						No items on loan.
-					{% endif %}
-				</div>
-			</div>
-		</div>
-			</div>
-
-		<div class="tab-pane" id="3a">
-				<div class="container-fluid">
-			{% if borrowers|length > 0 %}
-				<div class="panel panel-info">
-					<div class="panel-heading">
-						<div class="panel-title">
-							Current Loans
-						</div>
-					</div>
-					<div class="panel-body">
-						<div class="table-responsive">
-							<table id="myTable" class="table table-hover table-condensed">
-								<thead>
-											<tr>
-											<th colspan=2>Person</th>
-											<th>Item</th>
-										</tr>
-								</thead>
-										{% for person in borrowers %}
-									<tr>
-										<td>{{ forloop.counter }}</td>
-											<td>
-												<a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">{{ person }}</a> <small class="text-muted">{{ person.id_number }}</small>
-												<td class="pull-right">
-												{% for transaction in person.inventory %}
-													{{ transaction.item.name }} <small class="text-muted">{{transaction.item.inventory_tag}}</small><br/>
-												{% endfor %}
-												</td>
-											</td>
-										</tr>
-
-										{% endfor %}
-							</table>
-						</div>
-					</div>
-				</div>
+<!-- center left-->
+  <div class="col-md-6">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <div class="panel-title">
+          <h4>Check Out Equipment</h4>
+        </div>
+      </div>
+      <div class="panel-body">
+        <form action="{% url 'checkout.views.display_checkout' %}" method="POST" role="form" class="form-inline">
+        {% csrf_token %}
+        <div class="form-group">
+          <input autofocus text="search" name="id_number" id="search" value="" class="form-control" placeholder="Enter student ID"/>
+          <button class="btn btn-primary" type="submit">Go</button> or 
+          <a href="{% url 'checkout.views.person_list' %}">Browse</a>
+        </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="panel panel-success">
+      <div class="panel-heading">
+        <div class="panel-title">
+          <h4>Current Loans</h4>
+      </div>
+      </div>
+      {% if borrowers|length > 0 %}
+        <div class="list-group">
+        {% for person in borrowers %}
+          <a class="list-group-item" href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">
+          {{ person }} <small>{{ person.id_number }}</small><span class="badge">
+          {{ person.inventory|length }}</span>
+          </a>
+        {% endfor %}
+        </div>
+      {% else %}
+        <p>No items on loan.</p>
       {% endif %}
     </div>
-	</div>
+  </div>
+  </div>
 </div>
-
-{% include 'checkout/popup.html' %}
 
 {% endblock content %}

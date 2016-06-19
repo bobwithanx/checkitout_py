@@ -1,0 +1,29 @@
+{% extends 'checkout/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+
+<div class="container page-content">
+  <h3 class="sub-header">New Equipment</h3>
+
+ <div class="row">
+    <div class="col-md-12">
+      <div class="well">
+        <form action="/checkitout/items/add/" method="post">
+          {% csrf_token %}
+            {% for field in form %}
+            <fieldset class="form-group">
+              <label class="control-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                <div class="form-control">
+                  {{ field }}
+               </div>
+            </fieldset>
+            {% endfor %}
+          <input type="submit" name="submit" value="Add Equipment">
+        </form>
+    </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

@@ -1,92 +1,71 @@
 {% extends 'checkout/base.html' %}
+{% load staticfiles %}
 {% load humanize %}
 
 {% block content %}
 
+<script>
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+</script>
+
 <style>
-	h1 {
-		color: #eee;
+	.item-description {
+		color: #555;
+		font-size: 70%;
+		vertical-align: text-top;
+		text-transform: uppercase;
 	}
 </style>
 
-  <div class="row">
-    <div class="col-md-12">
-      <div class="section">
-        <h1>{{ person.full_name }}
-          <small>{{ person.id_number }}</small>
-        </h1>
-      </div>
+<div class="main person-nav">
+  <div class="container">
+    <div class="person-header">
+      <h3>{{ person.full_name }} <small>{{ person.id_number }}</small></h3>
     </div>
+    <ul class="nav nav-tabs tabnav">
+      <li role="presentation" class="navigation-item" ><a class="navigation-link" href="{% url 'checkout.views.person_detail' id_number=person.id_number %}"><i class="fa fa-briefcase"></i> Current <span class="counter">{{ person.inventory|length }}</span></a></li>
+      <li role="presentation" class="navigation-item selected"><a class="navigation-link" href="{% url 'checkout.views.person_history' id_number=person.id_number %}"><i class="fa fa-history"></i> History</a></li>
+    </ul>
   </div>
+</div>
+
+<div class="container">
   <div class="row">
     <div class="col-md-12">
-      <ul class="nav nav-tabs">
-        <li>
-          <a href="{% url 'checkout.views.person_detail' id_number=person.id_number %}">Current</a>
-        </li>
-        <li class="active">
-          <a href="{% url 'checkout.views.person_history' id_number=person.id_number %}">History</a>
-        </li>
-      </ul>
-			</div>
-			</div>
-
-	  <div class="well">
-				<h4>Current Loans</h4>
-      {% if person.inventory|length > 0 %}
-        <table class="table table-condensed table-hover">
+      <div class="history-wrap">
+    {% if person.history|length > 0 %}
+        <table class="table table-hover sortable">
           <tbody>
-            {% for transaction in person.inventory %}
-              <tr>
-                <td>{{ forloop.counter }}</td>
-                <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
-                <td class="hidden-xs">{{ transaction.item.description }}</td>
-                <td>{{ transaction.item.serial }}</td>
-                <td>{{ transaction.time_out|naturaltime }}</td>
+            <thead>
+              <tr class="history-header">
+                <th>Item</th>
+                <th>Inventory Tag</th>
+                <th>Borrowed</th>
+                <th>Duration</th>
               </tr>
-            {% endfor %}
-          </tbody>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Item</th>
-              <th class="hidden-xs">Description</th>
-              <th>Serial</th>
-              <th>Time</th>
-            </tr>
-          </thead>
-        </table>
-      {% endif %}
-
-      {% if person.history|length > 0 %}
-				<h4>Past Loans</h4>
-        <table class="table table-condensed table-hover">
-          <tbody>
+            </thead>
             {% for transaction in person.history %}
               <tr>
-                <td>{{ forloop.counter }}</td>
-                <td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item.brand }} {{ transaction.item.model }}</a></td>
-                <td>{{ transaction.item.serial }}</td>
-                <td>{{ transaction.time_out|naturaltime }}</td>
-                <td>{{ transaction.time_in|naturaltime }}</td>
+                <td>					
+                    <i class="text-muted fa fa-fw fa-{{ transaction.item.category.icon }}"></i>
+      <a class="lightbox" data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item }}</a> <span class="item-description">{{ transaction.item.description }}</span></td>
+                <td class="text-muted">{{ transaction.item.inventory_tag }}</td>
+                  <td class="text-muted" data-toggle="tooltip" data-container="td" data-placement="top" title="{{ transaction.time_out }}">{{ transaction.time_out|naturalday }}</td>
+                  <td class="text-muted" data-toggle="tooltip" data-container="td" data-placement="top" title="{{ transaction.time_in }}">{{ transaction.time_out|timesince:transaction.time_in|naturalday }}</td>
               </tr>
             {% endfor %}
           </tbody>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Item</th>
-              <th>Serial</th>
-              <th>Out</th>
-              <th>Returned</th>
-            </tr>
-          </thead>
         </table>
-      {% elif person.inventory|length = 0 %}
-        <p>No items have been borrowed.</p>
-      {% endif %}
-    </div>
-  </div>
+        {% else %}
+        <div class="blankslate blankslate-spacious blankslate-large">
+          <h4>No items have been borrowed.</h4>
+        </div>
+        {% endif %}
+</div>
+</div>
+</div>
 
 {% include 'checkout/popup.html' %}
 

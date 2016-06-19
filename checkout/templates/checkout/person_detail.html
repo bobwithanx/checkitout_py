@@ -1,183 +1,148 @@
 {% extends 'checkout/base.html' %}
+{% load staticfiles %}
 {% load humanize %}
 
 {% block content %}
 
 <style>
-	h1 {
-		color: #eee;
-	}
+.modal.in {
+   display:block;
+}
 </style>
 
 <script type="text/javascript">
-
-$(document).on("click", ".popup", function(e) {
-	bootbox.dialog({
-		title: "Browse Items",
-		message: '<div class="row">  ' +
-				'<div class="col-md-12"> ' +
-				'<div class="table-responsive">' + 
-				'<table id="myTable" class="table table-hover table-condensed">' +
-				'<thead><tr><th>Item</th><th>Inventory Tag</th><th>Category</th></tr></thead>' +
-				'{% for item in inventory %}' + 
-				'<tr data-val="{{ item.inventory_tag }}" class="item_link"><td>{{ item }}</td><td>{{ item.inventory_tag }}</td><td>{{ item.category }}</td></tr>' +
-				'{% endfor %}' +
-				'</table></div>' +
-				'</div> </div>',
-		buttons: {
-			success: {
-				label: "Close",
-				className: "btn-default",
-				callback: function () {
-				}
-			}
-		}
-	});
 	$('#myTable').DataTable( {
     "lengthChange": false,
     } );
 
 $("#myTable tbody tr").click(function(){
     $('#search').val($(this).data('val'));
-		$('.bootbox').modal('hide');});
+		$('.bootbox').modal('hide');
 });
-
-
 </script>
 
-	<div class="row">
-		<div class="col-md-12">
-					<h1>{{ person.full_name }}
-						<small>{{ person.id_number }}</small>
-					</h1>
-		</div>
-	</div>
+<div class="main person-nav">
+  <div class="container">
+    <div class="person-header">
+      <h3>{{ person.full_name }} <small>{{ person.id_number }}</small></h3>
+    </div>
+    <ul class="nav nav-tabs tabnav">
+      <li role="presentation" class="navigation-item selected" ><a class="navigation-link" href="{% url 'checkout.views.person_detail' id_number=person.id_number %}"><i class="fa fa-briefcase"></i> Current <span class="counter">{{ person.inventory|length }}</span></a></li>
+      <li role="presentation" class="navigation-item"><a class="navigation-link" href="{% url 'checkout.views.person_history' id_number=person.id_number %}"><i class="fa fa-history"></i> History</a></li>
+    </ul>
+  </div>
+</div>
 
-	<div class="row">
-		<div class="col-md-12">
-			<ul class="nav nav-tabs">
-				<li class="active">
-					<a href="#">Current</a>
-				</li>
-				<li>
-					<a href="{% url 'checkout.views.person_history' id_number=person.id_number %}">History</a>
-				</li>
-			</ul>
-			</div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+        <form action="{% url 'checkout.views.display_checkout' id_number=person.id_number %}" method="POST" role="form"  class="form-inline">
+        {% csrf_token %}
+          <div class="form-group">
+            <input autofocus text="search" name="inventory_tag" id="search" value="" class="form-control" placeholder="Enter Inventory Tag"/>
+            <button class="btn btn-success" type="submit"><i class="fa fa-fw fa-calendar-plus-o"></i> Checkout</button>
+          </div>
+        </form>
+    </div>  
+  </div>  
 
-	<div class="col-xs-12 col-sm-12 col-md-12">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-          <form action="{% url 'checkout.views.display_checkout' id_number=person.id_number %}" method="POST" role="form"  class="form-inline">
-					{% csrf_token %}
-					<div class="form-group">
-						<label for="search">Checkout </label>
-						<input autofocus text="search" name="inventory_tag" id="search" value="" class="form-control" placeholder="Enter Inventory Tag"/>
-						<button class="btn btn-primary" type="submit">Go</button>
-					</div>
-				</form>
-				{% if status == "Transaction.Success" %}
-					<div class="alert-message alert-message-success" role="alert">
-						<h4>Success</h4>
-						<strong>{{ inventory_tag }}</strong> was checked out.
-					</div>
-				{% elif status == "Transaction.Duplicate" %}
-					<div class="alert-message alert-message-info" role="alert">
-						<h4>No Change</h4>
-						<strong>{{ person }}</strong> has already checked out <strong>{{ inventory_tag }}</strong>.
-					</div>
-				{% elif status == "Transaction.Conflict" %}
-					<div class="alert-message alert-message-danger" role="alert">
-						<h4>Conflict</h4>
-						Sorry, <strong>{{ inventory_tag }}</strong> is checked out to another person.
-					</div>
-				{% elif status == "Item.DoesNotExist" %}
-					<div class="alert-message alert-message-danger" role="alert">
-						<h4>Missing Item</h4>
-						Sorry, <strong>{{ inventory_tag }}</strong> cannot be found.
-					</div>
-				{% endif %}
-			</div>
-		</div>
-	</div>
-	{% if status == "Person.DoesNotExist" %}
-		<div class="alert-message alert-message-danger" role="alert">
-			<h4>Error</h4>
-			Sorry, <strong>{{ id_number }}</strong> cannot be found.
-		</div>
-	{% endif %}
-	<div class="col-xs-12 col-sm-12 col-md-12">
-		<div class="well">
-			{% if person.requests|length > 0 %}
-				<h4>Requests</h4>
-				<div class="table-responsive">
-				<table class="table table-condensed table-hover">
-					<tbody>
-						{% for transaction in person.requests %}
-							<tr>
-								<td>{{ forloop.counter }}</td>
-								<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item }}</a></td>
-								<td class="hidden-xs">{{ transaction.item.description }}</td>
-								<td>{{ transaction.item.inventory_tag }}</td>
-								<td>{{ transaction.time_out }}</td>
-								<td>{% if user.is_staff %}<a href="{% url 'checkout.views.checkout_item' p=transaction.person.pk i=transaction.item.pk %}" class="btn btn-success btn-xs"><i class="fa fa-thumbs-up"></i> approve</a>{% endif %}  <a href="{% url 'checkout.views.person_cancel_request' pk=transaction.pk %}" class="btn btn-link btn-xs"><span class="text-danger"><i class="fa fa-times-circle"></i> cancel</span></a></td>
-							</tr>
-						{% endfor %}
-					</tbody>
-					<thead>
-						<tr>
-							<th>#</th>
-							<th>Item</th>
-							<th class="hidden-xs">Description</th>
-							<th>Category</th>
-							<th>Inventory Tag</th>
-							<th>Out</th>
-							<th>Actions</th>
-						</tr>
-					</thead>
-				</table>
-				</div>
-			{% endif %}
+{% if status == "Transaction.Success" %}
+  <div class="update-nag update-success">
+    <div class="update-split"><i class="glyphicon glyphicon-ok"></i></div>
+    <div class="update-text">{{ inventory_tag }} was successfully checked out.</div>
+  </div>
+{% elif status == "Transaction.Duplicate" %}
+  <div class="update-nag update-info">
+    <div class="update-split"><i class="glyphicon glyphicon-info-sign"></i></div>
+    <div class="update-text"><strong>{{ inventory_tag }}</strong> is already checked out.</div>
+  </div>
 
-			<h4>Current Loans</h4>
-				{% if person.inventory|length > 0 %}
-				<div class="table-responsive">
-					<table class="table table-condensed table-hover">
-						<tbody>
-							{% for transaction in person.inventory %}
-								<tr>
-									<td>{{ forloop.counter }}</td>
-									<td><a data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item }}</a></td>
-									<td class="hidden-xs">{{ transaction.item.description }}</td>
-									<td>{{ transaction.item.category }}</td>
-									<td>{{ transaction.item.inventory_tag }}</td>
-									<td>{{ transaction.time_out|naturaltime }}</td>
-									<td>{% if user.is_staff %}<a href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}" class="btn btn-primary btn-xs"><i class="fa fa-check-circle"></i> check in</a>{% endif %}</td>
-								</tr>
-							{% endfor %}
-						</tbody>
-							<thead>
-								<tr>
-									<th>#</th>
-									<th>Item</th>
-									<th class="hidden-xs">Description</th>
-							<th>Category</th>
-									<th>Inventory Tag</th>
-									<th>Out</th>
-									<th>Actions</th>
-								</tr>
-							</thead>
-						</table>
-										</div>
+<div class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      </div>
+      <div class="modal-body">
+        <strong>{{ inventory_tag }}</strong> is already checked out.
+  <div class="update-nag update-info">
+    <div class="update-split"><i class="glyphicon glyphicon-info-sign"></i></div>
+    <div class="update-text">Would you like to return the item?</div>
+  </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary">Check In</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
-					{% else %}
-						<p>No items are currently on loan.</p>
-					{% endif %}
-				</div>
-			</div>
-		</div>
-	</div>
-	</div>
+<script>
+$('#myModal').modal({
+  show: true
+});
+</script>
+
+{% elif status == "Transaction.Conflict" %}
+  <div class="update-nag update-warning">
+    <div class="update-split"><i class="glyphicon glyphicon-alert"></i></div>
+    <div class="update-text"><strong>{{ inventory_tag }}</strong> is checked out to another person.</div>
+  </div>
+{% elif status == "Item.DoesNotExist" %}
+  <div class="update-nag update-danger">
+    <div class="update-split"><i class="glyphicon glyphicon-alert"></i></div>
+    <div class="update-text"><strong>{{ inventory_tag }}</strong> cannot be found.</div>
+  </div>
+{% elif status == "Item.Returned" %}
+  <div class="update-nag update-success">
+    <div class="update-split"><i class="glyphicon glyphicon-ok"></i></div>
+    <div class="update-text"><strong>{{ inventory_tag }}</strong> has been returned.</div>
+  </div>
+{% endif %}
+{% if status == "Person.DoesNotExist" %}
+  <div class="update-nag update-danger">
+    <div class="update-split"><i class="glyphicon glyphicon-alert"></i></div>
+    <div class="update-text">Student ID <strong>#{{ id_number }}</strong> cannot be found.</div>
+  </div>
+{% endif %}
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="inventory-wrap">
+        {% if person.inventory|length > 0 %}
+        <table class="table table-hover sortable">
+          <tbody>
+            <thead>
+              <tr class="inventory-header">
+                <th>Item</th>
+                <th>Inventory Tag</th>
+                <th>Borrowed</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            {% for transaction in person.inventory %}
+              <tr>
+                <td>					
+                    <i class="fa fa-fw fa-{{ transaction.item.category.icon }} text-muted"></i>
+      <a class="lightbox" data-toggle="modal" href="{% url 'checkout.views.item_popup' pk=transaction.item.pk %}" data-target="#myModal">{{ transaction.item }}</a> <span class="item-description">{{ transaction.item.description }}</span></td>
+                <td class="text-muted">{{ transaction.item.inventory_tag }}</td>
+                <td class="text-muted" data-toggle="tooltip" data-container="td" data-placement="top" title="{{ transaction.time_out }}">{{ transaction.time_out|naturalday }}</td>
+                <td><small><i class="fa fa-calendar-check-o text-info"></i> <a href="{% url 'checkout.views.item_checkin' pk=transaction.pk %}" class="">check in</a></small></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="blankslate blankslate-spacious blankslate-large">
+          <h4>No items are checked out.</h4>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
 </div>
 
 {% include 'checkout/popup.html' %}

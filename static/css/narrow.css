@@ -1,3 +1,7 @@
+ul.profile-tabs {
+  margin-bottom: 30px;
+}
+
 /* Space out content a bit */
 body {
   padding-top: 20px;
@@ -32,9 +36,9 @@ body {
 }
 
 /* Customize container */
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .container {
-    max-width: 730px;
+    max-width: 1000px;
   }
 }
 .container-narrow > hr {
